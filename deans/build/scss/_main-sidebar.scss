@@ -67,9 +67,10 @@
 
 // Sidebar navigation menu
 .nav-sidebar {
+
   // All levels
   .nav-item {
-    > .nav-link {
+    >.nav-link {
       margin-bottom: .2rem;
 
       .right {
@@ -78,8 +79,8 @@
     }
   }
 
-  .nav-link > .right,
-  .nav-link > p > .right {
+  .nav-link>.right,
+  .nav-link>p>.right {
     position: absolute;
     right: 1rem;
     top: .7rem;
@@ -95,11 +96,11 @@
   }
 
   .menu-open {
-    > .nav-treeview {
+    >.nav-treeview {
       display: block;
     }
 
-    > .nav-link {
+    >.nav-link {
       i.right {
         @include rotate(-90deg);
       }
@@ -107,7 +108,7 @@
   }
 
   // First Level
-  > .nav-item {
+  >.nav-item {
     margin-bottom: 0;
 
     .nav-icon {
@@ -137,9 +138,9 @@
     list-style: none;
     padding: 0;
 
-    > .nav-item {
-      > .nav-link {
-        > .nav-icon {
+    >.nav-item {
+      >.nav-link {
+        >.nav-icon {
           width: $sidebar-nav-icon-width;
         }
       }
@@ -218,9 +219,11 @@
   }
 
   // Sidebar Menu. First level links
-  .nav-sidebar > .nav-item {
+  .nav-sidebar>.nav-item {
+
     // links
-    > .nav-link {
+    >.nav-link {
+
       // border-left: 3px solid transparent;
       &:active,
       &:focus {
@@ -229,13 +232,13 @@
     }
 
     // Hover and active states
-    &.menu-open > .nav-link,
-    &:hover > .nav-link {
+    &.menu-open>.nav-link,
+    &:hover>.nav-link {
       background-color: $sidebar-light-hover-bg;
       color: $sidebar-light-hover-color;
     }
 
-    > .nav-link.active {
+    >.nav-link.active {
       color: $sidebar-light-active-color;
 
       @if $enable-shadows {
@@ -244,7 +247,7 @@
     }
 
     // First Level Submenu
-    > .nav-treeview {
+    >.nav-treeview {
       background: $sidebar-light-submenu-bg;
     }
   }
@@ -268,12 +271,13 @@
 
   // All submenus
   .nav-treeview {
-    > .nav-item {
-      > .nav-link {
+    >.nav-item {
+      >.nav-link {
         color: $sidebar-light-submenu-color;
       }
 
-      > .nav-link.active {
+      >.nav-link.active {
+
         &,
         &:hover {
           background-color: $sidebar-light-submenu-active-bg;
@@ -281,7 +285,7 @@
         }
       }
 
-      > .nav-link:hover {
+      >.nav-link:hover {
         background-color: $sidebar-light-submenu-hover-bg;
       }
     }
@@ -291,12 +295,13 @@
   .nav-flat {
     .nav-item {
       .nav-treeview {
-        .nav-treeview {
+        .nav-treeview {
           border-color: $sidebar-light-submenu-active-bg;
         }
 
-        > .nav-item {
-          > .nav-link {
+        >.nav-item {
+          >.nav-link {
+
             &,
             &.active {
               border-color: $sidebar-light-submenu-active-bg;
@@ -341,9 +346,11 @@
   }
 
   // Sidebar Menu. First level links
-  .nav-sidebar > .nav-item {
+  .nav-sidebar>.nav-item {
+
     // links
-    > .nav-link {
+    >.nav-link {
+
       // border-left: 3px solid transparent;
       &:active {
         color: $sidebar-dark-color;
@@ -351,14 +358,14 @@
     }
 
     // Hover and active states
-    &.menu-open > .nav-link,
-    &:hover > .nav-link,
-    & > .nav-link:focus  {
+    &.menu-open>.nav-link,
+    &:hover>.nav-link,
+    &>.nav-link:focus {
       background-color: $sidebar-dark-hover-bg;
       color: $sidebar-dark-hover-color;
     }
 
-    > .nav-link.active {
+    >.nav-link.active {
       color: $sidebar-dark-hover-color;
 
       @if $enable-shadows {
@@ -367,7 +374,7 @@
     }
 
     // First Level Submenu
-    > .nav-treeview {
+    >.nav-treeview {
       background: $sidebar-dark-submenu-bg;
     }
   }
@@ -392,8 +399,8 @@
 
   // All submenus
   .nav-treeview {
-    > .nav-item {
-      > .nav-link {
+    >.nav-item {
+      >.nav-link {
         color: $sidebar-dark-submenu-color;
 
         &:hover,
@@ -403,7 +410,8 @@
         }
       }
 
-      > .nav-link.active {
+      >.nav-link.active {
+
         &,
         &:hover,
         &:focus {
@@ -418,12 +426,13 @@
   .nav-flat {
     .nav-item {
       .nav-treeview {
-        .nav-treeview {
+        .nav-treeview {
           border-color: $sidebar-dark-submenu-active-bg;
         }
 
-        > .nav-item {
-          > .nav-link {
+        >.nav-item {
+          >.nav-link {
+
             &,
             &.active {
               border-color: $sidebar-dark-submenu-active-bg;
@@ -437,6 +446,7 @@
 
 // Sidebar variants
 @each $name, $color in $theme-colors {
+
   .sidebar-dark-#{$name},
   .sidebar-light-#{$name} {
     @include sidebar-color($color)
@@ -444,6 +454,7 @@
 }
 
 @each $name, $color in $colors {
+
   .sidebar-dark-#{$name},
   .sidebar-light-#{$name} {
     @include sidebar-color($color)
@@ -465,7 +476,7 @@
   }
 
   .nav-item {
-    > .nav-link {
+    >.nav-link {
       border-radius: 0;
       margin-bottom: 0;
     }
@@ -493,13 +504,14 @@
     }
   }
 
-  &.nav-sidebar > .nav-item {
+  &.nav-sidebar>.nav-item {
+
     .nav-treeview,
-    > .nav-treeview {
+    >.nav-treeview {
       background: rgba($white, .05);
 
       .nav-item {
-        > .nav-link {
+        >.nav-link {
           border-left: .2rem solid;
         }
       }
@@ -511,20 +523,20 @@
   margin: (-$sidebar-padding-x/2) (-$sidebar-padding-x) 0;
 
   &.nav-sidebar .nav-item {
-    > .nav-link {
+    >.nav-link {
       border-radius: 0;
       margin-bottom: 0;
     }
   }
 
-  &.nav-sidebar > .nav-item {
-    > .nav-link {
+  &.nav-sidebar>.nav-item {
+    >.nav-link {
       &.active {
         background: inherit;
         border-left: 3px solid transparent;
         box-shadow: none;
 
-        > .nav-icon {
+        >.nav-icon {
           margin-left: -3px;
         }
       }
@@ -532,18 +544,20 @@
   }
 
   [class*='sidebar-dark'] & {
-    &.nav-sidebar > .nav-item {
+    &.nav-sidebar>.nav-item {
+
       .nav-treeview,
-      > .nav-treeview {
+      >.nav-treeview {
         background: rgba($white, .05);
       }
 
-      > .nav-link.active {
+      >.nav-link.active {
         color: $sidebar-dark-active-color;
       }
     }
 
-    .nav-treeview > .nav-item > .nav-link {
+    .nav-treeview>.nav-item>.nav-link {
+
       &.active,
       &:focus,
       &:hover {
@@ -554,18 +568,20 @@
   }
 
   [class*='sidebar-light'] & {
-    &.nav-sidebar > .nav-item {
+    &.nav-sidebar>.nav-item {
+
       .nav-treeview,
-      > .nav-treeview {
+      >.nav-treeview {
         background: rgba($black, .05);
       }
 
-      > .nav-link.active {
+      >.nav-link.active {
         color: $sidebar-light-active-color;
       }
     }
 
-    .nav-treeview > .nav-item > .nav-link {
+    .nav-treeview>.nav-item>.nav-link {
+
       &.active,
       &:focus,
       &:hover {
@@ -578,13 +594,13 @@
 
 
 .nav-collapse-hide-child {
-  .menu-open > .nav-treeview {
+  .menu-open>.nav-treeview {
     max-height: min-content;
     opacity: 1;
   }
 
   .sidebar-collapse & {
-    .menu-open > .nav-treeview {
+    .menu-open>.nav-treeview {
       max-height: 0;
       opacity: 0;
     }
@@ -592,7 +608,7 @@
 
   .sidebar-mini.sidebar-collapse .main-sidebar.sidebar-focused &,
   .sidebar-mini.sidebar-collapse .main-sidebar:hover & {
-    .menu-open > .nav-treeview {
+    .menu-open>.nav-treeview {
       max-height: min-content;
       opacity: 1;
     }
@@ -601,6 +617,7 @@
 
 // Nav Compact
 .nav-compact {
+
   .nav-link,
   .nav-header {
     padding: ($nav-link-padding-y / 2) ($nav-link-padding-x / 2);
@@ -610,8 +627,8 @@
     padding: ($nav-link-padding-y * 1.5) ($nav-link-padding-x / 2) ($nav-link-padding-y / 2);
   }
 
-  .nav-link > .right,
-  .nav-link > p > .right {
+  .nav-link>.right,
+  .nav-link>p>.right {
     top: .5rem;
     right: .5rem;
 
@@ -623,6 +640,7 @@
 
 // Sidebar Form Control
 [class*='sidebar-dark'] {
+
   .form-control-sidebar,
   .btn-sidebar {
     background: lighten($sidebar-dark-bg, 5%);
@@ -645,6 +663,7 @@
 }
 
 [class*='sidebar-light'] {
+
   .form-control-sidebar,
   .btn-sidebar {
     background: darken($sidebar-light-bg, 5%);

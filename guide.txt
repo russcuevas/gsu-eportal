@@ -4,6 +4,8 @@ database - gsudatabase
 
 tbl_admin
 id -> primary
+profile_image
+fullname
 email
 password
 role -> registrar, osds, deans, clinic,
@@ -94,24 +96,24 @@ tbl_osds_reports
 created_at
 updated_at
 
+// DEANS FUNCTION
 tbl_deans_post_class_schedules
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
 school_year -> 2024-2025, 2025-2026, 2027-2028,
-year
-course
-subject
-time
-teacher
+department -> Computer Studies,
+year -> I, II, III, IV
+course -> Bachelor of Science in Information Technology
+schedule -> pdf
 created_at
 updated_at
 
 tbl_deans_users_issuance
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
-user_id -> foreign to tbl_admin -> role deans
+school_year -> 2024-2025, 2025-2026, 2027-2028,
 clearance
-enrollment
+enrollment -> pdf
 created_at
 updated_at
 
