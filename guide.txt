@@ -1,0 +1,117 @@
+CAPSTONE: GUIMARASA STATE UNIVERSITY - DIGITAL FRONTLINE SERVICES PORTAL
+
+database - gsudatabase
+
+tbl_admin
+id -> primary
+email
+password
+role -> registrar, osds, deans, clinic,
+created_at
+updated_at
+
+tbl_users
+id -> primary
+student_id -> only enrolled nullable
+fullname
+email
+password
+year -> nullable
+course -> nullable
+gender -> male , female
+status -> graduate, old
+created_at
+updated_at
+
+
+// REGISTRAR
+tbl_documents
+id -> primary
+type_of_documents -> TOR, RF, GRADES, DISMISSAL, CAV, CERTIFICATIONS, CROSS ENROLL PERMIT,
+price
+created_at
+updated_at
+
+tbl_document_request
+id -> primary
+user_id -> foreign to tbl_users -> id
+documents_id -> foreign to tbl_documents -> id
+request_number -> papakita sa registrar office pag icaclaim na
+status -> For approval, Confirm, Paid, Claimable
+fullname
+student_id -> fillable
+number_of_copies
+total_price
+payment_method -> GCASH
+payment_proof
+gcash_reference_number
+created_at
+updated_at
+
+
+// CAN VIEW ALSO BY CASHIER
+tbl_document_reports
+id -> primary
+user_id -> foreign to tbl_users -> id
+type_of_documents
+price
+fullname
+student_id
+number_of_copies
+total_price
+payment_method -> GCASH
+payment_proof
+gcash_reference_number
+created_at
+updated_at
+
+// CLINIC STAFF
+tbl_clinic_request
+id -> primary
+user_id -> foreign to tbl_users
+laboratory_request
+status -> For approval,
+created_at
+updated_at
+
+// CAN VIEW ALSO BY CASHIER
+tbl_clinic_report
+id -> primary
+user_id -> foreign to tbl_users
+laboratory_request
+status -> Completed
+created_at
+updated_at
+
+tbl_osds_post_requirements
+id -> primary
+osds_id -> foreign to tbl_admin -> role osds
+post_requirements
+created_at
+updated_at
+
+tbl_osds_reports
+created_at
+updated_at
+
+tbl_deans_post_class_schedules
+id -> primary
+deans_id-> foreign to tbl_admin -> role deans
+school_year -> 2024-2025, 2025-2026, 2027-2028,
+year
+course
+subject
+time
+teacher
+created_at
+updated_at
+
+tbl_deans_users_issuance
+id -> primary
+deans_id-> foreign to tbl_admin -> role deans
+user_id -> foreign to tbl_admin -> role deans
+clearance
+enrollment
+created_at
+updated_at
+
