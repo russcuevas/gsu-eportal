@@ -1,3 +1,61 @@
+<?php
+include '../database/connection.php';
+
+session_start();
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:../admin_login.php');
+    exit();
+}
+
+if ($_SESSION['role'] !== 'deans') {
+    header('location:../admin_login.php');
+    exit();
+}
+
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $school_year = $_POST['school_year'];
+    $department = $_POST['department'];
+    $year = $_POST['year'];
+    $course = $_POST['course'];
+    $deans_id = $_POST['deans_id'];
+
+    $schedule_upload = $_FILES['schedule_upload'];
+    $file_name = basename($schedule_upload['name']);
+    $target_dir = "images/uploads/class_schedules/";
+
+    if (!file_exists($target_dir)) {
+        mkdir($target_dir, 0777, true);
+    }
+
+    $target_file = $target_dir . $file_name;
+
+    $file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $allowed_types = array("pdf", "jpg", "jpeg", "png", "gif");
+    if (!in_array($file_type, $allowed_types)) {
+        echo "Only PDF, JPG, JPEG, PNG, or GIF files are allowed.";
+        exit();
+    }
+
+    if (move_uploaded_file($schedule_upload['tmp_name'], $target_file)) {
+        $query = "INSERT INTO tbl_deans_post_class_schedules (deans_id, school_year, department, year, course, schedule_upload, created_at, updated_at) 
+                  VALUES ('$deans_id', '$school_year', '$department', '$year', '$course', '$file_name', NOW(), NOW())";
+
+        if ($conn->query($query)) {
+            $_SESSION['success'] = 'Class schedule added successfully!';
+            header('Location: add_class_schedules.php');
+            exit();
+        }
+    } else {
+        $_SESSION['error'] = 'Error uploading the schedule.';
+        header('Location: add_class_schedules.php');
+        exit();
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,6 +67,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
     <style>
@@ -143,8 +205,9 @@
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
-                                <form id="quickForm">
+                                <form action="" id="quickForm" method="POST" enctype="multipart/form-data">
                                     <div class="card-body">
+                                        <input type="hidden" name="deans_id" class="form-control" value="<?php echo htmlspecialchars($admin_id); ?>">
 
                                         <div class="form-group">
                                             <label>School Year</label>
@@ -167,7 +230,7 @@
 
                                         <div class="form-group">
                                             <label>Year Level</label>
-                                            <select class="form-control" id="year_level" name="year_level">
+                                            <select class="form-control" id="year" name="year">
                                                 <option value="">Select Year Level</option>
                                                 <option value="I">I</option>
                                                 <option value="II">II</option>
@@ -180,13 +243,13 @@
                                             <label>Course</label>
                                             <select class="form-control" id="course" name="course">
                                                 <option value="">Select Course</option>
-                                                <option value="">Bachelor of Science in Information Technology</option>
+                                                <option value="BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY">Bachelor of Science in Information Technology</option>
                                             </select>
                                         </div>
 
                                         <div class="form-group">
                                             <label for="scheduleUpload">Schedule PDF:</label>
-                                            <input type="file" name="schedule_upload" class="form-control" id="scheduleUpload" accept=".pdf, .jpg, .jpeg, .png, .gif">
+                                            <input type="file" name="schedule_upload" class="form-control" id="scheduleUpload">
                                         </div>
                                     </div>
                                     <!-- /.card-body -->
@@ -226,6 +289,23 @@
     <script src="plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr -->
+    <script src="plugins/toastr/toastr.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            <?php if (isset($_SESSION['success'])): ?>
+                toastr.success('<?php echo $_SESSION['success']; ?>');
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                toastr.error('<?php echo $_SESSION['error']; ?>');
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+        });
+    </script>
     <!-- jquery-validation -->
     <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
     <script src="plugins/jquery-validation/additional-methods.min.js"></script>
@@ -245,7 +325,7 @@
                     department: {
                         required: true
                     },
-                    year_level: {
+                    year: {
                         required: true
                     },
                     course: {
@@ -253,7 +333,6 @@
                     },
                     schedule_upload: {
                         required: true,
-                        extension: "pdf|jpg|jpeg|png|gif"
                     }
                 },
                 messages: {
@@ -263,7 +342,7 @@
                     department: {
                         required: "Please select a department"
                     },
-                    year_level: {
+                    year: {
                         required: "Please select a year level"
                     },
                     course: {
@@ -271,7 +350,6 @@
                     },
                     schedule_upload: {
                         required: "Please upload a schedule PDF",
-                        extension: "Only PDF, JPG, JPEG, PNG, or GIF files are allowed"
                     }
                 },
                 errorElement: 'span',

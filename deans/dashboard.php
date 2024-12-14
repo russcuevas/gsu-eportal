@@ -14,6 +14,13 @@ if ($_SESSION['role'] !== 'deans') {
     exit();
 }
 
+// GET THE TOTAL DEANS
+$get_total_deans = "SELECT COUNT(*) AS total_deans FROM `tbl_admin` WHERE role = 'deans'";
+$stmt_total_deans = $conn->prepare($get_total_deans);
+$stmt_total_deans->execute();
+$results_total_deans = $stmt_total_deans->fetch(PDO::FETCH_ASSOC);
+$total_deans = $results_total_deans['total_deans'];
+// END GET TOTAL DEANS
 ?>
 <!DOCTYPE html>
 
@@ -150,7 +157,7 @@ if ($_SESSION['role'] !== 'deans') {
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3><?php echo $total_deans ?></h3>
 
                                     <p>Total Deans</p>
                                 </div>

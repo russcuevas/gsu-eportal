@@ -1,3 +1,26 @@
+<?php
+include '../database/connection.php';
+
+//session
+session_start();
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+  header('location:../admin_login.php');
+}
+
+// if not deans role it will redirect to login
+if ($_SESSION['role'] !== 'deans') {
+  header('location:../admin_login.php');
+  exit();
+}
+
+// READ CLASS SCHEDULE
+$get_class_schedules = "SELECT * FROM `tbl_deans_post_class_schedules`";
+$stmt_get_class_schedules = $conn->query($get_class_schedules);
+$class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
+// END READ CLASS SCHEDULE
+
+?>
 <!DOCTYPE html>
 <html>
 
@@ -157,7 +180,7 @@
                   <table id="myTable" class="table table-bordered table-striped">
                     <thead>
                       <tr>
-                        <th>School Year</th>
+                        <th>S.Y</th>
                         <th>PDF</th>
                         <th>Department</th>
                         <th>Year</th>
@@ -168,117 +191,31 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
+                      <?php foreach ($class_schedule as $class_schedules): ?>
+                        <tr>
+                          <td><?php echo $class_schedules['school_year'] ?></td>
+                          <td>
+                            <?php
+                            $file_path = 'images/uploads/class_schedules/' . $class_schedules['schedule_upload'];
+                            $file_extension = pathinfo($file_path, PATHINFO_EXTENSION);
 
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
-                      <tr>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                        <td>Sample</td>
-                      </tr>
+                            if (in_array(strtolower($file_extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                              echo '<img src="' . $file_path . '" alt="Schedule Image" width="100" height="100">';
+                            } elseif (strtolower($file_extension) == 'pdf') {
+                              echo '<a href="' . $file_path . '" target="_blank">View PDF</a>';
+                            } else {
+                              echo 'Unsupported file type';
+                            }
+                            ?>
+                          </td>
+                          <td><?php echo $class_schedules['department'] ?></td>
+                          <td><?php echo $class_schedules['year'] ?></td>
+                          <td><?php echo $class_schedules['course'] ?></td>
+                          <td><?php echo $class_schedules['created_at'] ?></td>
+                          <td><?php echo $class_schedules['updated_at'] ?></td>
+                          <td>Sample</td>
+                        </tr>
+                      <?php endforeach ?>
                     </tbody>
                   </table>
                 </div>

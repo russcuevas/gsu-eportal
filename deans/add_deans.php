@@ -1,3 +1,83 @@
+<?php
+include '../database/connection.php';
+
+//session
+session_start();
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:../admin_login.php');
+}
+
+// if not deans role it will redirect to login
+if ($_SESSION['role'] !== 'deans') {
+    header('location:../admin_login.php');
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $fullname = $_POST['fullname'];
+    $email = $_POST['email'];
+    $password = sha1($_POST['password']);
+    $role = $_POST['role'];
+
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        $profile_image = $_FILES['profile_image'];
+        $image_name = time() . '_' . basename($profile_image['name']);
+        $target_dir = "images/profile/";
+
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
+        $target_file = $target_dir . $image_name;
+
+        if (move_uploaded_file($profile_image['tmp_name'], $target_file)) {
+            $image_name = basename($profile_image['name']);
+        } else {
+            $_SESSION['error'] = 'Failed to upload the image.';
+            header('Location: add_deans.php');
+            exit();
+        }
+    } else {
+        $image_name = 'default.jpg';
+    }
+
+    $query = "SELECT COUNT(*) FROM tbl_admin WHERE email = :email";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $email_exists = $stmt->fetchColumn();
+
+    if ($email_exists > 0) {
+        $_SESSION['error'] = 'Email address already exists.';
+        header('Location: add_deans.php');
+        exit();
+    }
+
+    $query = "INSERT INTO tbl_admin (fullname, email, password, role, profile_image) 
+              VALUES (:fullname, :email, :password, :role, :profile_image)";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':fullname', $fullname);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password', $password);
+    $stmt->bindParam(':role', $role);
+    $stmt->bindParam(':profile_image', $image_name);
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = 'Dean added successfully!';
+        header('Location: add_deans.php');
+        exit();
+    } else {
+        $_SESSION['error'] = 'There was an error adding the dean.';
+        header('Location: add_deans.php');
+        exit();
+    }
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,6 +89,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
     <style>
@@ -143,7 +227,7 @@
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
-                                <form id="quickForm">
+                                <form id="quickForm" method="POST" action="" enctype="multipart/form-data">
                                     <div class="card-body">
                                         <div class="profile-box">
                                             <img id="profileImagePreview" src="#" alt="Profile Image" style="display: none; max-width: 100px; height: 100px;" />
@@ -163,7 +247,13 @@
                                         <!-- Email Address -->
                                         <div class="form-group">
                                             <label for="exampleInputEmail1">Email address</label>
-                                            <input type="email" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                                            <input type="email" name="email" class="form-control <?php echo isset($_SESSION['error']) && strpos($_SESSION['error'], 'Email address already exists') !== false ? 'is-invalid' : ''; ?>" id="exampleInputEmail1" placeholder="Enter email" value="<?php echo isset($email) ? $email : ''; ?>">
+                                            <?php if (isset($_SESSION['error']) && strpos($_SESSION['error'], 'Email address already exists') !== false): ?>
+                                                <div class="invalid-feedback">
+                                                    <?php echo $_SESSION['error'];
+                                                    unset($_SESSION['error']); ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
 
                                         <!-- Password -->
@@ -171,6 +261,10 @@
                                             <label for="exampleInputPassword1">Password</label>
                                             <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
                                         </div>
+
+                                        <!-- Hidden Role Field -->
+                                        <input type="hidden" name="role" value="deans">
+
                                     </div>
                                     <!-- /.card-body -->
 
@@ -178,7 +272,6 @@
                                     <div class="card-footer d-flex">
                                         <button type="submit" class="btn btn-primary ml-auto">Submit</button>
                                     </div>
-
                                 </form>
                             </div>
                             <!-- /.card -->
@@ -209,6 +302,23 @@
     <script src="plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr -->
+    <script src="plugins/toastr/toastr.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            <?php if (isset($_SESSION['success'])): ?>
+                toastr.success('<?php echo $_SESSION['success']; ?>');
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                toastr.error('<?php echo $_SESSION['error']; ?>');
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+        });
+    </script>
     <!-- jquery-validation -->
     <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
     <script src="plugins/jquery-validation/additional-methods.min.js"></script>
@@ -216,6 +326,7 @@
     <script src="dist/js/adminlte.min.js?v=3.2.0"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
+
     <!-- Page specific script -->
 
     <script>
@@ -284,6 +395,7 @@
             });
         });
     </script>
+
 </body>
 
 </html>
