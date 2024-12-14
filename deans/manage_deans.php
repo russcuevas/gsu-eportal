@@ -196,14 +196,14 @@ $dean = $stmt_get_deans->fetchAll(PDO::FETCH_ASSOC);
                                         <tbody>
                                             <?php foreach ($dean as $deans): ?>
                                                 <tr>
-                                                    <td><img style="width: 50px; height: 50px;" src="<?php echo $deans['profile_image'] ?>" alt=""></td>
+                                                    <td><img src="images/profile/<?php echo $deans['profile_image']; ?>" alt="Profile Picture" /></td>
                                                     <td><?php echo $deans['fullname'] ?></td>
                                                     <td><?php echo $deans['email'] ?></td>
                                                     <td><?php echo $deans['created_at'] ?></td>
                                                     <td><?php echo $deans['updated_at'] ?></td>
                                                     <td>
-                                                        <a class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteDeansModal" onclick="setDeansId(<?php echo $deans['id']; ?>)">
-                                                            DELETE <i class="fa fa-trash"></i>
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteDeansModal" onclick="setDeansId(<?php echo $deans['id']; ?>)">
+                                                            DELETE
                                                         </a>
 
 

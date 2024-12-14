@@ -1,3 +1,27 @@
+<?php
+include '../database/connection.php';
+
+//session
+session_start();
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:../admin_login.php');
+}
+
+// if not deans role it will redirect to login
+if ($_SESSION['role'] !== 'deans') {
+    header('location:../admin_login.php');
+    exit();
+}
+
+// READ ENROLLMENT SCHEDULE
+$get_enrollment_schedules = "SELECT * FROM `tbl_deans_users_issuance`";
+$stmt_get_enrollment_schedules = $conn->query($get_enrollment_schedules);
+$enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC);
+// END READ ENROLLMENT SCHEDULE
+
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -158,127 +182,41 @@
                                         <thead>
                                             <tr>
                                                 <th>School Year</th>
-                                                <th>PDF</th>
-                                                <th>Department</th>
-                                                <th>Year</th>
-                                                <th>Course</th>
+                                                <th>Semester</th>
                                                 <th>Created At</th>
                                                 <th>Updated At</th>
+                                                <th>PDF</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
+                                            <?php foreach ($enrollment_schedule as $enrollment_schedules): ?>
+                                                <tr>
+                                                    <td><?php echo $enrollment_schedules['school_year'] ?></td>
+                                                    <td><?php echo $enrollment_schedules['semester'] ?></td>
+                                                    <td><?php echo $enrollment_schedules['created_at'] ?></td>
+                                                    <td><?php echo $enrollment_schedules['updated_at'] ?></td>
+                                                    <td>
+                                                        <?php
+                                                        $file_extension = strtolower(pathinfo($enrollment_schedules['schedule_upload'], PATHINFO_EXTENSION));
+                                                        $file_path = '../assets/uploads/enrollment_schedules/' . $enrollment_schedules['schedule_upload'];
 
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                                <td>Sample</td>
-                                            </tr>
+                                                        if ($file_extension == 'pdf') {
+                                                            echo '<a style="color: #001968 " href="' . $file_path . '" target="_blank">
+                                                                <i class="far fa-file-alt" style="font-size: 15px; color: black;"></i> View
+                                                            </a>';
+                                                        } else {
+                                                            echo 'Unsupported file type';
+                                                        }
+                                                        ?>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
+                                                        <a href="" class="btn btn-danger" style="font-size: 13px;">DELETE</a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach ?>
                                         </tbody>
                                     </table>
                                 </div>

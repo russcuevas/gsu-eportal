@@ -21,6 +21,22 @@ $stmt_total_deans->execute();
 $results_total_deans = $stmt_total_deans->fetch(PDO::FETCH_ASSOC);
 $total_deans = $results_total_deans['total_deans'];
 // END GET TOTAL DEANS
+
+// GET THE TOTAL POSTED CLASS SCHEDULES
+$get_total_posted_class_schedules = "SELECT COUNT(*) AS total_class_schedules FROM `tbl_deans_post_class_schedules`";
+$stmt_total_class_schedules = $conn->prepare($get_total_posted_class_schedules);
+$stmt_total_class_schedules->execute();
+$results_total_class_schedules = $stmt_total_class_schedules->fetch(PDO::FETCH_ASSOC);
+$total_class_schedules = $results_total_class_schedules['total_class_schedules'];
+// END GET TOTAL POSTED CLASS SCHEDULES
+
+// GET THE TOTAL POSTED ENROLLED SCHEDULES
+$get_total_issuance_schedules = "SELECT COUNT(*) AS total_issuance_schedules FROM `tbl_deans_users_issuance`";
+$stmt_total_issuance_schedules = $conn->prepare($get_total_issuance_schedules);
+$stmt_total_issuance_schedules->execute();
+$results_total_issuance_schedules = $stmt_total_issuance_schedules->fetch(PDO::FETCH_ASSOC);
+$total_issuance_schedules = $results_total_issuance_schedules['total_issuance_schedules'];
+// END GET TOTAL POSTED ENROLLED SCHEDULES
 ?>
 <!DOCTYPE html>
 
@@ -172,7 +188,7 @@ $total_deans = $results_total_deans['total_deans'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3><?php echo $total_class_schedules ?></h3>
 
                                     <p>Posted Class Schedules</p>
                                 </div>
@@ -187,9 +203,9 @@ $total_deans = $results_total_deans['total_deans'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3><?php echo $total_issuance_schedules ?></h3>
 
-                                    <p>Posted Enrollment Schedules</p>
+                                    <p>Posted Issuance Schedules</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>

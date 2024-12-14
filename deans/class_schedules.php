@@ -37,6 +37,10 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
   <!-- DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.min.css">
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+  <!-- Toastr -->
+  <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
 
   <!-- Tempusdominus Bbootstrap 4 -->
   <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
@@ -181,12 +185,13 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
                     <thead>
                       <tr>
                         <th>S.Y</th>
-                        <th>PDF</th>
+                        <th>Sem</th>
                         <th>Department</th>
                         <th>Year</th>
                         <th>Course</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th>PDF</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -194,26 +199,61 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
                       <?php foreach ($class_schedule as $class_schedules): ?>
                         <tr>
                           <td><?php echo $class_schedules['school_year'] ?></td>
-                          <td>
-                            <?php
-                            $file_path = 'images/uploads/class_schedules/' . $class_schedules['schedule_upload'];
-                            $file_extension = pathinfo($file_path, PATHINFO_EXTENSION);
-
-                            if (in_array(strtolower($file_extension), ['jpg', 'jpeg', 'png', 'gif'])) {
-                              echo '<img src="' . $file_path . '" alt="Schedule Image" width="100" height="100">';
-                            } elseif (strtolower($file_extension) == 'pdf') {
-                              echo '<a href="' . $file_path . '" target="_blank">View PDF</a>';
-                            } else {
-                              echo 'Unsupported file type';
-                            }
-                            ?>
-                          </td>
+                          <td><?php echo $class_schedules['semester'] ?></td>
                           <td><?php echo $class_schedules['department'] ?></td>
                           <td><?php echo $class_schedules['year'] ?></td>
                           <td><?php echo $class_schedules['course'] ?></td>
                           <td><?php echo $class_schedules['created_at'] ?></td>
                           <td><?php echo $class_schedules['updated_at'] ?></td>
-                          <td>Sample</td>
+                          <td>
+                            <?php
+                            $file_path = '../assets/uploads/class_schedules/' . $class_schedules['schedule_upload'];
+                            $file_extension = pathinfo($file_path, PATHINFO_EXTENSION);
+
+                            if (in_array(strtolower($file_extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                              echo '<img src="' . $file_path . '" alt="Schedule Image" width="100" height="100">';
+                            } elseif (strtolower($file_extension) == 'pdf') {
+                              echo '<a style="color: #001968 " href="' . $file_path . '" target="_blank">
+                                      <i class="far fa-file-alt" style="font-size: 15px; color: black;"></i> View
+                                    </a>';
+                            } else {
+                              echo 'Unsupported file type';
+                            }
+                            ?>
+                          </td>
+                          <td>
+                            <div style="display: flex; justify-content: center; gap: 5px;">
+                              <a href="edit_class_schedules.php?id=<?php echo $class_schedules['id'] ?>" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
+                              <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteClassScheduleModal" onclick="setClassSchedId(<?php echo $class_schedules['id']; ?>)">
+                                DELETE
+                              </a>
+                            </div>
+
+                            <!-- DELETE MODAL -->
+                            <div class="modal fade" id="deleteClassScheduleModal" tabindex="-1" role="dialog" aria-labelledby="deleteClassScheduleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteClassScheduleModalLabel">Confirm Deletion</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                    Are you sure you want to delete this class schedule?
+                                  </div>
+                                  <div class="modal-footer">
+                                    <form id="deleteClassForm" method="POST" action="delete_class_schedule.php">
+                                      <input type="hidden" name="id" id="class_sched_id_delete">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                      <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </td>
                         </tr>
                       <?php endforeach ?>
                     </tbody>
@@ -251,6 +291,23 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
   </script>
   <!-- Bootstrap 4 -->
   <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Toastr -->
+  <script src="plugins/toastr/toastr.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      <?php if (isset($_SESSION['success'])): ?>
+        toastr.success('<?php echo $_SESSION['success']; ?>');
+        <?php unset($_SESSION['success']); ?>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION['error'])): ?>
+        toastr.error('<?php echo $_SESSION['error']; ?>');
+        <?php unset($_SESSION['error']); ?>
+      <?php endif; ?>
+    });
+  </script>
   <!-- DataTables -->
   <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
@@ -285,6 +342,12 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
         responsive: true
       });
     });
+  </script>
+
+  <script>
+    function setClassSchedId(ClassId) {
+      document.getElementById('class_sched_id_delete').value = ClassId;
+    }
   </script>
 
 </body>

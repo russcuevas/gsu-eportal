@@ -9,46 +9,46 @@ if (!isset($admin_id)) {
     exit();
 }
 
-if ($_SESSION['role'] !== 'deans') {
+if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'deans') {
     header('location:../admin_login.php');
     exit();
 }
 
 if (isset($_POST['id'])) {
-    $dean_id = $_POST['id'];
+    $class_sched_id = $_POST['id'];
 
-    if (empty($dean_id) || !is_numeric($dean_id)) {
+    if (empty($class_sched_id) || !is_numeric($class_sched_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';
-        header('Location: manage_deans.php');
+        header('Location: class_schedules.php');
         exit();
     }
 
-    $check_query = "SELECT * FROM `tbl_admin` WHERE `id` = :dean_id AND `role` = 'deans'";
+    $check_query = "SELECT * FROM `tbl_deans_post_class_schedules` WHERE `id` = :class_sched_id";
     $stmt_check = $conn->prepare($check_query);
-    $stmt_check->bindParam(':dean_id', $dean_id, PDO::PARAM_INT);
+    $stmt_check->bindParam(':class_sched_id', $class_sched_id, PDO::PARAM_INT);
     $stmt_check->execute();
 
     if ($stmt_check->rowCount() > 0) {
-        $delete_query = "DELETE FROM `tbl_admin` WHERE `id` = :dean_id AND `role` = 'deans'";
+        $delete_query = "DELETE FROM `tbl_deans_post_class_schedules` WHERE `id` = :class_sched_id";
         $stmt = $conn->prepare($delete_query);
-        $stmt->bindParam(':dean_id', $dean_id, PDO::PARAM_INT);
+        $stmt->bindParam(':class_sched_id', $class_sched_id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
-            $_SESSION['success'] = 'Deleted successfully!';
-            header('Location: manage_deans.php');
+            $_SESSION['success'] = 'Class schedule deleted successfully!';
+            header('Location: class_schedules.php');
             exit();
         } else {
             $_SESSION['error'] = 'There was an error during deletion!';
-            header('Location: manage_deans.php');
+            header('Location: class_schedules.php');
             exit();
         }
     } else {
         $_SESSION['error'] = 'There was an error during deletion!';
-        header('Location: manage_deans.php');
+        header('Location: class_schedules.php');
         exit();
     }
 } else {
     $_SESSION['error'] = 'There was an error during deletion!';
-    header('Location: manage_deans.php');
+    header('Location: class_schedules.php');
     exit();
 }

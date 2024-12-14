@@ -111,8 +111,9 @@ updated_at
 tbl_deans_users_issuance
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
-school_year -> 2024-2025, 2025-2026, 2027-2028,
-schedule_upload -> pdf
+school_year ->
+semester
+schedule_upload
 created_at
 updated_at
 
