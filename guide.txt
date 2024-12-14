@@ -104,7 +104,7 @@ school_year -> 2024-2025, 2025-2026, 2027-2028,
 department -> Computer Studies,
 year -> I, II, III, IV
 course -> Bachelor of Science in Information Technology
-schedule -> pdf
+schedule_upload -> pdf
 created_at
 updated_at
 
@@ -112,8 +112,7 @@ tbl_deans_users_issuance
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
 school_year -> 2024-2025, 2025-2026, 2027-2028,
-clearance
-enrollment -> pdf
+schedule_upload -> pdf
 created_at
 updated_at
 

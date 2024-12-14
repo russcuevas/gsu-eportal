@@ -1,4 +1,22 @@
+<?php
+include '../database/connection.php';
+
+//session
+session_start();
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:../admin_login.php');
+}
+
+// if not deans role it will redirect to login
+if ($_SESSION['role'] !== 'deans') {
+    header('location:../admin_login.php');
+    exit();
+}
+
+?>
 <!DOCTYPE html>
+
 <html>
 
 <head>
@@ -95,7 +113,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="pages/calendar.html" class="nav-link">
+                            <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>
                                     Logout

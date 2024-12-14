@@ -79,7 +79,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="class_schedules.php" class="nav-link active">
+                            <a href="class_schedules.php" class="nav-link">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
                                     Class Schedules
@@ -87,7 +87,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="enrollment_schedules.php" class="nav-link">
+                            <a href="enrollment_schedules.php" class="nav-link active">
                                 <i class="nav-icon far fa-calendar-alt"></i>
                                 <p>
                                     Enrollment Schedules
@@ -121,8 +121,8 @@
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item"><a href="class_schedules.php">CLASS SCHEDULES</a></li>
-                                <li class="breadcrumb-item active">ADD NEW CLASS SCHEDULES</li>
+                                <li class="breadcrumb-item"><a href="enrollment_schedules.php">ENROLLMENT SCHEDULES</a></li>
+                                <li class="breadcrumb-item active">ADD NEW ISSUANCE SCHEDULES</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -139,7 +139,7 @@
                             <!-- jquery validation -->
                             <div class="card card-primary">
                                 <div style="background-color: #001968 !important;" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">ADD NEW CLASS SCHEDULES</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">ADD NEW ISSUANCE SCHEDULES</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
@@ -157,35 +157,9 @@
                                             </select>
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Department</label>
-                                            <select class="form-control" id="department" name="department">
-                                                <option value="">Select Department</option>
-                                                <option value="CS">Computer Studies</option>
-                                            </select>
-                                        </div>
 
                                         <div class="form-group">
-                                            <label>Year Level</label>
-                                            <select class="form-control" id="year_level" name="year_level">
-                                                <option value="">Select Year Level</option>
-                                                <option value="I">I</option>
-                                                <option value="II">II</option>
-                                                <option value="III">III</option>
-                                                <option value="IV">IV</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Course</label>
-                                            <select class="form-control" id="course" name="course">
-                                                <option value="">Select Course</option>
-                                                <option value="">Bachelor of Science in Information Technology</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="scheduleUpload">Schedule PDF:</label>
+                                            <label for="scheduleUpload">Enrollment Schedule PDF:</label>
                                             <input type="file" name="schedule_upload" class="form-control" id="scheduleUpload" accept=".pdf, .jpg, .jpeg, .png, .gif">
                                         </div>
                                     </div>
@@ -242,15 +216,6 @@
                     school_year: {
                         required: true
                     },
-                    department: {
-                        required: true
-                    },
-                    year_level: {
-                        required: true
-                    },
-                    course: {
-                        required: true
-                    },
                     schedule_upload: {
                         required: true,
                         extension: "pdf|jpg|jpeg|png|gif"
@@ -259,15 +224,6 @@
                 messages: {
                     school_year: {
                         required: "Please select a school year"
-                    },
-                    department: {
-                        required: "Please select a department"
-                    },
-                    year_level: {
-                        required: "Please select a year level"
-                    },
-                    course: {
-                        required: "Please select a course"
                     },
                     schedule_upload: {
                         required: "Please upload a schedule PDF",
