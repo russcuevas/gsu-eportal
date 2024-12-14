@@ -6,6 +6,9 @@ if (isset($_SESSION['admin_id'])) {
         case 'deans':
             header('Location: deans/dashboard.php');
             break;
+        case 'clinic':
+            header('Location: clinic/dashboard.php');
+            break;
         case 'osds':
             header('Location: osds/dashboard.php');
             break;
@@ -44,6 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 switch ($admin['role']) {
                     case 'deans':
                         header('Location: deans/dashboard.php');
+                        exit();
+                    case 'clinic':
+                        header('Location: clinic/dashboard.php');
                         exit();
                     case 'osds':
                         header('Location: osds/dashboard.php');
