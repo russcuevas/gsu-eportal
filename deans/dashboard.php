@@ -134,7 +134,7 @@
                                 <div class="inner">
                                     <h3>0</h3>
 
-                                    <p>Deans</p>
+                                    <p>Total Deans</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-person-add"></i>
@@ -149,7 +149,7 @@
                                 <div class="inner">
                                     <h3>0</h3>
 
-                                    <p>Class Schedules</p>
+                                    <p>Posted Class Schedules</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-calendar"></i>
@@ -164,7 +164,7 @@
                                 <div class="inner">
                                     <h3>0</h3>
 
-                                    <p>Enrollment Schedules</p>
+                                    <p>Posted Enrollment Schedules</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>

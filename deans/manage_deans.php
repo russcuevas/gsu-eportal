@@ -148,7 +148,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header">
+                                <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
                                     <h3 class="card-title" style="font-size: 25px;">MANAGE DEANS</h3>
                                 </div>
                                 <!-- /.card-header -->
