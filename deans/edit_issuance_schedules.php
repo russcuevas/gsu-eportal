@@ -14,15 +14,15 @@ if ($_SESSION['role'] !== 'deans') {
 }
 
 if (isset($_GET['id'])) {
-    $schedule_id = $_GET['id'];
-    $query = "SELECT * FROM `tbl_deans_post_class_schedules` WHERE id = :id";
+    $issuance_id = $_GET['id'];
+    $query = "SELECT * FROM `tbl_deans_users_issuance` WHERE id = :id";
     $stmt = $conn->prepare($query);
-    $stmt->bindParam(':id', $schedule_id, PDO::PARAM_INT);
+    $stmt->bindParam(':id', $issuance_id, PDO::PARAM_INT);
     $stmt->execute();
-    $class_schedule = $stmt->fetch(PDO::FETCH_ASSOC);
+    $enrollment_schedule = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$class_schedule) {
-        echo "Class schedule not found.";
+    if (!$enrollment_schedule) {
+        echo "Schedule not found.";
         exit();
     }
 } else {
@@ -33,13 +33,10 @@ if (isset($_GET['id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $school_year = $_POST['school_year'];
     $semester = $_POST['semester'];
-    $department = $_POST['department'];
-    $year = $_POST['year'];
-    $course = $_POST['course'];
 
-    $schedule_upload = $class_schedule['schedule_upload'];
+    $schedule_upload = $enrollment_schedule['schedule_upload'];
     if (isset($_FILES['schedule_upload']) && $_FILES['schedule_upload']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../assets/uploads/class_schedules/';
+        $upload_dir = '../assets/uploads/enrollment_schedules/';
         $new_file_name = time() . '_' . basename($_FILES['schedule_upload']['name']);
         $upload_path = $upload_dir . $new_file_name;
 
@@ -47,28 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $schedule_upload = $new_file_name;
         } else {
             $_SESSION['error'] = 'Failed to upload file.';
-            header('Location: edit_class_schedules.php');
+            header('Location: edit_issuance_schedules.php');
             exit();
         }
     }
 
-    $update_query = "UPDATE `tbl_deans_post_class_schedules` SET school_year = :school_year, semester = :semester, department = :department, year = :year, course = :course, schedule_upload = :schedule_upload, updated_at = NOW() WHERE id = :id";
+    $update_query = "UPDATE `tbl_deans_users_issuance` SET school_year = :school_year, semester = :semester, schedule_upload = :schedule_upload, updated_at = NOW() WHERE id = :id";
     $stmt = $conn->prepare($update_query);
     $stmt->bindParam(':school_year', $school_year);
     $stmt->bindParam(':semester', $semester);
-    $stmt->bindParam(':department', $department);
-    $stmt->bindParam(':year', $year);
-    $stmt->bindParam(':course', $course);
     $stmt->bindParam(':schedule_upload', $schedule_upload);
-    $stmt->bindParam(':id', $schedule_id, PDO::PARAM_INT);
+    $stmt->bindParam(':id', $issuance_id, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-        $_SESSION['success'] = 'Class schedule updated successfully!';
-        header('Location: class_schedules.php');
+        $_SESSION['success'] = 'Schedule updated successfully!';
+        header('Location: enrollment_schedules.php');
         exit();
     } else {
         $_SESSION['error'] = 'Error updating schedule!';
-        header('Location: class_schedules.php');
+        header('Location: enrollment_schedules.php');
         exit();
     }
 }
@@ -165,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </li>
 
                         <li class="nav-item">
-                            <a href="class_schedules.php" class="nav-link active">
+                            <a href="enrollment_schedules.php" class="nav-link active">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
                                     Class Schedules
@@ -207,8 +201,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item"><a href="class_schedules.php">CLASS SCHEDULES</a></li>
-                                <li class="breadcrumb-item active">EDIT CLASS SCHEDULES</li>
+                                <li class="breadcrumb-item"><a href="enrollment_schedules.php">ENROLLMENT SCHEDULES</a></li>
+                                <li class="breadcrumb-item active">EDIT ISSUANCE SCHEDULES</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -225,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- jquery validation -->
                             <div class="card card-primary">
                                 <div style="background-color: #001968 !important;" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">EDIT CLASS SCHEDULES</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">EDIT ISSUANCE SCHEDULES</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
@@ -239,10 +233,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <label>School Year</label>
                                             <select class="form-control" id="school_year" name="school_year" required>
                                                 <option value="">Select School Year</option>
-                                                <option value="2023-2024" <?php echo $class_schedule['school_year'] === '2023-2024' ? 'selected' : ''; ?>>2023-2024</option>
-                                                <option value="2024-2025" <?php echo $class_schedule['school_year'] === '2024-2025' ? 'selected' : ''; ?>>2024-2025</option>
-                                                <option value="2025-2026" <?php echo $class_schedule['school_year'] === '2025-2026' ? 'selected' : ''; ?>>2025-2026</option>
-                                                <option value="2026-2027" <?php echo $class_schedule['school_year'] === '2026-2027' ? 'selected' : ''; ?>>2026-2027</option>
+                                                <option value="2023-2024" <?php echo $enrollment_schedule['school_year'] === '2023-2024' ? 'selected' : ''; ?>>2023-2024</option>
+                                                <option value="2024-2025" <?php echo $enrollment_schedule['school_year'] === '2024-2025' ? 'selected' : ''; ?>>2024-2025</option>
+                                                <option value="2025-2026" <?php echo $enrollment_schedule['school_year'] === '2025-2026' ? 'selected' : ''; ?>>2025-2026</option>
+                                                <option value="2026-2027" <?php echo $enrollment_schedule['school_year'] === '2026-2027' ? 'selected' : ''; ?>>2026-2027</option>
                                             </select>
                                         </div>
 
@@ -251,56 +245,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <label>Semester</label>
                                             <select class="form-control" id="semester" name="semester" required>
                                                 <option value="">Select Semester</option>
-                                                <option value="1st semester" <?php echo $class_schedule['semester'] === '1st semester' ? 'selected' : ''; ?>>1st Semester</option>
-                                                <option value="2nd semester" <?php echo $class_schedule['semester'] === '2nd semester' ? 'selected' : ''; ?>>2nd Semester</option>
+                                                <option value="1st semester" <?php echo $enrollment_schedule['semester'] === '1st semester' ? 'selected' : ''; ?>>1st Semester</option>
+                                                <option value="2nd semester" <?php echo $enrollment_schedule['semester'] === '2nd semester' ? 'selected' : ''; ?>>2nd Semester</option>
                                             </select>
                                         </div>
 
-                                        <!-- Department -->
-                                        <div class="form-group">
-                                            <label>Department</label>
-                                            <select class="form-control" id="department" name="department" required>
-                                                <option value="">Select Department</option>
-                                                <option value="CS" <?php echo $class_schedule['department'] === 'CS' ? 'selected' : ''; ?>>Computer Studies</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Year Level -->
-                                        <div class="form-group">
-                                            <label>Year Level</label>
-                                            <select class="form-control" id="year" name="year" required>
-                                                <option value="">Select Year Level</option>
-                                                <option value="I" <?php echo $class_schedule['year'] === 'I' ? 'selected' : ''; ?>>I</option>
-                                                <option value="II" <?php echo $class_schedule['year'] === 'II' ? 'selected' : ''; ?>>II</option>
-                                                <option value="III" <?php echo $class_schedule['year'] === 'III' ? 'selected' : ''; ?>>III</option>
-                                                <option value="IV" <?php echo $class_schedule['year'] === 'IV' ? 'selected' : ''; ?>>IV</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Course -->
-                                        <div class="form-group">
-                                            <label>Course</label>
-                                            <select class="form-control" id="course" name="course" required>
-                                                <option value="">Select Course</option>
-                                                <option value="BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY"
-                                                    <?php echo $class_schedule['course'] === 'BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY' ? 'selected' : ''; ?>>
-                                                    Bachelor of Science in Information Technology
-                                                </option>
-                                            </select>
-                                        </div>
 
                                         <!-- Schedule File Upload -->
                                         <div class="form-group">
                                             <label for="schedule_upload">Upload Schedule (PDF/Image)</label>
                                             <input type="file" id="schedule_upload" name="schedule_upload" class="form-control">
-                                            <small>Current File: <?php echo htmlspecialchars($class_schedule['schedule_upload']); ?></small>
+                                            <small>Current File: <?php echo htmlspecialchars($enrollment_schedule['schedule_upload']); ?></small>
                                         </div>
                                     </div>
 
                                     <!-- Submit Button -->
                                     <div class="card-footer d-flex" style="gap: 5px;">
                                         <button type="submit" class="btn btn-primary ml-auto">Update</button>
-                                        <a href="class_schedules.php" class="btn btn-secondary">Cancel</a>
+                                        <a href="enrollment_schedules.php" class="btn btn-secondary">Cancel</a>
                                     </div>
                                 </form>
                             </div>
@@ -365,13 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     school_year: {
                         required: true
                     },
-                    department: {
-                        required: true
-                    },
-                    year: {
-                        required: true
-                    },
-                    course: {
+                    semester: {
                         required: true
                     },
                 },
@@ -379,14 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     school_year: {
                         required: "Please select a school year"
                     },
-                    department: {
-                        required: "Please select a department"
-                    },
-                    year: {
-                        required: "Please select a year level"
-                    },
-                    course: {
-                        required: "Please select a course"
+                    semester: {
+                        required: "Please select a semester"
                     },
                 },
                 errorElement: 'span',

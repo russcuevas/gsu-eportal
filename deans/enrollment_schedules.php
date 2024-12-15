@@ -215,7 +215,7 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
                                                     </td>
 
                                                     <td>
-                                                        <a href="" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
+                                                        <a href="edit_issuance_schedules.php?id=<?php echo $enrollment_schedules['id'] ?>" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
                                                         <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteSchedulesModal" onclick="setScheduleId(<?php echo $enrollment_schedules['id']; ?>)">
                                                             DELETE
                                                         </a>
