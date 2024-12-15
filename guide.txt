@@ -88,6 +88,7 @@ updated_at
 tbl_osds_post_requirements
 id -> primary
 osds_id -> foreign to tbl_admin -> role osds
+requirements_description
 requirements_upload
 created_at
 updated_at

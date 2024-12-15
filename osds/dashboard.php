@@ -23,13 +23,13 @@ $total_osds = $results_total_osds['total_osds'];
 // END GET TOTAL OSDS
 
 
-// GET THE TOTAL POSTED ENROLLED SCHEDULES
-$get_total_issuance_schedules = "SELECT COUNT(*) AS total_issuance_schedules FROM `tbl_deans_users_issuance`";
-$stmt_total_issuance_schedules = $conn->prepare($get_total_issuance_schedules);
-$stmt_total_issuance_schedules->execute();
-$results_total_issuance_schedules = $stmt_total_issuance_schedules->fetch(PDO::FETCH_ASSOC);
-$total_issuance_schedules = $results_total_issuance_schedules['total_issuance_schedules'];
-// END GET TOTAL POSTED ENROLLED SCHEDULES
+// GET THE TOTAL POSTED REQUIREMENTS
+$get_total_requirements = "SELECT COUNT(*) AS total_requirements FROM `tbl_osds_post_requirements`";
+$stmt_total_requirements = $conn->prepare($get_total_requirements);
+$stmt_total_requirements->execute();
+$results_total_requirements = $stmt_total_requirements->fetch(PDO::FETCH_ASSOC);
+$total_requirements = $results_total_requirements['total_requirements'];
+// END GET TOTAL POSTED REQUIREMENTS
 ?>
 <!DOCTYPE html>
 
@@ -173,7 +173,7 @@ $total_issuance_schedules = $results_total_issuance_schedules['total_issuance_sc
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_issuance_schedules ?></h3>
+                                    <h3><?php echo $total_requirements ?></h3>
 
                                     <p>Posted Requirements</p>
                                 </div>
