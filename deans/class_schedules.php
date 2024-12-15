@@ -201,7 +201,7 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
                           <td><?php echo $class_schedules['school_year'] ?></td>
                           <td><?php echo $class_schedules['semester'] ?></td>
                           <td><?php echo $class_schedules['department'] ?></td>
-                          <td><?php echo $class_schedules['year'] ?></td>
+                          <td><?php echo $class_schedules['year'] ?> / <?php echo $class_schedules['section'] ?></td>
                           <td><?php echo $class_schedules['course'] ?></td>
                           <td><?php echo $class_schedules['created_at'] ?></td>
                           <td><?php echo $class_schedules['updated_at'] ?></td>

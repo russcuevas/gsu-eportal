@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $semester = $_POST['semester'];
     $department = $_POST['department'];
     $year = $_POST['year'];
+    $section = $_POST['section'];
     $course = $_POST['course'];
 
     $schedule_upload = $class_schedule['schedule_upload'];
@@ -52,12 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $update_query = "UPDATE `tbl_deans_post_class_schedules` SET school_year = :school_year, semester = :semester, department = :department, year = :year, course = :course, schedule_upload = :schedule_upload, updated_at = NOW() WHERE id = :id";
+    $update_query = "UPDATE `tbl_deans_post_class_schedules` SET school_year = :school_year, semester = :semester, department = :department, year = :year, section = :section, course = :course, schedule_upload = :schedule_upload, updated_at = NOW() WHERE id = :id";
     $stmt = $conn->prepare($update_query);
     $stmt->bindParam(':school_year', $school_year);
     $stmt->bindParam(':semester', $semester);
     $stmt->bindParam(':department', $department);
     $stmt->bindParam(':year', $year);
+    $stmt->bindParam(':section', $section);
     $stmt->bindParam(':course', $course);
     $stmt->bindParam(':schedule_upload', $schedule_upload);
     $stmt->bindParam(':id', $schedule_id, PDO::PARAM_INT);
@@ -310,6 +312,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <option value="II" <?php echo $class_schedule['year'] === 'II' ? 'selected' : ''; ?>>II</option>
                                                 <option value="III" <?php echo $class_schedule['year'] === 'III' ? 'selected' : ''; ?>>III</option>
                                                 <option value="IV" <?php echo $class_schedule['year'] === 'IV' ? 'selected' : ''; ?>>IV</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Section</label>
+                                            <select class="form-control" id="section" name="section">
+                                                <option value="">Select Section</option>
+                                                <option value="A" <?php echo $class_schedule['section'] === 'A' ? 'selected' : ''; ?>>A</option>
+                                                <option value="B" <?php echo $class_schedule['section'] === 'B' ? 'selected' : ''; ?>>B</option>
+                                                <option value="C" <?php echo $class_schedule['section'] === 'C' ? 'selected' : ''; ?>>C</option>
+                                                <option value="D" <?php echo $class_schedule['section'] === 'D' ? 'selected' : ''; ?>>D</option>
+                                                <option value="E" <?php echo $class_schedule['section'] === 'E' ? 'selected' : ''; ?>>E</option>
+                                                <option value="F" <?php echo $class_schedule['section'] === 'F' ? 'selected' : ''; ?>>F</option>
+                                                <option value="G" <?php echo $class_schedule['section'] === 'G' ? 'selected' : ''; ?>>G</option>
+                                                <option value="H" <?php echo $class_schedule['section'] === 'H' ? 'selected' : ''; ?>>H</option>
+                                                <option value="I" <?php echo $class_schedule['section'] === 'I' ? 'selected' : ''; ?>>I</option>
                                             </select>
                                         </div>
 

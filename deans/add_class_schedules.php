@@ -19,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $semester = $_POST['semester'];
     $department = $_POST['department'];
     $year = $_POST['year'];
+    $section = $_POST['section'];
     $course = $_POST['course'];
     $deans_id = $_POST['deans_id'];
 
@@ -40,8 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (move_uploaded_file($schedule_upload['tmp_name'], $target_file)) {
-        $query = "INSERT INTO tbl_deans_post_class_schedules (deans_id, school_year, semester, department, year, course, schedule_upload, created_at, updated_at) 
-                  VALUES ('$deans_id', '$school_year', '$semester', '$department', '$year', '$course', '$file_name', NOW(), NOW())";
+        $query = "INSERT INTO tbl_deans_post_class_schedules (deans_id, school_year, semester, department, year, section, course, schedule_upload, created_at, updated_at) 
+                  VALUES ('$deans_id', '$school_year', '$semester', '$department', '$year', '$section', '$course', '$file_name', NOW(), NOW())";
 
         if ($conn->query($query)) {
             $_SESSION['success'] = 'Class schedule added successfully!';
@@ -264,6 +265,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </div>
 
                                         <div class="form-group">
+                                            <label>Section</label>
+                                            <select class="form-control" id="section" name="section">
+                                                <option value="">Select Section</option>
+                                                <option value="A">A</option>
+                                                <option value="B">B</option>
+                                                <option value="C">C</option>
+                                                <option value="D">D</option>
+                                                <option value="E">E</option>
+                                                <option value="F">F</option>
+                                                <option value="G">G</option>
+                                                <option value="H">H</option>
+                                                <option value="I">I</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
                                             <label for="scheduleUpload">Schedule PDF:</label>
                                             <input type="file" name="schedule_upload" class="form-control" id="scheduleUpload">
                                         </div>
@@ -347,6 +364,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     year: {
                         required: true
                     },
+                    section: {
+                        required: true
+                    },
                     course: {
                         required: true
                     },
@@ -366,6 +386,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     },
                     year: {
                         required: "Please select a year level"
+                    },
+                    section: {
+                        required: "Please select a section"
                     },
                     course: {
                         required: "Please select a course"
