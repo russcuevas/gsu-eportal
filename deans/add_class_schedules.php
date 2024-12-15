@@ -333,6 +333,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     school_year: {
                         required: true
                     },
+                    semester: {
+                        required: true
+                    },
                     department: {
                         required: true
                     },
@@ -349,6 +352,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 messages: {
                     school_year: {
                         required: "Please select a school year"
+                    },
+                    semester: {
+                        required: "Please select a semester"
                     },
                     department: {
                         required: "Please select a department"

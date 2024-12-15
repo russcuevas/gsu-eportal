@@ -196,7 +196,7 @@ $dean = $stmt_get_deans->fetchAll(PDO::FETCH_ASSOC);
                                         <tbody>
                                             <?php foreach ($dean as $deans): ?>
                                                 <tr>
-                                                    <td><img src="images/profile/<?php echo $deans['profile_image']; ?>" alt="Profile Picture" /></td>
+                                                    <td><img style="height: 70px; width: 70px; border-radius: 50px;" src="images/profile/<?php echo $deans['profile_image']; ?>" alt="Profile Picture" /></td>
                                                     <td><?php echo $deans['fullname'] ?></td>
                                                     <td><?php echo $deans['email'] ?></td>
                                                     <td><?php echo $deans['created_at'] ?></td>

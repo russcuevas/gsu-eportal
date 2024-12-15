@@ -38,7 +38,10 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.min.css">
-
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
     <!-- Tempusdominus Bbootstrap 4 -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <!-- iCheck -->
@@ -213,7 +216,33 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
 
                                                     <td>
                                                         <a href="" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
-                                                        <a href="" class="btn btn-danger" style="font-size: 13px;">DELETE</a>
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteSchedulesModal" onclick="setScheduleId(<?php echo $enrollment_schedules['id']; ?>)">
+                                                            DELETE
+                                                        </a>
+
+                                                        <!-- DELETE MODAL -->
+                                                        <div class="modal fade" id="deleteSchedulesModal" tabindex="-1" role="dialog" aria-labelledby="deleteSchedulesModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteSchedulesModalLabel">Confirm Deletion</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Are you sure you want to delete this schedule?
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <form id="deleteClassForm" method="POST" action="delete_issuance_schedule.php">
+                                                                            <input type="hidden" name="id" id="schedule_id">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach ?>
@@ -252,6 +281,23 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
     </script>
     <!-- Bootstrap 4 -->
     <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr -->
+    <script src="plugins/toastr/toastr.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            <?php if (isset($_SESSION['success'])): ?>
+                toastr.success('<?php echo $_SESSION['success']; ?>');
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                toastr.error('<?php echo $_SESSION['error']; ?>');
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+        });
+    </script>
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
@@ -286,6 +332,12 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
                 responsive: true
             });
         });
+    </script>
+
+    <script>
+        function setScheduleId(ScheduleId) {
+            document.getElementById('schedule_id').value = ScheduleId;
+        }
     </script>
 
 </body>

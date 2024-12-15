@@ -22,17 +22,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
         $profile_image = $_FILES['profile_image'];
-        $image_name = time() . '_' . basename($profile_image['name']);
+        $original_name = basename($profile_image['name']);
         $target_dir = "images/profile/";
 
         if (!file_exists($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
 
-        $target_file = $target_dir . $image_name;
+        $target_file = $target_dir . $original_name;
+        $file_extension = pathinfo($original_name, PATHINFO_EXTENSION);
+
+        while (file_exists($target_file)) {
+            $original_name = pathinfo($original_name, PATHINFO_FILENAME) . '_' . time() . '.' . $file_extension;
+            $target_file = $target_dir . $original_name;
+        }
 
         if (move_uploaded_file($profile_image['tmp_name'], $target_file)) {
-            $image_name = basename($profile_image['name']);
+            $image_name = $original_name;
         } else {
             $_SESSION['error'] = 'Failed to upload the image.';
             header('Location: add_deans.php');
@@ -41,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $image_name = 'default.jpg';
     }
+
 
     $query = "SELECT COUNT(*) FROM tbl_admin WHERE email = :email";
     $stmt = $conn->prepare($query);
