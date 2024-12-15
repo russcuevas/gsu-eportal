@@ -235,7 +235,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <label>Department</label>
                                             <select class="form-control" id="department" name="department">
                                                 <option value="">Select Department</option>
-                                                <option value="CS">Computer Studies</option>
+                                                <option value="COLLEGE OF SCIENCE AND TECHNOLOGY">COLLEGE OF SCIENCE AND TECHNOLOGY</option>
+                                                <option value="COLLEGE OF BUSINESS MANAGEMENT">COLLEGE OF BUSINESS MANAGEMENT</option>
+                                                <option value="COLLEGE OF CRIMINAL JUSTICE EDUCATION">COLLEGE OF CRIMINAL JUSTICE EDUCATION</option>
+                                                <option value="COLLEGE OF ARTS AND SCIENCE">COLLEGE OF ARTS AND SCIENCE</option>
+                                                <option value="COLLEGE OF TEACHER EDUCATION">COLLEGE OF TEACHER EDUCATION</option>
+                                                <option value="COLLEGE OF AGRICULTURE SCIENCES">COLLEGE OF AGRICULTURE SCIENCES</option>
+                                                <option value="COLLEGE OF INDUSTRIAL ENGINEERING">COLLEGE OF INDUSTRIAL ENGINEERING</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Course</label>
+                                            <select class="form-control" id="course" name="course">
+                                                <option value="">Select Course</option>
                                             </select>
                                         </div>
 
@@ -247,14 +260,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 <option value="II">II</option>
                                                 <option value="III">III</option>
                                                 <option value="IV">IV</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Course</label>
-                                            <select class="form-control" id="course" name="course">
-                                                <option value="">Select Course</option>
-                                                <option value="BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY">Bachelor of Science in Information Technology</option>
                                             </select>
                                         </div>
 
@@ -383,6 +388,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
         });
     </script>
+
+    <!-- MAPPING COURSE PER DEPARTMENT -->
+    <script>
+        const coursesByDepartment = {
+            "COLLEGE OF SCIENCE AND TECHNOLOGY": [
+                "BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY",
+                "BACHELOR OF SCIENCE IN COMPUTER SCIENCE",
+                "BACHELOR OF SCIENCE IN INFORMATION SYSTEM",
+                "BACHELOR OF SCIENCE IN FOOD TECHNOLOGY"
+            ],
+            "COLLEGE OF BUSINESS MANAGEMENT": [
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN MARKETING MANAGEMENT",
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN FINANCIAL MANAGEMENT",
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN HUMAN RESOURCES MANAGEMENT",
+                "BACHELOR OF SCIENCE IN HOSPITALITY MANAGEMENT",
+                "BACHELOR OF SCIENCE IN ENTREPRENEURSHIP",
+                "BACHELOR OF SCIENCE IN REAL ESTATE MANAGEMENT",
+                "BACHELOR OF SCIENCE IN TOURISM MANAGEMENT"
+            ],
+            "COLLEGE OF CRIMINAL JUSTICE EDUCATION": [
+                "BACHELOR OF SCIENCE IN CRIMINOLOGY"
+            ],
+            "COLLEGE OF ARTS AND SCIENCE": [
+                "BACHELOR OF ARTS IN ENGLISH LANGUAGE STUDIES",
+                "BACHELOR OF PUBLIC ADMINISTRATION"
+            ],
+            "COLLEGE OF TEACHER EDUCATION": [
+                "BACHELOR OF ELEMENTARY EDUCATION",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN ENGLISH",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN MATHEMATICS",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN FILIPINO",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN SOCIAL STUDIES",
+                "BACHELOR OF TECHNOLOGY AND LIVELIHOOD EDUCATION MAJOR IN INDUSTRIAL ARTS",
+                "BACHELOR OF TECHNOLOGY AND LIVELIHOOD EDUCATION MAJOR IN HOME ECONOMICS AND LIVELIHOOD EDUCATION"
+            ],
+            "COLLEGE OF AGRICULTURE SCIENCES": [
+                "BACHELOR OF SCIENCE IN FISHERIES",
+                "BACHELOR OF SCIENCE IN AGRICULTURE"
+            ],
+            "COLLEGE OF INDUSTRIAL ENGINEERING": [
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN AUTOMOTIVE TECHNOLOGY",
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN ELECTRONICS TECHNOLOGY",
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN MECHANICAL TECHNOLOGY",
+                "BACHELOR OF SCIENCE IN ELECTRICAL ENGINEERING",
+                "BACHELOR OF SCIENCE IN MECHANICAL ENGINEERING"
+            ]
+        };
+
+        document.getElementById('department').addEventListener('change', function() {
+            const department = this.value;
+            const courseDropdown = document.getElementById('course');
+
+            courseDropdown.innerHTML = '<option value="">Select Course</option>';
+
+            if (coursesByDepartment[department]) {
+                coursesByDepartment[department].forEach(function(course) {
+                    const option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+                    courseDropdown.appendChild(option);
+                });
+            }
+        });
+    </script>
+
 
 </body>
 

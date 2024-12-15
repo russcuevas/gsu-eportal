@@ -188,8 +188,8 @@ $dean = $stmt_get_deans->fetchAll(PDO::FETCH_ASSOC);
                                                 <th>Image</th>
                                                 <th>Fullname</th>
                                                 <th>Email</th>
-                                                <th>Created_at</th>
-                                                <th>Updated_at</th>
+                                                <th>Created</th>
+                                                <th>Updated</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>

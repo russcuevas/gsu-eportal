@@ -186,8 +186,8 @@ $enrollment_schedule = $stmt_get_enrollment_schedules->fetchAll(PDO::FETCH_ASSOC
                                             <tr>
                                                 <th>School Year</th>
                                                 <th>Semester</th>
-                                                <th>Created At</th>
-                                                <th>Updated At</th>
+                                                <th>Created</th>
+                                                <th>Updated</th>
                                                 <th>PDF</th>
                                                 <th>Actions</th>
                                             </tr>

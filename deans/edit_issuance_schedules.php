@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </li>
 
                         <li class="nav-item">
-                            <a href="enrollment_schedules.php" class="nav-link active">
+                            <a href="enrollment_schedules.php" class="nav-link">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
                                     Class Schedules
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="enrollment_schedules.php" class="nav-link">
+                            <a href="enrollment_schedules.php" class="nav-link active">
                                 <i class="nav-icon far fa-calendar-alt"></i>
                                 <p>
                                     Enrollment Schedules

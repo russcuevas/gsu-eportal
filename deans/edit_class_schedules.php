@@ -259,9 +259,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <!-- Department -->
                                         <div class="form-group">
                                             <label>Department</label>
-                                            <select class="form-control" id="department" name="department" required>
+                                            <select class="form-control" id="department" name="department">
                                                 <option value="">Select Department</option>
-                                                <option value="CS" <?php echo $class_schedule['department'] === 'CS' ? 'selected' : ''; ?>>Computer Studies</option>
+                                                <option value="COLLEGE OF SCIENCE AND TECHNOLOGY"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF SCIENCE AND TECHNOLOGY' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF SCIENCE AND TECHNOLOGY
+                                                </option>
+                                                <option value="COLLEGE OF BUSINESS MANAGEMENT"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF BUSINESS MANAGEMENT' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF BUSINESS MANAGEMENT
+                                                </option>
+                                                <option value="COLLEGE OF CRIMINAL JUSTICE EDUCATION"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF CRIMINAL JUSTICE EDUCATION' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF CRIMINAL JUSTICE EDUCATION
+                                                </option>
+                                                <option value="COLLEGE OF ARTS AND SCIENCE"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF ARTS AND SCIENCE' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF ARTS AND SCIENCE
+                                                </option>
+                                                <option value="COLLEGE OF TEACHER EDUCATION"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF TEACHER EDUCATION' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF TEACHER EDUCATION
+                                                </option>
+                                                <option value="COLLEGE OF AGRICULTURE SCIENCES"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF AGRICULTURE SCIENCES' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF AGRICULTURE SCIENCES
+                                                </option>
+                                                <option value="COLLEGE OF INDUSTRIAL ENGINEERING"
+                                                    <?php echo $class_schedule['department'] === 'COLLEGE OF INDUSTRIAL ENGINEERING' ? 'selected' : ''; ?>>
+                                                    COLLEGE OF INDUSTRIAL ENGINEERING
+                                                </option>
+                                            </select>
+                                        </div>
+
+
+                                        <!-- Course -->
+                                        <div class="form-group">
+                                            <label>Course</label>
+                                            <select class="form-control" id="course" name="course">
+                                                <option value="">Select Course</option>
                                             </select>
                                         </div>
 
@@ -274,18 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <option value="II" <?php echo $class_schedule['year'] === 'II' ? 'selected' : ''; ?>>II</option>
                                                 <option value="III" <?php echo $class_schedule['year'] === 'III' ? 'selected' : ''; ?>>III</option>
                                                 <option value="IV" <?php echo $class_schedule['year'] === 'IV' ? 'selected' : ''; ?>>IV</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Course -->
-                                        <div class="form-group">
-                                            <label>Course</label>
-                                            <select class="form-control" id="course" name="course" required>
-                                                <option value="">Select Course</option>
-                                                <option value="BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY"
-                                                    <?php echo $class_schedule['course'] === 'BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY' ? 'selected' : ''; ?>>
-                                                    Bachelor of Science in Information Technology
-                                                </option>
                                             </select>
                                         </div>
 
@@ -404,6 +428,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 
+    <!-- UPDATE COURSE MAPPING -->
+    <script>
+        const coursesByDepartment = {
+            "COLLEGE OF SCIENCE AND TECHNOLOGY": [
+                "BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY",
+                "BACHELOR OF SCIENCE IN COMPUTER SCIENCE",
+                "BACHELOR OF SCIENCE IN INFORMATION SYSTEM",
+                "BACHELOR OF SCIENCE IN FOOD TECHNOLOGY"
+            ],
+            "COLLEGE OF BUSINESS MANAGEMENT": [
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN MARKETING MANAGEMENT",
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN FINANCIAL MANAGEMENT",
+                "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION MAJOR IN HUMAN RESOURCES MANAGEMENT",
+                "BACHELOR OF SCIENCE IN HOSPITALITY MANAGEMENT",
+                "BACHELOR OF SCIENCE IN ENTREPRENEURSHIP",
+                "BACHELOR OF SCIENCE IN REAL ESTATE MANAGEMENT",
+                "BACHELOR OF SCIENCE IN TOURISM MANAGEMENT"
+            ],
+            "COLLEGE OF CRIMINAL JUSTICE EDUCATION": [
+                "BACHELOR OF SCIENCE IN CRIMINOLOGY"
+            ],
+            "COLLEGE OF ARTS AND SCIENCE": [
+                "BACHELOR OF ARTS IN ENGLISH LANGUAGE STUDIES",
+                "BACHELOR OF PUBLIC ADMINISTRATION"
+            ],
+            "COLLEGE OF TEACHER EDUCATION": [
+                "BACHELOR OF ELEMENTARY EDUCATION",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN ENGLISH",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN MATHEMATICS",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN FILIPINO",
+                "BACHELOR OF SECONDARY EDUCATION MAJOR IN SOCIAL STUDIES",
+                "BACHELOR OF TECHNOLOGY AND LIVELIHOOD EDUCATION MAJOR IN INDUSTRIAL ARTS",
+                "BACHELOR OF TECHNOLOGY AND LIVELIHOOD EDUCATION MAJOR IN HOME ECONOMICS AND LIVELIHOOD EDUCATION"
+            ],
+            "COLLEGE OF AGRICULTURE SCIENCES": [
+                "BACHELOR OF SCIENCE IN FISHERIES",
+                "BACHELOR OF SCIENCE IN AGRICULTURE"
+            ],
+            "COLLEGE OF INDUSTRIAL ENGINEERING": [
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN AUTOMOTIVE TECHNOLOGY",
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN ELECTRONICS TECHNOLOGY",
+                "BACHELOR OF INDUSTRIAL TECHNOLOGY MAJOR IN MECHANICAL TECHNOLOGY",
+                "BACHELOR OF SCIENCE IN ELECTRICAL ENGINEERING",
+                "BACHELOR OF SCIENCE IN MECHANICAL ENGINEERING"
+            ]
+        };
+
+        const departmentDropdown = document.getElementById('department');
+        const courseDropdown = document.getElementById('course');
+
+        departmentDropdown.addEventListener('change', function() {
+            const department = this.value;
+
+            courseDropdown.innerHTML = '<option value="">Select Course</option>';
+
+            if (coursesByDepartment[department]) {
+                coursesByDepartment[department].forEach(function(course) {
+                    const option = document.createElement('option');
+                    option.value = course;
+                    option.textContent = course;
+
+                    if (course === "<?php echo $class_schedule['course']; ?>") {
+                        option.selected = true;
+                    }
+
+                    courseDropdown.appendChild(option);
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            departmentDropdown.dispatchEvent(new Event('change'));
+        });
+    </script>
 </body>
 
 </html>
