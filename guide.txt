@@ -88,13 +88,10 @@ updated_at
 tbl_osds_post_requirements
 id -> primary
 osds_id -> foreign to tbl_admin -> role osds
-post_requirements
+requirements_upload
 created_at
 updated_at
 
-tbl_osds_reports
-created_at
-updated_at
 
 // DEANS FUNCTION
 tbl_deans_post_class_schedules
@@ -123,4 +120,8 @@ CREDENTIALS
 
 DEANS
 russeldeans@gmail.com
+123456789
+
+OSDS
+russelosds@gmail.com
 123456789
