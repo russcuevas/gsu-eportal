@@ -369,9 +369,9 @@ $total_pages = ceil($total_schedules / $items_per_page);
                                 </td>
                                 <td>
                                     <font style="font-family: CENTURY GOTHIC; font-size: 14px; margin-top: 20px;">
-                                        Sample<br style="margin-top: 0px; margin-bottom: 0px">
-                                        Sample<br style="margin-top: 0px; margin-bottom: 0px">
-                                        Sample<br style="margin-top: 0px; margin-bottom: 0px">
+                                        Mclain,<br style="margin-top: 0px; margin-bottom: 0px">
+                                        Buenavista,<br style="margin-top: 0px; margin-bottom: 0px">
+                                        Guimaras<br style="margin-top: 0px; margin-bottom: 0px">
                                     </font>
                                 </td>
                             </tr>

@@ -585,7 +585,7 @@ nav {
         padding: 20px;
         font-weight: 600;
         text-decoration: none;
-        color: white !important;
+        color: white;
         cursor: pointer;
     }
 
