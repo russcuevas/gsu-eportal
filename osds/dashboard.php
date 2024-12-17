@@ -165,7 +165,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-person-add"></i>
                                 </div>
-                                <a href="" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="manage_osds.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <!-- ./col -->
@@ -180,7 +180,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>
                                 </div>
-                                <a href="" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="posted_requirements.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                     </div>

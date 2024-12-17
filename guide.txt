@@ -26,7 +26,7 @@ created_at
 updated_at
 
 
-// REGISTRAR
+// CASHIER
 tbl_documents
 id -> primary
 type_of_documents -> TOR, RF, GRADES, DISMISSAL, CAV, CERTIFICATIONS, CROSS ENROLL PERMIT,
@@ -34,6 +34,8 @@ price
 created_at
 updated_at
 
+
+// STUDENT REQUEST // VIEW BY CASHIER -> UPDATE TO PAID OR NOT PAID IF PAID IT WILL DISPLAY TO REGISTRAR SIDE
 tbl_document_request
 id -> primary
 user_id -> foreign to tbl_users -> id
