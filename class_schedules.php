@@ -117,7 +117,7 @@ $total_pages = ceil($total_schedules / $items_per_page);
 
 <head>
     <link rel="icon" type="image/png" href="Images/logo.png">
-    <title>GSU | Class Schedules</title>
+    <title>GSU | e-Request</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -196,11 +196,11 @@ $total_pages = ceil($total_schedules / $items_per_page);
                 </div>
             </li>
 
-            <!-- <li class="navbar-item">
+            <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button" href="https://www.gsu.edu.ph/">APPLY NOW</a>
+                    <a class="dropdown-button" href="requirements.php">REQUIREMENTS</a>
                 </div>
-            </li> -->
+            </li>
 
             <li class="navbar-item">
                 <div class="dropdown-div">
@@ -213,7 +213,7 @@ $total_pages = ceil($total_schedules / $items_per_page);
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="item-link" href="#">REQUEST</a>
+                    <a class="item-link" href="#">e-Request</a>
                     <div class="dropdown-content" style="width:250px">
                         <a class="dropdown-link" href="login.php" id="">Student Portal</a>
                         <div class="dropdown-divider"></div>
@@ -223,7 +223,7 @@ $total_pages = ceil($total_schedules / $items_per_page);
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="item-link" href="#">PORTAL</a>
+                    <a class="item-link" href="#">e-Portal</a>
                     <div class="dropdown-content" style="width:250px">
                         <a class="dropdown-link" href="login.php" id="">Student Portal</a>
                         <div class="dropdown-divider"></div>
@@ -236,75 +236,79 @@ $total_pages = ceil($total_schedules / $items_per_page);
 
     <!-- Page Content -->
     <div class="container mt-5">
-        <div class="text-center mb-4">
-            <h1 class="font-weight-bold" style="color: #001968;">Class Schedules</h1>
-            <p>Find your class schedules for the semester.</p>
-        </div>
-
-        <form method="GET" class="mb-4">
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label for="schoolYearFilter">Filter by School Year:</label>
-                    <select id="schoolYearFilter" name="school_year" class="form-control">
-                        <option value="">All School Year</option>
-                        <?php foreach ($school_years as $school_year) : ?>
-                            <option value="<?= htmlspecialchars($school_year['school_year']) ?>" <?= $filter_school_year == $school_year['school_year'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($school_year['school_year']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Department filter -->
-                <div class="form-group col-md-3">
-                    <label for="departmentFilter">Filter by Department:</label>
-                    <select id="departmentFilter" name="department" class="form-control">
-                        <option value="">All Departments</option>
-                        <?php foreach ($departments as $dept) : ?>
-                            <option value="<?= htmlspecialchars($dept['department']) ?>" <?= $filter_department == $dept['department'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($dept['department']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Year filter -->
-                <div class="form-group col-md-3">
-                    <label for="yearFilter">Filter by Year:</label>
-                    <select id="yearFilter" name="year" class="form-control">
-                        <option value="">All Years</option>
-                        <?php foreach ($years as $year) : ?>
-                            <option value="<?= htmlspecialchars($year['year']) ?>" <?= $filter_year == $year['year'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($year['year']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Course filter -->
-                <div class="form-group col-md-3">
-                    <label for="courseFilter">Filter by Course:</label>
-                    <select id="courseFilter" name="course" class="form-control">
-                        <option value="">All Courses</option>
-                    </select>
-                </div>
-
-                <!-- Semester filter -->
-                <div class="form-group col-md-3">
-                    <label for="semesterFilter">Filter by Semester:</label>
-                    <select id="semesterFilter" name="semester" class="form-control">
-                        <option value="">All Semesters</option>
-                        <?php foreach ($semesters as $semester) : ?>
-                            <option value="<?= htmlspecialchars($semester['semester']) ?>" <?= $filter_semester == $semester['semester'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($semester['semester']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div style="background-color: #001968; padding: 20px; color: white;" class="mb-5">
+            <div class="text-center mb-4">
+                <h1 class="font-weight-bold" style="color: white;">Class Schedules</h1>
+                <p>Find your class schedules for the semester.</p>
             </div>
-            <button type="submit" class="btn btn-primary bg-blue">Filter</button>
-            <a href="class_schedules.php" class="btn btn-secondary">Reset</a>
-        </form>
+
+            <form method="GET" class="mb-4">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="schoolYearFilter">Filter by School Year:</label>
+                        <select id="schoolYearFilter" name="school_year" class="form-control">
+                            <option value="">All School Year</option>
+                            <?php foreach ($school_years as $school_year) : ?>
+                                <option value="<?= htmlspecialchars($school_year['school_year']) ?>" <?= $filter_school_year == $school_year['school_year'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($school_year['school_year']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Department filter -->
+                    <div class="form-group col-md-3">
+                        <label for="departmentFilter">Filter by Department:</label>
+                        <select id="departmentFilter" name="department" class="form-control">
+                            <option value="">All Departments</option>
+                            <?php foreach ($departments as $dept) : ?>
+                                <option value="<?= htmlspecialchars($dept['department']) ?>" <?= $filter_department == $dept['department'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($dept['department']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Year filter -->
+                    <div class="form-group col-md-3">
+                        <label for="yearFilter">Filter by Year:</label>
+                        <select id="yearFilter" name="year" class="form-control">
+                            <option value="">All Years</option>
+                            <?php foreach ($years as $year) : ?>
+                                <option value="<?= htmlspecialchars($year['year']) ?>" <?= $filter_year == $year['year'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($year['year']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Course filter -->
+                    <div class="form-group col-md-3">
+                        <label for="courseFilter">Filter by Course:</label>
+                        <select id="courseFilter" name="course" class="form-control">
+                            <option value="">All Courses</option>
+                        </select>
+                    </div>
+
+                    <!-- Semester filter -->
+                    <div class="form-group col-md-3">
+                        <label for="semesterFilter">Filter by Semester:</label>
+                        <select id="semesterFilter" name="semester" class="form-control">
+                            <option value="">All Semesters</option>
+                            <?php foreach ($semesters as $semester) : ?>
+                                <option value="<?= htmlspecialchars($semester['semester']) ?>" <?= $filter_semester == $semester['semester'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($semester['semester']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end" style="gap: 5px;">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="class_schedules.php" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
 
         <div class="row">
             <?php if (count($schedules) > 0) : ?>
@@ -319,7 +323,7 @@ $total_pages = ceil($total_schedules / $items_per_page);
                                     <strong>Department:</strong> <?= htmlspecialchars($schedule['department']) ?><br>
                                     <strong>Semester:</strong> <?= htmlspecialchars($schedule['semester']) ?>
                                 </p>
-                                <a href="assets/uploads/class_schedules/<?= htmlspecialchars($schedule['schedule_upload']) ?>" class="btn btn-primary bg-blue" target="_blank">View Schedule</a>
+                                <a href="assets/uploads/class_schedules/<?= htmlspecialchars($schedule['schedule_upload']) ?>" class="btn btn-primary bg-blue" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> View Schedule</a>
                             </div>
                         </div>
                     </div>

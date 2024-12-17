@@ -1,8 +1,31 @@
+<?php
+require 'database/connection.php';
+
+$filter_school_year = isset($_GET['school_year']) ? $_GET['school_year'] : '';
+
+$query = "SELECT DISTINCT school_year FROM tbl_deans_users_issuance ORDER BY school_year DESC";
+$school_years_result = $conn->query($query);
+$school_years = $school_years_result->fetchAll(PDO::FETCH_ASSOC);
+
+$query = "SELECT * FROM tbl_deans_users_issuance";
+if ($filter_school_year) {
+    $query .= " WHERE school_year = :school_year";
+}
+$query .= " ORDER BY school_year DESC";
+$stmt = $conn->prepare($query);
+
+if ($filter_school_year) {
+    $stmt->bindParam(':school_year', $filter_school_year);
+}
+
+$stmt->execute();
+$schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <link rel="icon" type="image/png" href="Images/logo.png">
     <title>GSU | e-Request</title>
     <meta charset="utf-8">
@@ -16,9 +39,52 @@
     <script src="https://kit.fontawesome.com/6934bb79c3.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <style>
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-item {
+            margin: 0 5px;
+        }
+
+        .page-link {
+            display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: white;
+            background-color: #00529B;
+            border: 1px solid #004080;
+            border-radius: 4px;
+        }
+
+        .page-item.active .page-link {
+            background-color: #003366;
+            color: white;
+        }
+
+        .page-link:hover {
+            background-color: #004080;
+        }
+
         .dropdown-button.active {
             background-color: #fff;
             color: #004080 !important;
+        }
+
+        .dropdown-link.active {
+            background-color: #fff;
+            color: #004080 !important;
+            font-weight: 900 !important;
         }
     </style>
 </head>
@@ -36,7 +102,7 @@
 
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button active" href="index.php">HOME</a>
+                    <a class="dropdown-button" href="index.php">HOME</a>
                 </div>
             </li>
 
@@ -48,10 +114,10 @@
 
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button" href="#">SCHEDULES</a>
+                    <a class="dropdown-button active" href="#">SCHEDULES</a>
                     <div class="dropdown-content" style="width:300px">
                         <a class="dropdown-link" href="class_schedules.php" id="">Class Schedules</a>
-                        <a class="dropdown-link" href="enrollment_schedules.php" id="">Enrollment Schedules</a>
+                        <a class="dropdown-link active" href="enrollment_schedules.php" id="">Enrollment Schedules</a>
                     </div>
                 </div>
             </li>
@@ -77,19 +143,70 @@
             </li>
         </ul>
     </div>
-    <div class="video-banner">
-        <video autoplay muted loop playsinline class="banner-video">
-            <source src="assets/images/stream-home.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="banner-content">
-            <h1>Welcome to GSU | e-Request</h1>
-            <p>Your gateway to efficient and accessible requests.</p>
+
+    <!-- Page Content -->
+    <div class="container mt-5">
+        <div style="background-color: #001968; padding: 20px; color: white;" class="mb-5">
+            <div class="text-center mb-4">
+                <h1 class="font-weight-bold" style="color: white;">Enrollment Schedules</h1>
+                <p>Enroll and apply now</p>
+            </div>
+
+            <form method="GET" class="mb-4">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="schoolYearFilter">Filter by School Year:</label>
+                        <select id="schoolYearFilter" name="school_year" class="form-control">
+                            <option value="">All School Year</option>
+                            <?php foreach ($school_years as $school_year) : ?>
+                                <option value="<?= htmlspecialchars($school_year['school_year']) ?>" <?= $filter_school_year == $school_year['school_year'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($school_year['school_year']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end" style="gap: 5px;">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="enrollment_schedules.php" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
         </div>
+
+        <!-- Display Schedules in a Table -->
+        <div class="table-responsive mb-5">
+            <table class="table table-striped">
+                <thead style="background-color: #001968; color: white;">
+                    <tr>
+                        <th>School Year</th>
+                        <th>Semester</th>
+                        <th>Schedule Upload</th>
+                        <th>Uploaded At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($schedules) : ?>
+                        <?php foreach ($schedules as $schedule) : ?>
+                            <tr>
+                                <td><?= htmlspecialchars($schedule['school_year']) ?></td>
+                                <td><?= htmlspecialchars($schedule['semester']) ?></td>
+                                <td><a class="btn btn-primary bg-blue" href="assets/uploads/enrollment_schedules/<?= htmlspecialchars($schedule['schedule_upload']) ?>" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                        View Schedule</a></td>
+                                <td><?= htmlspecialchars($schedule['created_at']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="5" class="text-center">No schedules found</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
-
-    <!------- FOOTER ----->
+    <!-- Reuse Footer -->
     <div id="footer" class="footer pt-3 pb-2" style="background-color: #001968">
         <div class="container">
             <div class="text-white">
@@ -157,8 +274,9 @@
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script src="assets/js/home.js"></script>
+
 </body>
 
 </html>

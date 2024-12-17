@@ -1,8 +1,17 @@
+<?php
+require 'database/connection.php';
+
+$query = "SELECT * FROM tbl_osds_post_requirements";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$requirements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <link rel="icon" type="image/png" href="Images/logo.png">
     <title>GSU | e-Request</title>
     <meta charset="utf-8">
@@ -16,9 +25,119 @@
     <script src="https://kit.fontawesome.com/6934bb79c3.js"></script>
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <style>
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-item {
+            margin: 0 5px;
+        }
+
+        .page-link {
+            display: block;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: white;
+            background-color: #00529B;
+            border: 1px solid #004080;
+            border-radius: 4px;
+        }
+
+        .page-item.active .page-link {
+            background-color: #003366;
+            color: white;
+        }
+
+        .page-link:hover {
+            background-color: #004080;
+        }
+
         .dropdown-button.active {
             background-color: #fff;
             color: #004080 !important;
+        }
+
+        .dropdown-link.active {
+            background-color: #fff;
+            color: #004080 !important;
+            font-weight: 900 !important;
+        }
+    </style>
+
+    <style>
+        .card-header {
+            background-color: #0056b3;
+            border-radius: 0.25rem;
+        }
+
+        .btn-link {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 20px;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+        }
+
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+        }
+
+        .card-header .btn-link:hover {
+            color: #ffc107;
+        }
+
+        .btn-info {
+            background-color: #007bff;
+            border: none;
+            padding: 5px 10px;
+        }
+
+        .btn-info:hover {
+            background-color: #0056b3;
+        }
+
+        .card-body {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .card-body p {
+            color: black;
+            text-align: left;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .card-body .btn-info {
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .card-header .fas {
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .toggle-caret {
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
@@ -36,13 +155,13 @@
 
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button active" href="index.php">HOME</a>
+                    <a class="dropdown-button" href="index.php">HOME</a>
                 </div>
             </li>
 
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button" href="requirements.php">REQUIREMENTS</a>
+                    <a class="dropdown-button active" href="requirements.php">REQUIREMENTS</a>
                 </div>
             </li>
 
@@ -77,19 +196,58 @@
             </li>
         </ul>
     </div>
-    <div class="video-banner">
-        <video autoplay muted loop playsinline class="banner-video">
-            <source src="assets/images/stream-home.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="banner-content">
-            <h1>Welcome to GSU | e-Request</h1>
-            <p>Your gateway to efficient and accessible requests.</p>
+
+    <!-- Page Content -->
+    <div class="container mt-5">
+        <div style="background-color: #001968; padding: 20px; color: white;" class="mb-5 rounded-lg shadow-lg">
+            <div class="text-center mb-4">
+                <h1 class="font-weight-bold text-white">Posted Requirements</h1>
+                <p>List of the requirements being posted by the OSDS</p>
+            </div>
+
+            <div id="accordion">
+                <?php foreach ($requirements as $index => $requirement): ?>
+                    <div class="card mb-3 shadow-sm border-0">
+                        <div class="card-header" style="background-color: white;" id="heading<?php echo $index; ?>">
+                            <h5 class="mb-0 accordion-h5">
+                                <button class="btn btn-link font-weight-bold" type="button" data-toggle="collapse" data-target="#collapse<?php echo $index; ?>" aria-expanded="true" aria-controls="collapse<?php echo $index; ?>" style="text-decoration: none; font-size: 1.1rem; color: #001968; text-transform: uppercase;">
+                                    <i class="fas fa-caret-right mr-2 toggle-caret"></i><?php echo htmlspecialchars($requirement['requirements_description']); ?>
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapse<?php echo $index; ?>" class="collapse" aria-labelledby="heading<?php echo $index; ?>" data-parent="#accordion">
+                            <div class="card-body bg-light">
+                                <div class="mb-3">
+                                    <p><strong>UPLOADED FILE:</strong>
+                                        <?php if ($requirement['requirements_upload']): ?>
+                                            <a href="assets/uploads/posted_requirements/<?php echo htmlspecialchars($requirement['requirements_upload']); ?>" target="_blank" class="btn btn-primary bg-blue"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                                VIEW PDF</a>
+                                        <?php else: ?>
+                                            <span class="text-muted">No file uploaded.</span>
+                                        <?php endif; ?>
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p><strong>UPLOADED AT:</strong>
+                                        <?php
+                                        $createdAt = new DateTime($requirement['created_at']);
+                                        echo $createdAt->format('F j, Y, g:i a');
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
     </div>
 
-
-    <!------- FOOTER ----->
+    <!-- Reuse Footer -->
     <div id="footer" class="footer pt-3 pb-2" style="background-color: #001968">
         <div class="container">
             <div class="text-white">
@@ -157,8 +315,21 @@
         </div>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script src="assets/js/home.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#accordion').on('show.bs.collapse hide.bs.collapse', function(e) {
+                var target = $(e.target);
+                var button = target.prev('.card-header').find('.toggle-caret');
+                if (e.type === 'show') {
+                    button.removeClass('fa-caret-right').addClass('fa-caret-down');
+                } else {
+                    button.removeClass('fa-caret-down').addClass('fa-caret-right');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

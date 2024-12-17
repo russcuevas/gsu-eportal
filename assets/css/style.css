@@ -606,14 +606,15 @@ nav {
         position: block;
         display: flex;
         flex-direction: column;
-        background-color: #2980B9;
+        background-color: white !important;
+        color: #001968 !important;
         /* border: 1px solid lightgray; */
     }
 
     .responsive-menu .dropdown-content .dropdown-link {
         padding: 10px 20px;
         text-decoration: none;
-        color: white;
+        color: #001968 !important;
         cursor: pointer;
     }
 
