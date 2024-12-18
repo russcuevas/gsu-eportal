@@ -1,3 +1,31 @@
+<?php
+session_start();
+include('database/connection.php');
+
+if (isset($_SESSION['user_id'])) {
+  header('Location: index.php');
+  exit();
+}
+
+if (isset($_POST['login'])) {
+  $email = $_POST['email'];
+  $password = sha1($_POST['password']);
+
+  $select_users = $conn->prepare("SELECT * FROM `tbl_users` WHERE email = ? AND password = ?");
+  $select_users->execute([$email, $password]);
+  if ($select_users->rowCount() > 0) {
+    $user = $select_users->fetch(PDO::FETCH_ASSOC);
+    $_SESSION['user_id'] = $user['id'];
+    header('location:index.php');
+  } else {
+    $_SESSION['error_message'] = 'Incorrect email or password';
+    header('location:login.php');
+    exit();
+  }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +42,8 @@
   <link rel="stylesheet" href="assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+  <!-- SweetAlert CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.1/dist/sweetalert2.min.css">
 
 <body class="hold-transition login-page">
   <div class="login-box">
@@ -26,9 +56,9 @@
       <div class="card-body">
         <p class="login-box-msg">Sign in to start your session</p>
 
-        <form action="index3.html" method="post">
+        <form action="" method="post">
           <div class="input-group mb-3">
-            <input type="email" class="form-control" placeholder="Email">
+            <input type="email" name="email" class="form-control" placeholder="Email">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>
@@ -36,7 +66,7 @@
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" class="form-control" placeholder="Password">
+            <input type="password" name="password" class="form-control" placeholder="Password">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
@@ -46,7 +76,7 @@
           <div class="row">
             <!-- /.col -->
             <div class="col-12">
-              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+              <button type="submit" name="login" class="btn btn-primary btn-block">Sign In</button>
             </div>
             <!-- /.col -->
           </div>
@@ -67,6 +97,21 @@
   <script src="assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- AdminLTE App -->
   <script src="assets/dist/js/adminlte.min.js"></script>
+  <!-- SweetAlert JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.1/dist/sweetalert2.min.js"></script>
+
+  <?php
+  if (isset($_SESSION['error_message'])) {
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: '" . $_SESSION['error_message'] . "',
+        });
+    </script>";
+    unset($_SESSION['error_message']);
+  }
+  ?>
 </body>
 
 </html>
