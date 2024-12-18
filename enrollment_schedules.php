@@ -123,12 +123,7 @@ $schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="item-link" href="#">e-Request</a>
-                    <div class="dropdown-content" style="width:250px">
-                        <a class="dropdown-link" href="login.php" id="">Student Portal</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-link" href="admin_login.php" id="">Employee Portal</a>
-                    </div>
+                    <a class="dropdown-button" href="e-request.php">e-Request</a>
                 </div>
             </li>
             <li class="navbar-item">
