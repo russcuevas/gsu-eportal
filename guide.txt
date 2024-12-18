@@ -20,8 +20,8 @@ email
 password
 year -> nullable
 course -> nullable
-gender -> male , female
-status -> graduate, old
+gender -> 
+status -> 
 created_at
 updated_at
 
@@ -40,13 +40,13 @@ tbl_document_request
 id -> primary
 user_id -> foreign to tbl_users -> id
 documents_id -> foreign to tbl_documents -> id
-request_number -> papakita sa registrar office pag icaclaim na
-status -> For approval, Confirm, Paid, Claimable
+request_number ->
+status -> 
 fullname
-student_id -> fillable
+student_id ->
 number_of_copies
 total_price
-payment_method -> GCASH
+payment_method ->
 payment_proof
 gcash_reference_number
 created_at
