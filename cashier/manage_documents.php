@@ -211,8 +211,34 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo $documents['created_at'] ?></td>
                                                     <td><?php echo $documents['updated_at'] ?></td>
                                                     <td>
-                                                        <a href="">UPDATE</a>
-                                                        <a href="">DELETE</a>
+                                                        <a class="btn btn-warning text-white" style="font-size: 13px;" href="edit_documents.php?id=<?php echo $documents['id'] ?>">UPDATE</a>
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteDocumentModal" onclick="setDocumentsId(<?php echo $documents['id']; ?>)">
+                                                            DELETE
+                                                        </a>
+
+                                                        <!-- DELETE MODAL -->
+                                                        <div class="modal fade" id="deleteDocumentModal" tabindex="-1" role="dialog" aria-labelledby="deleteDocumentModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteDocumentModalLabel">Confirm Deletion</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Are you sure you want to delete this document?
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <form id="deleteDocumentForm" method="POST" action="delete_documents.php">
+                                                                            <input type="hidden" name="id" id="document_id_delete">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
 
                                                 </tr>
@@ -293,8 +319,8 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
     </script>
 
     <script>
-        function setOSDSId(OsdsId) {
-            document.getElementById('osds_id_delete').value = OsdsId;
+        function setDocumentsId(DocumentId) {
+            document.getElementById('document_id_delete').value = DocumentId;
         }
     </script>
 

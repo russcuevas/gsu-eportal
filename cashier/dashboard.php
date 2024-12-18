@@ -22,6 +22,14 @@ $results_total_cashier = $stmt_total_cashier->fetch(PDO::FETCH_ASSOC);
 $total_cashier = $results_total_cashier['total_cashier'];
 // END GET TOTAL CASHIER
 
+// GET THE TOTAL DOCUMENTS
+$get_total_documents = "SELECT COUNT(*) AS total_documents FROM `tbl_documents`";
+$stmt_total_documents = $conn->prepare($get_total_documents);
+$stmt_total_documents->execute();
+$results_total_documents = $stmt_total_documents->fetch(PDO::FETCH_ASSOC);
+$total_documents = $results_total_documents['total_documents'];
+// END GET TOTAL DOCUMENTS
+
 ?>
 <!DOCTYPE html>
 
@@ -183,7 +191,7 @@ $total_cashier = $results_total_cashier['total_cashier'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3><?php echo $total_documents ?></h3>
 
                                     <p>Total Documents</p>
                                 </div>

@@ -13,29 +13,54 @@ if ($_SESSION['role'] !== 'cashier') {
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Fetch document details if 'id' is passed in the URL
+if (isset($_GET['id'])) {
+    $documents_id = $_GET['id'];
+    $query = "SELECT * FROM `tbl_documents` WHERE id = :id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':id', $documents_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $documents = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$documents) {
+        echo "Document not found.";
+        exit();
+    }
+} else {
+    echo "Invalid request.";
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // If form is submitted, update the document data
     $type_of_documents = $_POST['type_of_documents'];
     $price = $_POST['price'];
 
-    $query = "INSERT INTO tbl_documents (type_of_documents, price, created_at, updated_at) 
-                  VALUES (:type_of_documents, :price, NOW(), NOW())";
-
+    // Prepare the update query
+    $query = "UPDATE tbl_documents SET type_of_documents = :type_of_documents, price = :price, updated_at = NOW() WHERE id = :id";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':type_of_documents', $type_of_documents);
     $stmt->bindParam(':price', $price);
+    $stmt->bindParam(':id', $documents_id, PDO::PARAM_INT);
+
+    // Execute the update query
     $execute_result = $stmt->execute();
 
     if ($execute_result) {
-        $_SESSION['success'] = 'Document added successfully!';
-        header('Location: add_documents.php');
+        $_SESSION['success'] = 'Document updated successfully!';
+        header('Location: manage_documents.php');
         exit();
     } else {
-        $_SESSION['error'] = 'Error inserting data into the database.';
-        header('Location: add_documents.php');
-        exit();
+        $_SESSION['error'] = 'Error updating document.';
     }
 }
 ?>
+
+
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -175,7 +200,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
                                 <li class="breadcrumb-item"><a href="manage_documents.php">MANAGE DOCUMENTS</a></li>
-                                <li class="breadcrumb-item active">ADD NEW DOCUMENTS</li>
+                                <li class="breadcrumb-item active">EDIT DOCUMENTS</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -192,37 +217,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <!-- jquery validation -->
                             <div class="card card-primary">
                                 <div style="background-color: #001968 !important;" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">ADD NEW DOCUMENTS</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">EDIT DOCUMENTS</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <!-- form start -->
-                                <form id="quickForm" action="" method="POST">
+                                <form action="" id="quickForm" method="POST">
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label>Type of documents</label>
                                             <select class="form-control" id="type_of_documents" name="type_of_documents">
                                                 <option value="">Select Documents</option>
-                                                <option value="RF">RF</option>
-                                                <option value="GRADES">GRADES</option>
-                                                <option value="TOR">Transcript of Records</option>
-                                                <option value="CAV-G">CAV - Graduates</option>
-                                                <option value="CAV-UG">CAV - Undergraduates</option>
-                                                <option value="Permit to cross enroll">Permit to cross enroll</option>
+                                                <option value="RF" <?php echo ($documents['type_of_documents'] == 'RF') ? 'selected' : ''; ?>>RF</option>
+                                                <option value="GRADES" <?php echo ($documents['type_of_documents'] == 'GRADES') ? 'selected' : ''; ?>>GRADES</option>
+                                                <option value="TOR" <?php echo ($documents['type_of_documents'] == 'TOR') ? 'selected' : ''; ?>>Transcript of Records</option>
+                                                <option value="CAV-G" <?php echo ($documents['type_of_documents'] == 'CAV-G') ? 'selected' : ''; ?>>CAV - Graduates</option>
+                                                <option value="CAV-UG" <?php echo ($documents['type_of_documents'] == 'CAV-UG') ? 'selected' : ''; ?>>CAV - Undergraduates</option>
+                                                <option value="Permit to cross enroll" <?php echo ($documents['type_of_documents'] == 'Permit to cross enroll') ? 'selected' : ''; ?>>Permit to cross enroll</option>
                                             </select>
                                         </div>
 
                                         <div class="form-group">
                                             <label for="price">Price</label>
-                                            <input type="text" name="price" class="form-control" id="price">
+                                            <input type="text" name="price" class="form-control" id="price" value="<?php echo $documents['price']; ?>">
                                         </div>
                                     </div>
-                                    <!-- /.card-body -->
 
                                     <!-- Submit Button -->
-                                    <div class="card-footer d-flex">
-                                        <button type="submit" class="btn btn-primary ml-auto">Submit</button>
+                                    <div class="card-footer d-flex" style="gap: 5px;">
+                                        <button type="submit" class="btn btn-primary ml-auto">Update</button>
+                                        <a href="manage_documents.php" class="btn btn-secondary">Cancel</a>
                                     </div>
-
                                 </form>
                             </div>
                             <!-- /.card -->
