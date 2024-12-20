@@ -333,6 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i class="fas fa-paper-plane"></i> SUBMIT
                             </button>
                         <?php else: ?>
+                            <br>
                             <a href="login.php" class="btn btn-danger">LOGIN FIRST TO REQUEST</a>
                         <?php endif; ?>
                     </div>

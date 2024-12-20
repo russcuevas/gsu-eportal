@@ -1,25 +1,75 @@
 <?php
 include '../database/connection.php';
 
-//session
+// Session and authentication
 session_start();
 $admin_id = $_SESSION['admin_id'];
 if (!isset($admin_id)) {
     header('location:../admin_login.php');
 }
 
-// if not cashier role it will redirect to login
+// if not cashier role, redirect to login
 if ($_SESSION['role'] !== 'cashier') {
     header('location:../admin_login.php');
     exit();
 }
 
-$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
-          FROM tbl_document_request
-          GROUP BY request_number, fullname, status
-          ORDER BY updated_at DESC";
+$request_number = $_GET['request_number'] ?? null;
+if ($request_number === null) {
+    $_SESSION['error'] = 'Request number is missing.';
+    header('location:requests.php');
+    exit();
+}
 
-$result = $conn->query($query);
+// Query to fetch the main request data (only once)
+$query = "
+    SELECT 
+        dr.*, 
+        u.year, 
+        u.course, 
+        u.email 
+    FROM 
+        tbl_document_request dr
+    LEFT JOIN 
+        tbl_users u ON dr.user_id = u.id 
+    WHERE 
+        dr.request_number = :request_number
+    LIMIT 1
+";
+
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':request_number', $request_number);
+$stmt->execute();
+
+// Fetching the result as an associative array
+$request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// If no main request data found, redirect to requests page
+if (!$request) {
+    $_SESSION['error'] = 'Request not found.';
+    header('location:requests.php');
+    exit();
+}
+
+// Query to fetch all document data for the same request_number
+$query_documents = "
+    SELECT 
+        dr.documents_id, 
+        dr.total_price, 
+        dr.number_of_copies, 
+        d.type_of_documents
+    FROM tbl_document_request dr
+    LEFT JOIN tbl_documents d ON dr.documents_id = d.id
+    WHERE dr.request_number = :request_number";
+
+$stmt_documents = $conn->prepare($query_documents);
+$stmt_documents->bindParam(':request_number', $request_number);
+$stmt_documents->execute();
+$documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
+
+
+//calculate total price
+$total_price_sum = 0;
 ?>
 
 <!DOCTYPE html>
@@ -172,7 +222,8 @@ $result = $conn->query($query);
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">MANAGE REQUEST</li>
+                                <li class="breadcrumb-item"><a href="manage_request.php">MANAGE REQUEST</a></li>
+                                <li class="breadcrumb-item active">VIEW REQUEST</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -185,60 +236,110 @@ $result = $conn->query($query);
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
-                                <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">MANAGE REQUEST</h3>
+                            <!-- Main content -->
+                            <div class="invoice p-3 mb-3">
+                                <!-- title row -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4>
+                                            <img style="height: 50px;" src="images/gsu-logo.jpg" alt=""> Guimaras State University
+                                            <small class="float-right"><?php echo $request['created_at']; ?></small>
+                                        </h4>
+                                    </div>
+                                    <!-- /.col -->
                                 </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <table id="myTable" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>R.Number</th>
-                                                <th>Requestor Name</th>
-                                                <th>Status</th>
-                                                <th>Total Price</th>
-                                                <th>Updated</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            if ($result->rowCount() > 0) {
-                                                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                                                    $request_number = $row['request_number'];
-                                                    $fullname = $row['fullname'];
-                                                    $status = $row['status'];
-                                                    $total_price = $row['total_price'];
-                                                    $updated_at = $row['updated_at'];
-                                            ?>
+                                <!-- info row -->
+                                <div class="row invoice-info">
+                                    <div class="col-sm-4 invoice-col">
+                                        <address>
+                                            <strong></strong><br>
+                                            <?php echo $request['fullname']; ?><br>
+                                            <?php echo $request['student_id']; ?><br>
+                                            <?php echo $request['year']; ?> - <?php echo $request['course']; ?><br>
+                                            <?php echo $request['email']; ?>
+                                        </address>
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-4 invoice-col">
+
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-4 invoice-col">
+                                        <span style="font-weight: 900;"><?php echo $request['request_number']; ?></span><br>
+                                        <span style="text-transform: capitalize; font-weight: 900;"><?php echo $request['status']; ?></span><br>
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+
+                                <!-- Table row -->
+                                <div class="row">
+                                    <div class="col-12 table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>DOCUMENT REQUEST</th>
+                                                    <th>NUMBER OF COPIES</th>
+                                                    <th>PRICE</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($documents as $document):
+                                                    $total_price_sum += $document['total_price'];
+                                                ?>
                                                     <tr>
-                                                        <td><?php echo $request_number; ?></td>
-                                                        <td><?php echo $fullname; ?></td>
-                                                        <td style="text-transform: capitalize;"><?php echo $status; ?></td>
-                                                        <td>₱<?php echo number_format($total_price, 2); ?></td>
-                                                        <td><?php echo $updated_at; ?></td>
-                                                        <td>
-                                                            <a href="edit_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
-                                                        </td>
+                                                        <td><?php echo $document['type_of_documents']; ?></td>
+                                                        <td><?php echo $document['number_of_copies']; ?></td>
+                                                        <td>₱<?php echo number_format($document['total_price'], 2); ?></td>
                                                     </tr>
-                                            <?php
-                                                }
-                                            } else {
-                                                echo "<tr><td colspan='6' class='text-center'>No requests found.</td></tr>";
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- /.col -->
                                 </div>
-                                <!-- /.card-body -->
+                                <!-- /.row -->
+
+                                <div class="row">
+                                    <!-- accepted payments column -->
+                                    <div class="col-6">
+                                        <p class="lead" style="color: black !important; font-weight: 900">GCASH PAYMENT PROOF:</p>
+                                        <img style="height: 300px; max-width: 300px;" src="../assets/uploads/gcash_proofs/<?php echo $request['payment_proof']; ?>" alt="Visa"><br>
+                                        <a href="../assets/uploads/gcash_proofs/<?php echo $request['payment_proof']; ?>" target="_blank">VIEW PAYMENT PROOF</a>
+
+                                        <p class="text-muted well well-sm shadow-none" style="margin-top: 10px; color: black !important; font-weight: 900">
+                                            GCASH REFERENCE NUMBER: <?php echo $request['gcash_reference_number']; ?>
+                                        </p>
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-6">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <tr>
+                                                    <th>TOTAL:</th>
+                                                    <td style="color: red; font-weight: 900;">₱<?php echo number_format($total_price_sum, 2); ?></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+
+                                <!-- this row will not appear when printing -->
+                                <div class="row no-print">
+                                    <div class="col-12">
+                                        <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
+                                            <button type="button" class="btn btn-primary"><i class="far fa-credit-card"></i> Approved</button>
+                                            <button type="button" class="btn btn-danger" style="margin-right: 10px;">Disapproved</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- /.card -->
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                </div>
-                <!-- /.row -->
+                            <!-- /.invoice -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
             </section>
             <!-- /.content -->
         </div>

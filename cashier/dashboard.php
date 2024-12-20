@@ -30,6 +30,14 @@ $results_total_documents = $stmt_total_documents->fetch(PDO::FETCH_ASSOC);
 $total_documents = $results_total_documents['total_documents'];
 // END GET TOTAL DOCUMENTS
 
+// GET THE TOTAL REQUEST
+$get_total_request = "SELECT COUNT(*) AS total_request FROM `tbl_document_request`";
+$stmt_total_request = $conn->prepare($get_total_request);
+$stmt_total_request->execute();
+$results_total_request = $stmt_total_request->fetch(PDO::FETCH_ASSOC);
+$total_request = $results_total_request['total_request'];
+// END GET TOTAL REQUEST
+
 ?>
 <!DOCTYPE html>
 
@@ -207,7 +215,7 @@ $total_documents = $results_total_documents['total_documents'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3><?php echo $total_request ?></h3>
 
                                     <p>Total Request</p>
                                 </div>
