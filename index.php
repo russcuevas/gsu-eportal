@@ -64,7 +64,11 @@ $user_id = $_SESSION['user_id'] ?? null;
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button" href="e-request.php">e-Request</a>
+                    <a class="dropdown-button" href="#">e-Request</a>
+                    <div class="dropdown-content" style="width:300px">
+                        <a class="dropdown-link" href="document_request.php" id="">Document Request</a>
+                        <a class="dropdown-link" href="medical_request.php" id="">Medical Request</a>
+                    </div>
                 </div>
             </li>
             <li class="navbar-item">
@@ -110,7 +114,7 @@ $user_id = $_SESSION['user_id'] ?? null;
                     Experience a faster, more convenient way to request documents with our easy-to-use online application—streamlining
                     your process, saving time, and ensuring secure access to your needed files from anywhere.
                 </p>
-                <a class="btn btn-info bg-blue" href="e-request.php">
+                <a class="btn btn-info bg-blue" href="document_request.php">
                     REQUEST NOW <i class="fa fa-sign-in" aria-hidden="true"></i>
                 </a>
             </div>

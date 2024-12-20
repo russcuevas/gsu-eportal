@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'database/connection.php';
 
 $filter_school_year = isset($_GET['school_year']) ? $_GET['school_year'] : '';
@@ -123,16 +124,24 @@ $schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
-                    <a class="dropdown-button" href="e-request.php">e-Request</a>
+                    <a class="dropdown-button" href="#">e-Request</a>
+                    <div class="dropdown-content" style="width:300px">
+                        <a class="dropdown-link" href="document_request.php" id="">Document Request</a>
+                        <a class="dropdown-link" href="medical_request.php" id="">Medical Request</a>
+                    </div>
                 </div>
             </li>
             <li class="navbar-item">
                 <div class="dropdown-div">
                     <a class="item-link" href="#">e-Portal</a>
                     <div class="dropdown-content" style="width:250px">
-                        <a class="dropdown-link" href="login.php" id="">Student Portal</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-link" href="admin_login.php" id="">Employee Portal</a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <a class="dropdown-link" href="student_portal/dashboard.php" id="">Student Portal</a>
+                            <a class="dropdown-link" href="logout.php" id="">Logout</a>
+                        <?php else: ?>
+                            <a class="dropdown-link" href="login.php" id="">Student Portal</a>
+                            <a class="dropdown-link" href="admin_login.php" id="">Employee Portal</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </li>

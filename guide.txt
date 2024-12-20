@@ -74,18 +74,20 @@ tbl_clinic_request
 id -> primary
 user_id -> foreign to tbl_users
 laboratory_request
+with_med_cert -> Yes or No
 status -> For approval,
-created_at
-updated_at
+requested_at -> NOW()
+appointed_at -> set schedule
 
 // CAN VIEW ALSO BY CASHIER
 tbl_clinic_report
 id -> primary
 user_id -> foreign to tbl_users
 laboratory_request
+with_med_cert -> 1 or 2
 status -> Completed
-created_at
-updated_at
+requested_at -> date of being request
+appointed_at -> date of being appointed
 
 
 
