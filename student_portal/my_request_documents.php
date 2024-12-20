@@ -1,36 +1,34 @@
 <?php
 include '../database/connection.php';
 
-//session
+// Session handling
 session_start();
-$user_id = $_SESSION['user_id'];
-if (!isset($user_id)) {
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) {
     header('location:../login.php');
+    exit();
 }
 
-$is_logged_in = isset($_SESSION['user_id']);
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = intval($user_id);
 
+// Query to get document request data based on the logged-in user
+$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
+          FROM tbl_document_request
+          WHERE user_id = :user_id
+          GROUP BY request_number, fullname, status
+          ORDER BY updated_at DESC";
 
-// GET THE TOTAL OSDS
-$get_total_osds = "SELECT COUNT(*) AS total_osds FROM `tbl_admin` WHERE role = 'osds'";
-$stmt_total_osds = $conn->prepare($get_total_osds);
-$stmt_total_osds->execute();
-$results_total_osds = $stmt_total_osds->fetch(PDO::FETCH_ASSOC);
-$total_osds = $results_total_osds['total_osds'];
-// END GET TOTAL OSDS
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
 
+// Fetch all results into an array
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// GET THE TOTAL POSTED REQUIREMENTS
-$get_total_requirements = "SELECT COUNT(*) AS total_requirements FROM `tbl_osds_post_requirements`";
-$stmt_total_requirements = $conn->prepare($get_total_requirements);
-$stmt_total_requirements->execute();
-$results_total_requirements = $stmt_total_requirements->fetch(PDO::FETCH_ASSOC);
-$total_requirements = $results_total_requirements['total_requirements'];
-// END GET TOTAL POSTED REQUIREMENTS
 ?>
-<!DOCTYPE html>
 
+
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -43,6 +41,14 @@ $total_requirements = $results_total_requirements['total_requirements'];
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.min.css">
+
     <!-- Tempusdominus Bbootstrap 4 -->
     <link rel="stylesheet" href="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <!-- iCheck -->
@@ -62,6 +68,15 @@ $total_requirements = $results_total_requirements['total_requirements'];
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
+        }
+
+        .btn.btn-primary {
+            background-color: #001968 !important;
+            border: #001968;
+        }
+
+        .btn.btn-primary:hover {
+            background-color: black !important;
         }
     </style>
 </head>
@@ -102,7 +117,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="dashboard.php" class="nav-link active">
+                            <a href="dashboard.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -110,7 +125,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="my_request_documents.php" class="nav-link">
+                            <a href="my_request_documents.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     My Request Documents
@@ -148,7 +163,13 @@ $total_requirements = $results_total_requirements['total_requirements'];
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0 text-dark">DASHBOARD</h1>
+
+                        </div><!-- /.col -->
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
+                                <li class="breadcrumb-item active">MY REQUEST DOCUMENTS</li>
+                            </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->
@@ -158,45 +179,49 @@ $total_requirements = $results_total_requirements['total_requirements'];
             <!-- Main content -->
             <section class="content">
                 <div class="container-fluid">
-                    <!-- Small boxes (Stat box) -->
                     <div class="row">
-                        <div class="col-lg-4 col-12">
-                            <!-- small box -->
-                            <div style="background-color: #001968 !important;" class="small-box bg-info">
-                                <div class="inner">
-                                    <h3><?php echo $total_osds ?></h3>
-
-                                    <p>Total Osds</p>
+                        <div class="col-12">
+                            <div class="card">
+                                <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
+                                    <h3 class="card-title" style="font-size: 25px;">MY REQUEST DOCUMENTS</h3>
                                 </div>
-                                <div class="icon">
-                                    <i style="color: white !important;" class="ion ion-person-add"></i>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="myTable" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>R.Number</th>
+                                                <th>Requestor Name</th>
+                                                <th>Status</th>
+                                                <th>Total Price</th>
+                                                <th>Updated</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($rows as $row): ?>
+                                                <tr>
+                                                    <td><?php echo $row['request_number']; ?></td>
+                                                    <td><?php echo $row['fullname']; ?></td>
+                                                    <td style="text-transform: capitalize;"><?php echo $row['status']; ?></td>
+                                                    <td>₱<?php echo number_format($row['total_price'], 2); ?></td>
+                                                    <td><?php echo $row['updated_at']; ?></td>
+                                                    <td>
+                                                        <a href="view_request_documents?request_number=<?php echo $row['request_number']; ?>" class="btn btn-info">View Information</a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach ?>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <a href="manage_osds.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <!-- /.card-body -->
                             </div>
+                            <!-- /.card -->
                         </div>
-                        <!-- ./col -->
-                        <div class="col-lg-4 col-12">
-                            <!-- small box -->
-                            <div style="background-color: #001968 !important;" class="small-box bg-info">
-                                <div class="inner">
-                                    <h3><?php echo $total_requirements ?></h3>
-
-                                    <p>Posted Requirements</p>
-                                </div>
-                                <div class="icon">
-                                    <i style="color: white !important;" class="ion ion-folder"></i>
-                                </div>
-                                <a href="posted_requirements.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
+                        <!-- /.col -->
                     </div>
-                    <!-- /.row -->
-                    <!-- Main row -->
-                    <div class="row">
-
-                    </div>
-                    <!-- /.row (main row) -->
-                </div><!-- /.container-fluid -->
+                </div>
+                <!-- /.row -->
             </section>
             <!-- /.content -->
         </div>
@@ -221,8 +246,16 @@ $total_requirements = $results_total_requirements['total_requirements'];
     </script>
     <!-- Bootstrap 4 -->
     <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="plugins/toastr/toastr.min.js"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
+
     <!-- ChartJS -->
-    <script src="plugins/chart.js/Chart.min.js"></script>
+    <script src=" plugins/chart.js/Chart.min.js"></script>
     <!-- Sparkline -->
     <script src="plugins/sparklines/sparkline.js"></script>
     <!-- JQVMap -->
@@ -245,6 +278,38 @@ $total_requirements = $results_total_requirements['total_requirements'];
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#myTable').DataTable({
+                responsive: true
+            });
+        });
+    </script>
+
+    <script>
+        function setDocumentsId(DocumentId) {
+            document.getElementById('document_id_delete').value = DocumentId;
+        }
+    </script>
+
+
+    <!-- success and error message alert -->
+    <script>
+        $(document).ready(function() {
+            <?php if (isset($_SESSION['success'])): ?>
+                toastr.success('<?php echo $_SESSION['success']; ?>');
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                toastr.error('<?php echo $_SESSION['error']; ?>');
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+        });
+    </script>
+
+
+
 </body>
 
 </html>
