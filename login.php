@@ -16,6 +16,14 @@ if (isset($_POST['login'])) {
   if ($select_users->rowCount() > 0) {
     $user = $select_users->fetch(PDO::FETCH_ASSOC);
     $_SESSION['user_id'] = $user['id'];
+    $_SESSION['email'] = $user['email'];
+    $_SESSION['fullname'] = $user['fullname'];
+    $_SESSION['student_id'] = $user['student_id'];
+    $_SESSION['age'] = $user['age'];
+    $_SESSION['year'] = $user['year'];
+    $_SESSION['course'] = $user['course'];
+    $_SESSION['gender'] = $user['gender'];
+    $_SESSION['status'] = $user['status'];
     header('location:index.php');
   } else {
     $_SESSION['error_message'] = 'Incorrect email or password';
