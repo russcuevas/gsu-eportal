@@ -23,13 +23,29 @@ $total_clinic = $results_total_clinic['total_clinic'];
 // END GET TOTAL CLINIC
 
 
-// GET THE TOTAL POSTED REQUIREMENTS
-$get_total_requirements = "SELECT COUNT(*) AS total_requirements FROM `tbl_osds_post_requirements`";
-$stmt_total_requirements = $conn->prepare($get_total_requirements);
-$stmt_total_requirements->execute();
-$results_total_requirements = $stmt_total_requirements->fetch(PDO::FETCH_ASSOC);
-$total_requirements = $results_total_requirements['total_requirements'];
-// END GET TOTAL POSTED REQUIREMENTS
+// GET THE TOTAL PENDING REQUEST
+$get_total_pending_request = "SELECT COUNT(*) AS total_pending_request FROM `tbl_clinic_request` WHERE status = 'pending'";
+$stmt_total_pending_request = $conn->prepare($get_total_pending_request);
+$stmt_total_pending_request->execute();
+$results_total_pending_request = $stmt_total_pending_request->fetch(PDO::FETCH_ASSOC);
+$total_pending_request = $results_total_pending_request['total_pending_request'];
+// END GET TOTAL PENDING REQUEST
+
+// GET THE TOTAL ACCEPTED REQUEST
+$get_total_accepted_request = "SELECT COUNT(*) AS total_accepted_request FROM `tbl_clinic_request` WHERE status = 'Accepted'";
+$stmt_total_accepted_request = $conn->prepare($get_total_accepted_request);
+$stmt_total_accepted_request->execute();
+$results_total_accepted_request = $stmt_total_accepted_request->fetch(PDO::FETCH_ASSOC);
+$total_accepted_request = $results_total_accepted_request['total_accepted_request'];
+// END GET TOTAL ACCEPTED REQUEST
+
+// GET THE TOTAL COMPLETED REQUEST
+$get_total_completed_reports = "SELECT COUNT(*) AS total_completed_reports FROM `tbl_clinic_request` WHERE status = 'Completed'";
+$stmt_total_completed_reports = $conn->prepare($get_total_completed_reports);
+$stmt_total_completed_reports->execute();
+$results_total_completed_reports = $stmt_total_completed_reports->fetch(PDO::FETCH_ASSOC);
+$total_completed_reports = $results_total_completed_reports['total_completed_reports'];
+// END GET TOTAL COMPLETED REQUEST
 ?>
 <!DOCTYPE html>
 
@@ -130,6 +146,14 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-folder"></i>
+                                <p>
+                                    Completed Reports
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>
@@ -169,7 +193,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 <div class="inner">
                                     <h3><?php echo $total_clinic ?></h3>
 
-                                    <p>Total Clinic</p>
+                                    <p>Total Clinic Account</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-person-add"></i>
@@ -182,14 +206,44 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_requirements ?></h3>
+                                    <h3><?php echo $total_pending_request ?></h3>
 
-                                    <p>Posted Requirements</p>
+                                    <p>Pending Request</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="fas fa-hourglass"></i>
+                                </div>
+                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $total_accepted_request ?></h3>
+
+                                    <p>Accepted Request</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="fas fa-check"></i>
+                                </div>
+                                <a href="accepted_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $total_completed_reports ?></h3>
+
+                                    <p>Completed Reports</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>
                                 </div>
-                                <a href="posted_requirements.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="reports.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                     </div>

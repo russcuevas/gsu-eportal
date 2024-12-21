@@ -1,126 +1,25 @@
 <?php
 include '../database/connection.php';
 
-// session
+//session
 session_start();
 $admin_id = $_SESSION['admin_id'];
 if (!isset($admin_id)) {
     header('location:../admin_login.php');
 }
 
+// if not clinic role it will redirect to login
 if ($_SESSION['role'] !== 'clinic') {
     header('location:../admin_login.php');
     exit();
 }
 
-$query = "
-    SELECT 
-        r.id AS request_id,
-        r.request_number,
-        r.laboratory_request,
-        r.with_med_cert,
-        r.med_cert_picture,
-        r.status AS request_status,
-        r.requested_at,
-        r.appointed_at,
-        u.id AS user_id,
-        u.student_id,
-        u.fullname,
-        u.age,
-        u.email,
-        u.year,
-        u.course,
-        u.gender,
-        u.status AS user_status
-    FROM tbl_clinic_request r
-    LEFT JOIN tbl_users u ON r.user_id = u.id
-    WHERE r.status = 'Accepted'
-    ORDER BY r.requested_at DESC
-";
+// READ CLINIC
+$get_clinic = "SELECT * FROM `tbl_admin` WHERE role = 'clinic'";
+$stmt_get_clinic = $conn->query($get_clinic);
+$clinic = $stmt_get_clinic->fetchAll(PDO::FETCH_ASSOC);
+// END READ CLINIC
 
-
-$stmt = $conn->prepare($query);
-$stmt->execute();
-$requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
-// edit request
-if (isset($_POST['update_button'])) {
-    $request_id = $_POST['request_id'];
-    $laboratory_request = $_POST['laboratory_request'];
-    $status = $_POST['status'];
-    $med_cert_picture = '';
-
-    if (isset($_FILES['med_cert_picture']) && $_FILES['med_cert_picture']['error'] == 0) {
-        $upload_dir = '../assets/uploads/medical_certificate/';
-        $file_name = $_FILES['med_cert_picture']['name'];
-        $file_tmp = $_FILES['med_cert_picture']['tmp_name'];
-        $file_type = $_FILES['med_cert_picture']['type'];
-
-        $new_file_name = uniqid() . "_" . basename($file_name);
-        $file_path = $upload_dir . $new_file_name;
-
-        $allowed_types = ['image/jpeg', 'image/png', 'application/pdf'];
-        if (!in_array($file_type, $allowed_types)) {
-            $_SESSION['error'] = 'Invalid file type. Only images (JPEG, PNG) and PDFs are allowed.';
-            header("Location: accepted_request.php");
-            exit();
-        }
-
-        if (move_uploaded_file($file_tmp, $file_path)) {
-            $med_cert_picture = $new_file_name;
-        } else {
-            $_SESSION['error'] = 'Failed to upload the medical certificate.';
-            header("Location: accepted_request.php");
-            exit();
-        }
-    }
-
-    if ($status == 'Completed') {
-        $update_query = "
-            UPDATE tbl_clinic_request 
-            SET 
-                laboratory_request = :laboratory_request, 
-                status = :status,
-                med_cert_picture = :med_cert_picture
-            WHERE id = :request_id
-        ";
-
-        $stmt = $conn->prepare($update_query);
-        $stmt->bindParam(':laboratory_request', $laboratory_request);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':med_cert_picture', $med_cert_picture);
-        $stmt->bindParam(':request_id', $request_id);
-
-        //smtp
-
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = 'Appointment completed successfully.';
-        } else {
-            $_SESSION['error'] = 'Failed to update the appointment to Completed.';
-        }
-    } elseif (
-        $status == 'Cancel'
-    ) {
-        $delete_query = "
-            DELETE FROM tbl_clinic_request 
-            WHERE id = :request_id
-        ";
-
-        $stmt = $conn->prepare($delete_query);
-        $stmt->bindParam(':request_id', $request_id);
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = 'Appointment cancelled successfully.';
-        } else {
-            $_SESSION['error'] = 'Failed to cancel and delete the appointment.';
-        }
-    }
-
-    header("Location: accepted_request.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -213,7 +112,7 @@ if (isset($_POST['update_button'])) {
                         </li>
 
                         <li class="nav-item">
-                            <a href="manage_clinic.php" class="nav-link">
+                            <a href="manage_clinic.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Manage Clinic
@@ -230,7 +129,7 @@ if (isset($_POST['update_button'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="accepted_request.php" class="nav-link active">
+                            <a href="accepted_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     Accepted Appointment
@@ -272,7 +171,7 @@ if (isset($_POST['update_button'])) {
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">APPOINTMENT</li>
+                                <li class="breadcrumb-item active">MANAGE CLINIC</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -287,97 +186,62 @@ if (isset($_POST['update_button'])) {
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">APPOINTMENT</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">MANAGE CLINIC</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
+                                    <button onclick="window.location.href='add_clinic.php';" class="btn btn-primary mb-3">+ ADD CLINIC</button>
                                     <table id="myTable" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>R. Number</th>
-                                                <th>For Laboratory</th>
+                                                <th>Image</th>
                                                 <th>Fullname</th>
-                                                <th>W/ Med-Cert</th>
                                                 <th>Email</th>
-                                                <th>Appointed At</th>
-                                                <th>Status</th>
-                                                <th>
-                                                    Actions
-                                                </th>
+                                                <th>Created</th>
+                                                <th>Updated</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($requests as $request): ?>
+                                            <?php foreach ($clinic as $clinic_account): ?>
                                                 <tr>
-                                                    <td><?php echo htmlspecialchars($request['request_number']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['laboratory_request']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['fullname']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['with_med_cert']); ?></td>
-
-                                                    <td><?php echo htmlspecialchars($request['email']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['appointed_at']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['request_status']); ?></td>
+                                                    <td><img style="height: 70px; width: 70px; border-radius: 50px;" src="images/profile/<?php echo $clinic_account['profile_image']; ?>" alt="Profile Picture" /></td>
+                                                    <td><?php echo $clinic_account['fullname'] ?></td>
+                                                    <td><?php echo $clinic_account['email'] ?></td>
+                                                    <td><?php echo $clinic_account['created_at'] ?></td>
+                                                    <td><?php echo $clinic_account['updated_at'] ?></td>
                                                     <td>
-                                                        <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#editAppointmentSchedule<?php echo $request['request_id']; ?>">View information</button>
-                                                    </td>
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteClinicModal" onclick="setClinicId(<?php echo $clinic_account['id']; ?>)">
+                                                            DELETE
+                                                        </a>
 
-                                                    <!-- update modal -->
-                                                    <div class="modal fade" id="editAppointmentSchedule<?php echo $request['request_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $request['request_id']; ?>" aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="editModalLabel<?php echo $request['request_id']; ?>"><?php echo $request['request_number']; ?></h5>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <form action="" method="POST" enctype="multipart/form-data">
-                                                                        <input type="hidden" id="request_id" name="request_id" value="<?php echo $request['request_id']; ?>">
-                                                                        <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
-                                                                        <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
-                                                                        <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
-                                                                        <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
-                                                                        <strong>Course:</strong> <?php echo $request['course']; ?><br>
-                                                                        <strong>Year:</strong> <?php echo $request['year']; ?><br>
-                                                                        <strong>Email:</strong> <?php echo $request['email']; ?>
 
-                                                                        <hr>
-
-                                                                        <?php if ($request['with_med_cert'] === 'Yes'): ?>
-                                                                            <div class="form-group">
-                                                                                <label for="med_cert_picture">Upload Medical Certificate</label>
-                                                                                <input type="file" class="form-control" name="med_cert_picture" id="med_cert_picture">
-                                                                            </div>
-                                                                        <?php else: ?>
-                                                                        <?php endif ?>
-
-                                                                        <div class="form-group">
-                                                                            <label for="laboratory_request">Laboratory Request</label>
-                                                                            <select class="form-control" id="laboratory_request" name="laboratory_request" required>
-                                                                                <option value="Completed" <?php echo ($request['laboratory_request'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
-                                                                            </select>
-                                                                        </div>
-
-                                                                        <div class="form-group">
-                                                                            <label for="status">Status</label>
-                                                                            <select class="form-control" id="status" name="status" required>
-                                                                                <option value="Completed" <?php echo ($request['request_status'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
-                                                                                <option value="Cancel" <?php echo ($request['request_status'] == 'Cancel') ? 'selected' : ''; ?>>Cancel</option>
-                                                                            </select>
-                                                                        </div>
-
-                                                                        <div class="d-flex justify-content-end" style="gap: 3px !important;">
-                                                                            <button type="submit" name="update_button" class="btn btn-primary">UPDATE CHANGES</button>
-                                                                        </div>
-                                                                    </form>
+                                                        <!-- DELETE MODAL -->
+                                                        <div class="modal fade" id="deleteClinicModal" tabindex="-1" role="dialog" aria-labelledby="deleteClinicModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteClinicModalLabel">Confirm Deletion</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Are you sure you want to delete this user?
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <form id="deleteUserForm" method="POST" action="delete_clinic.php">
+                                                                            <input type="hidden" name="id" id="clinic_id_delete">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                                        </form>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <!-- /.modal -->
+                                                    </td>
                                                 </tr>
-                                            <?php endforeach; ?>
+                                            <?php endforeach ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -445,7 +309,6 @@ if (isset($_POST['update_button'])) {
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
-
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
@@ -453,6 +316,13 @@ if (isset($_POST['update_button'])) {
             });
         });
     </script>
+
+    <script>
+        function setClinicId(ClinicId) {
+            document.getElementById('clinic_id_delete').value = ClinicId;
+        }
+    </script>
+
 
     <!-- success and error message alert -->
     <script>
