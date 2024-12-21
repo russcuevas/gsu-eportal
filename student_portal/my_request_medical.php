@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 
 // Fetch all requests for the logged-in user
 $query = "
-    SELECT request_number, laboratory_request, with_med_cert, status, requested_at, appointed_at
+    SELECT id, request_number, laboratory_request, with_med_cert, status, requested_at, appointed_at
     FROM tbl_clinic_request
     WHERE user_id = :user_id
     ORDER BY requested_at DESC
@@ -202,11 +202,13 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php foreach ($requests as $request): ?>
                                                 <tr>
                                                     <td><?php echo $request['request_number']; ?></td>
-                                                    <td><?php echo ucfirst($request['laboratory_request']); ?></td>
+                                                    <td>
+                                                        <?php echo ucfirst($request['laboratory_request']); ?>
+                                                    </td>
                                                     <td><?php echo ucfirst($request['with_med_cert']); ?></td>
 
                                                     <td><?php echo ucfirst($request['status']); ?></td>
-                                                    <td><?php echo date('F j, Y', strtotime($request['requested_at'])); ?></td>
+                                                    <td><?php echo ucfirst($request['requested_at']); ?></td>
                                                     <td>
                                                         <?php if ($request['status'] == 'pending'): ?>
                                                             <form action="cancel_medical_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
@@ -214,7 +216,7 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                 <button type="submit" class="btn btn-danger">Cancel</button>
                                                             </form>
                                                         <?php else: ?>
-                                                            <button class="btn btn-secondary" disabled>Request Completed</button>
+                                                            <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#viewInformation<?php echo $request['id']; ?>">View information</button>
                                                         <?php endif; ?>
                                                     </td>
                                                 </tr>

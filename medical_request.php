@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <strong>You need a medical certificate?</strong><br>
                         <div>
-                            <input type="radio" id="yes" name="with_med_cert" value="Yes">
+                            <input type="radio" id="yes" name="with_med_cert" value="Yes" checked>
                             <label for="yes">Yes</label>
                         </div>
                         <div>

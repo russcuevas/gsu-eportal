@@ -85,6 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        //smtp
+
+
         $_SESSION['success'] = "Your document request has been submitted successfully.";
         header("Location: document_request.php");
         exit();

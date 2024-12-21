@@ -51,35 +51,62 @@ if (isset($_POST['update_button'])) {
     $status = $_POST['status'];
     $med_cert_picture = '';
 
+    if (isset($_FILES['med_cert_picture']) && $_FILES['med_cert_picture']['error'] == 0) {
+        $upload_dir = '../assets/uploads/medical_certificate/';
+        $file_name = $_FILES['med_cert_picture']['name'];
+        $file_tmp = $_FILES['med_cert_picture']['tmp_name'];
+        $file_type = $_FILES['med_cert_picture']['type'];
+
+        $new_file_name = uniqid() . "_" . basename($file_name);
+        $file_path = $upload_dir . $new_file_name;
+
+        $allowed_types = ['image/jpeg', 'image/png', 'application/pdf'];
+        if (!in_array($file_type, $allowed_types)) {
+            $_SESSION['error'] = 'Invalid file type. Only images (JPEG, PNG) and PDFs are allowed.';
+            header("Location: accepted_request.php");
+            exit();
+        }
+
+        if (move_uploaded_file($file_tmp, $file_path)) {
+            $med_cert_picture = $new_file_name;
+        } else {
+            $_SESSION['error'] = 'Failed to upload the medical certificate.';
+            header("Location: accepted_request.php");
+            exit();
+        }
+    }
+
     if ($status == 'Completed') {
         $update_query = "
             UPDATE tbl_clinic_request 
             SET 
                 laboratory_request = :laboratory_request, 
-                status = :status
+                status = :status,
+                med_cert_picture = :med_cert_picture
             WHERE id = :request_id
         ";
-
-        //smtp
 
         $stmt = $conn->prepare($update_query);
         $stmt->bindParam(':laboratory_request', $laboratory_request);
         $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':med_cert_picture', $med_cert_picture);
         $stmt->bindParam(':request_id', $request_id);
 
+        //smtp
+
+
         if ($stmt->execute()) {
-            $_SESSION['success'] = 'Appointment Completed successfully.';
+            $_SESSION['success'] = 'Appointment completed successfully.';
         } else {
             $_SESSION['error'] = 'Failed to update the appointment to Completed.';
         }
-    } elseif ($status == 'Cancel') {
+    } elseif (
+        $status == 'Cancel'
+    ) {
         $delete_query = "
             DELETE FROM tbl_clinic_request 
             WHERE id = :request_id
         ";
-
-        //smtp
-
 
         $stmt = $conn->prepare($delete_query);
         $stmt->bindParam(':request_id', $request_id);
