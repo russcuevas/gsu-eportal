@@ -59,9 +59,6 @@ $stmt_documents->execute();
 $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
 $total_price_sum = 0;
-foreach ($documents as $document) {
-    $total_price_sum += $document['total_price'];
-}
 ?>
 
 
@@ -313,11 +310,15 @@ foreach ($documents as $document) {
                                 <div class="row no-print">
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
-                                            <?php if ($request['status'] === 'Pending'): ?>
+                                            <?php if ($request['status'] === 'pending'): ?>
                                                 <form action="cancel_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
                                                     <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
                                                     <button type="submit" class="btn btn-danger" style="margin-right: 10px;">CANCEL REQUEST</button>
                                                 </form>
+                                            <?php elseif ($request['status'] === 'paid'): ?>
+                                                <h4>PREPARING YOUR REQUEST DOCUMENTS</h4>
+                                            <?php else: ?>
+                                                <h4 style="color: green;">CLAIMABLE SHOW THIS RECEIPT TO REGISTRAR FOR YOUR PROOF</h4>
                                             <?php endif; ?>
                                         </div>
                                     </div>
