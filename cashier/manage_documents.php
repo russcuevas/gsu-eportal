@@ -138,14 +138,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
-                                <i class="nav-icon fas fa-check"></i>
-                                <p>
-                                    Reports
-                                </p>
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -207,7 +200,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                                             <?php foreach ($document as $documents): ?>
                                                 <tr>
                                                     <td><?php echo $documents['type_of_documents'] ?></td>
-                                                    <td><?php echo $documents['price'] ?></td>
+                                                    <td>₱<?php echo $documents['price'] ?></td>
                                                     <td><?php echo $documents['created_at'] ?></td>
                                                     <td><?php echo $documents['updated_at'] ?></td>
                                                     <td>

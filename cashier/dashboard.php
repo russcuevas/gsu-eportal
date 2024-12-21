@@ -30,14 +30,34 @@ $results_total_documents = $stmt_total_documents->fetch(PDO::FETCH_ASSOC);
 $total_documents = $results_total_documents['total_documents'];
 // END GET TOTAL DOCUMENTS
 
-// GET THE TOTAL REQUEST
-$get_total_request = "SELECT COUNT(*) AS total_request FROM `tbl_document_request`";
-$stmt_total_request = $conn->prepare($get_total_request);
-$stmt_total_request->execute();
-$results_total_request = $stmt_total_request->fetch(PDO::FETCH_ASSOC);
-$total_request = $results_total_request['total_request'];
-// END GET TOTAL REQUEST
+// GET THE TOTAL UNIQUE PENDING REQUEST
+$get_total_pending_request = "SELECT COUNT(DISTINCT request_number) AS total_pending_request 
+                               FROM `tbl_document_request` 
+                               WHERE status = 'pending'";
+$stmt_total_pending_request = $conn->prepare($get_total_pending_request);
+$stmt_total_pending_request->execute();
+$results_total_pending_request = $stmt_total_pending_request->fetch(PDO::FETCH_ASSOC);
+$total_pending_request = $results_total_pending_request['total_pending_request'];
+// END GET TOTAL PENDING REQUEST
 
+
+// GET THE TOTAL UNIQUE PAID REQUEST
+$get_total_paid_request = "SELECT COUNT(DISTINCT request_number) AS total_paid_request 
+                           FROM `tbl_document_request` 
+                           WHERE status = 'paid'";
+$stmt_total_paid_request = $conn->prepare($get_total_paid_request);
+$stmt_total_paid_request->execute();
+$results_total_paid_request = $stmt_total_paid_request->fetch(PDO::FETCH_ASSOC);
+$total_paid_request = $results_total_paid_request['total_paid_request'];
+// END GET TOTAL PAID REQUEST
+
+// GET TOTAL PAID
+$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_request` WHERE status = 'paid'";
+$stmt_total_paid = $conn->prepare($get_total_paid);
+$stmt_total_paid->execute();
+$results_total_paid = $stmt_total_paid->fetch(PDO::FETCH_ASSOC);
+$total_paid = $results_total_paid['total_paid'];
+// END GET TOTAL PRICE
 ?>
 <!DOCTYPE html>
 
@@ -138,14 +158,7 @@ $total_request = $results_total_request['total_request'];
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
-                                <i class="nav-icon fas fa-check"></i>
-                                <p>
-                                    Reports
-                                </p>
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -215,12 +228,43 @@ $total_request = $results_total_request['total_request'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_request ?></h3>
+                                    <h3><?php echo $total_pending_request ?></h3>
 
-                                    <p>Total Request</p>
+                                    <p>Total Pending Request</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-clock"></i>
+                                </div>
+                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- ./col -->
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $total_paid_request ?></h3>
+
+                                    <p>Total Paid Request</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-checkmark"></i>
+                                </div>
+                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>₱<?php echo $total_paid ?></h3>
+
+                                    <p>Reports</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-cash"></i>
                                 </div>
                                 <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>

@@ -222,14 +222,7 @@ $total_price_sum = 0;
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
-                                <i class="nav-icon fas fa-check"></i>
-                                <p>
-                                    Reports
-                                </p>
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
