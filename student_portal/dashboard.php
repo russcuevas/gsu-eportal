@@ -119,7 +119,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                         </li>
 
                         <li class="nav-item">
-                            <a href="posted_requirements.php" class="nav-link">
+                            <a href="my_request_medical.php" class="nav-link">
                                 <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     My Medical Request

@@ -1,28 +1,31 @@
 <?php
+session_start();
 include '../database/connection.php';
 
-// Session handling
-session_start();
-$user_id = $_SESSION['user_id'] ?? null;
-if (!$user_id) {
-    header('location:../login.php');
+// Ensure user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('location: login.php');
     exit();
 }
 
-$user_id = intval($user_id);
+// Get the user ID from the session
+$user_id = $_SESSION['user_id'];
 
-// Query to get document request data based on the logged-in user
-$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
-          FROM tbl_document_request
-          WHERE user_id = :user_id
-          GROUP BY request_number, fullname, status
-          ORDER BY updated_at DESC";
+// Fetch all requests for the logged-in user
+$query = "
+    SELECT request_number, laboratory_request, with_med_cert, status, requested_at, appointed_at
+    FROM tbl_clinic_request
+    WHERE user_id = :user_id
+    ORDER BY requested_at DESC
+";
 
 $stmt = $conn->prepare($query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
-?>
 
+// Fetch all requests into an associative array
+$requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 
 <!DOCTYPE html>
 <html>
@@ -121,7 +124,7 @@ $stmt->execute();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="my_request_documents.php" class="nav-link active">
+                            <a href="my_request_documents.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     My Document Request
@@ -130,7 +133,7 @@ $stmt->execute();
                         </li>
 
                         <li class="nav-item">
-                            <a href="my_request_medical.php" class="nav-link">
+                            <a href="my_request_medical.php" class="nav-link active">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     My Medical Request
@@ -164,7 +167,7 @@ $stmt->execute();
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">TRACK REQUEST</li>
+                                <li class="breadcrumb-item active">MY MEDICAL REQUEST</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -179,38 +182,43 @@ $stmt->execute();
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">TRACK REQUEST</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">MY MEDICAL REQUEST</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <button onclick="window.location.href='../document_request.php';" class="btn btn-primary mb-3">+ REQUEST DOCUMENTS</button>
-
+                                    <button onclick="window.location.href='../medical_request.php';" class="btn btn-primary mb-3">+ REQUEST MEDICAL</button>
                                     <table id="myTable" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>R.Number</th>
+                                                <th>Request Number</th>
+                                                <th>For Laboratory</th>
+                                                <th>With Med-Cert</th>
                                                 <th>Status</th>
-                                                <th>Total Price</th>
-                                                <th>Updated</th>
-                                                <th>Actions</th>
+                                                <th>Requested At</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                            ?>
+                                            <?php foreach ($requests as $request): ?>
                                                 <tr>
-                                                    <td><?php echo $row['request_number']; ?></td>
-                                                    <td style="text-transform: capitalize;"><?php echo $row['status']; ?></td>
-                                                    <td>₱<?php echo number_format($row['total_price'], 2); ?></td>
-                                                    <td><?php echo $row['updated_at']; ?></td>
+                                                    <td><?php echo $request['request_number']; ?></td>
+                                                    <td><?php echo ucfirst($request['laboratory_request']); ?></td>
+                                                    <td><?php echo ucfirst($request['with_med_cert']); ?></td>
+
+                                                    <td><?php echo ucfirst($request['status']); ?></td>
+                                                    <td><?php echo date('F j, Y', strtotime($request['requested_at'])); ?></td>
                                                     <td>
-                                                        <a href="view_documents.php?request_number=<?php echo $row['request_number']; ?>" class="btn btn-info">View Information</a>
+                                                        <?php if ($request['status'] == 'pending'): ?>
+                                                            <form action="cancel_medical_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                                                <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
+                                                                <button type="submit" class="btn btn-danger">Cancel</button>
+                                                            </form>
+                                                        <?php else: ?>
+                                                            <button class="btn btn-secondary" disabled>Request Completed</button>
+                                                        <?php endif; ?>
                                                     </td>
                                                 </tr>
-                                            <?php
-                                            }
-                                            ?>
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>

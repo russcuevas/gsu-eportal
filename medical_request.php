@@ -18,8 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $med_cert_picture = null;
         $status = 'pending';
 
-        $sql = "INSERT INTO tbl_clinic_request (user_id, laboratory_request, with_med_cert, med_cert_picture, status) 
-                VALUES (:user_id, :laboratory_request, :with_med_cert, :med_cert_picture, :status)";
+        $request_number = rand(1, 10000000);
+
+        $sql = "INSERT INTO tbl_clinic_request (user_id, laboratory_request, with_med_cert, med_cert_picture, status, request_number) 
+                VALUES (:user_id, :laboratory_request, :with_med_cert, :med_cert_picture, :status, :request_number)";
 
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':user_id', $user_id);
@@ -27,9 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':with_med_cert', $with_med_cert);
         $stmt->bindParam(':med_cert_picture', $med_cert_picture);
         $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':request_number', $request_number);
 
         if ($stmt->execute()) {
-            $_SESSION['success'] = "Medical appointment requested. Please wait for the approval by the admin.";
+            $_SESSION['success'] = "Medical appointment requested successfully. Please wait for the approval by the clinic nurse.";
             header("Location: medical_request.php");
             exit();
         } else {
@@ -240,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="text-end float-right">
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <button type="submit" class="btn btn-primary bg-blue mt-3">
-                                <i class="fas fa-paper-plane"></i> REQUEST LABORATORY
+                                <i class="fas fa-paper-plane"></i> REQUEST FOR LABORATORY
                             </button>
                         <?php else: ?>
                             <br>

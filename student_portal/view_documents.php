@@ -160,16 +160,16 @@ $total_price_sum = 0;
                         </li>
                         <li class="nav-item">
                             <a href="my_request_documents.php" class="nav-link active">
-                                <i class="nav-icon fas fa-users"></i>
+                                <i class="nav-icon fas fa-clock"></i>
                                 <p>
-                                    My Documents Request
+                                    My Document Request
                                 </p>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="posted_requirements.php" class="nav-link">
-                                <i class="nav-icon fas fa-folder"></i>
+                            <a href="my_request_medical.php" class="nav-link">
+                                <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     My Medical Request
                                 </p>
@@ -311,7 +311,7 @@ $total_price_sum = 0;
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
                                             <?php if ($request['status'] === 'pending'): ?>
-                                                <form action="cancel_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                                <form action="cancel_document_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
                                                     <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
                                                     <button type="submit" class="btn btn-danger" style="margin-right: 10px;">CANCEL REQUEST</button>
                                                 </form>

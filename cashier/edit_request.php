@@ -1,14 +1,14 @@
 <?php
 include '../database/connection.php';
-
-// Session and authentication
 session_start();
-$admin_id = $_SESSION['admin_id'];
-if (!isset($admin_id)) {
+
+// Check if the admin is logged in
+$admin_id = $_SESSION['admin_id'] ?? null;
+if (!$admin_id) {
     header('location:../admin_login.php');
+    exit();
 }
 
-// if not cashier role, redirect to login
 if ($_SESSION['role'] !== 'cashier') {
     header('location:../admin_login.php');
     exit();
@@ -21,7 +21,6 @@ if ($request_number === null) {
     exit();
 }
 
-// Query to fetch the main request data (only once)
 $query = "
     SELECT 
         dr.*, 
@@ -40,18 +39,55 @@ $query = "
 $stmt = $conn->prepare($query);
 $stmt->bindParam(':request_number', $request_number);
 $stmt->execute();
-
-// Fetching the result as an associative array
 $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// If no main request data found, redirect to requests page
 if (!$request) {
     $_SESSION['error'] = 'Request not found.';
     header('location:requests.php');
     exit();
 }
 
-// Query to fetch all document data for the same request_number
+if (isset($_POST['approve'])) {
+    $update_query = "
+        UPDATE tbl_document_request
+        SET status = 'paid'
+        WHERE request_number = :request_number
+    ";
+
+    $stmt_update = $conn->prepare($update_query);
+    $stmt_update->bindParam(':request_number', $request_number);
+
+    if ($stmt_update->execute()) {
+        $_SESSION['success'] = 'Request has been approved and marked as paid.';
+    } else {
+        $_SESSION['error'] = 'An error occurred while approving the request.';
+    }
+    header("Location: manage_request.php");
+    exit();
+}
+
+if (isset($_POST['disapprove'])) {
+    $delete_query = "
+        DELETE FROM tbl_document_request 
+        WHERE request_number = :request_number
+    ";
+
+    $stmt_delete = $conn->prepare($delete_query);
+    $stmt_delete->bindParam(':request_number', $request_number);
+
+    if ($stmt_delete->execute()) {
+        if ($request['payment_proof'] && file_exists('../assets/uploads/gcash_proofs/' . $request['payment_proof'])) {
+            unlink('../assets/uploads/gcash_proofs/' . $request['payment_proof']);
+        }
+
+        $_SESSION['success'] = 'Request has been disapproved and deleted successfully.';
+    } else {
+        $_SESSION['error'] = 'An error occurred while disapproving the request.';
+    }
+    header("Location: manage_request.php");
+    exit();
+}
+
 $query_documents = "
     SELECT 
         dr.documents_id, 
@@ -60,15 +96,14 @@ $query_documents = "
         d.type_of_documents
     FROM tbl_document_request dr
     LEFT JOIN tbl_documents d ON dr.documents_id = d.id
-    WHERE dr.request_number = :request_number";
+    WHERE dr.request_number = :request_number
+";
 
 $stmt_documents = $conn->prepare($query_documents);
 $stmt_documents->bindParam(':request_number', $request_number);
 $stmt_documents->execute();
 $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
-
-//calculate total price
 $total_price_sum = 0;
 ?>
 
@@ -330,8 +365,38 @@ $total_price_sum = 0;
                                 <div class="row no-print">
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
-                                            <button type="button" class="btn btn-primary"><i class="far fa-credit-card"></i> Approved</button>
-                                            <button type="button" class="btn btn-danger" style="margin-right: 10px;">Disapproved</button>
+                                            <?php if ($request['status'] === 'pending'): ?>
+                                                <form action="" method="POST">
+                                                    <button type="submit" name="approve" class="btn btn-primary"></i> Approved <i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button type="submit" name="disapprove" class="btn btn-danger" style="margin-right: 10px;">Disapproved <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#receiptModal" data-request-number="<?php echo $request['request_number']; ?>">
+                                                    Print Receipt <i class="fa fa-print" aria-hidden="true"></i>
+                                                </a>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="receiptModalLabel"><?php echo $request['request_number']; ?></h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body" id="receiptContent">
+
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary" id="printButton">Print Receipt</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -426,7 +491,33 @@ $total_price_sum = 0;
         });
     </script>
 
+    <!-- ajax printing -->
+    <script>
+        $('#receiptModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var requestNumber = button.data('request-number');
+            $.ajax({
+                url: 'print_receipt.php',
+                method: 'GET',
+                data: {
+                    request_number: requestNumber
+                },
+                success: function(response) {
+                    $('#receiptContent').html(response);
+                }
+            });
+        });
 
+        $('#printButton').on('click', function() {
+            var printContent = document.getElementById('receiptContent').innerHTML;
+            var newWindow = window.open('', '', 'height=400,width=600');
+            newWindow.document.write('<html><head><title>Print Receipt</title></head><body>');
+            newWindow.document.write(printContent);
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+            newWindow.print();
+        });
+    </script>
 
 </body>
 
