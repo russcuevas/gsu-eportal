@@ -33,7 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit();
   }
 
+  if ($status === 'graduate') {
+    $year = 'graduate';
+  }
+
   $hashed_password = sha1($password);
+
   $sql = "INSERT INTO tbl_users (status, student_id, year, course, fullname, age, gender, email, password)
             VALUES (:status, :student_id, :year, :course, :fullname, :age, :gender, :email, :password)";
 
@@ -130,10 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <label for="">Year</label>
               <div class="input-group mb-3">
                 <select class="form-control" name="year" id="year">
-                  <option value="1">I - College</option>
-                  <option value="2">II - College</option>
-                  <option value="3">III - College</option>
-                  <option value="4">IV - College</option>
+                  <option value="I">I - College</option>
+                  <option value="II">II - College</option>
+                  <option value="III">III - College</option>
+                  <option value="IV">IV - College</option>
                 </select>
               </div>
               <label for="">Course</label>
@@ -380,6 +385,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       });
     });
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const statusSelect = document.getElementById('status');
+      const yearSelect = document.getElementById('year');
+      const form = document.getElementById('quickForm');
+
+      function handleStatusChange() {
+        const selectedStatus = statusSelect.value;
+
+        if (selectedStatus === 'graduate') {
+          yearSelect.disabled = true;
+          yearSelect.innerHTML = `<option value="graduate">Graduate</option>`;
+        } else if (selectedStatus === 'old') {
+          yearSelect.disabled = false;
+          yearSelect.innerHTML = `
+          <option value="I">I - College</option>
+          <option value="II">II - College</option>
+          <option value="III">III - College</option>
+          <option value="IV">IV - College</option>
+        `;
+        }
+      }
+
+      statusSelect.addEventListener('change', handleStatusChange);
+
+      handleStatusChange();
+
+      form.addEventListener('submit', function(e) {
+        const selectedStatus = statusSelect.value;
+
+        if (selectedStatus === 'graduate') {
+          yearSelect.value = 'graduate';
+        }
+      });
+    });
+  </script>
+
 </body>
 
 </html>
