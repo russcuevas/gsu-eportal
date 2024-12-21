@@ -34,7 +34,7 @@ $query = "
         u.status AS user_status
     FROM tbl_clinic_request r
     LEFT JOIN tbl_users u ON r.user_id = u.id
-    WHERE r.status = 'pending'
+    WHERE r.status = 'Accepted'
     ORDER BY r.requested_at DESC
 ";
 
@@ -43,56 +43,55 @@ $stmt = $conn->prepare($query);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if (isset($_POST['set_appointment'])) {
+
+// edit request
+if (isset($_POST['update_button'])) {
     $request_id = $_POST['request_id'];
     $laboratory_request = $_POST['laboratory_request'];
     $status = $_POST['status'];
-    $appointed_at = $_POST['appointed_at'];
+    $med_cert_picture = '';
 
-    $update_query = "
-        UPDATE tbl_clinic_request 
-        SET 
-            laboratory_request = :laboratory_request, 
-            status = :status, 
-            appointed_at = :appointed_at
-        WHERE id = :request_id
-    ";
+    if ($status == 'Completed') {
+        $update_query = "
+            UPDATE tbl_clinic_request 
+            SET 
+                laboratory_request = :laboratory_request, 
+                status = :status
+            WHERE id = :request_id
+        ";
 
-    //smtp
+        //smtp
 
-    $stmt = $conn->prepare($update_query);
-    $stmt->bindParam(':laboratory_request', $laboratory_request);
-    $stmt->bindParam(':status', $status);
-    $stmt->bindParam(':appointed_at', $appointed_at);
-    $stmt->bindParam(':request_id', $request_id);
+        $stmt = $conn->prepare($update_query);
+        $stmt->bindParam(':laboratory_request', $laboratory_request);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':request_id', $request_id);
 
-    if ($stmt->execute()) {
-        $_SESSION['success'] = 'Appointment set successfully.';
-    } else {
-        $_SESSION['error'] = 'Failed to set the appointment.';
+        if ($stmt->execute()) {
+            $_SESSION['success'] = 'Appointment Completed successfully.';
+        } else {
+            $_SESSION['error'] = 'Failed to update the appointment to Completed.';
+        }
+    } elseif ($status == 'Cancel') {
+        $delete_query = "
+            DELETE FROM tbl_clinic_request 
+            WHERE id = :request_id
+        ";
+
+        //smtp
+
+
+        $stmt = $conn->prepare($delete_query);
+        $stmt->bindParam(':request_id', $request_id);
+
+        if ($stmt->execute()) {
+            $_SESSION['success'] = 'Appointment cancelled successfully.';
+        } else {
+            $_SESSION['error'] = 'Failed to cancel and delete the appointment.';
+        }
     }
 
-    header("Location: manage_request.php");
-    exit();
-} elseif (isset($_POST['delete_appointment'])) {
-    $request_id = $_POST['request_id'];
-    $delete_query = "
-        DELETE FROM tbl_clinic_request 
-        WHERE id = :request_id
-    ";
-
-    //smtp
-
-    $stmt = $conn->prepare($delete_query);
-    $stmt->bindParam(':request_id', $request_id);
-
-    if ($stmt->execute()) {
-        $_SESSION['success'] = 'Appointment cancelled successfully.';
-    } else {
-        $_SESSION['error'] = 'Failed to delete the appointment.';
-    }
-
-    header("Location: manage_request.php");
+    header("Location: accepted_request.php");
     exit();
 }
 ?>
@@ -196,7 +195,7 @@ if (isset($_POST['set_appointment'])) {
                         </li>
 
                         <li class="nav-item">
-                            <a href="manage_request.php" class="nav-link active">
+                            <a href="manage_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     Request
@@ -204,7 +203,7 @@ if (isset($_POST['set_appointment'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="accepted_request.php" class="nav-link">
+                            <a href="accepted_request.php" class="nav-link active">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     Accepted Appointment
@@ -238,7 +237,7 @@ if (isset($_POST['set_appointment'])) {
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">LABORATORY REQUEST</li>
+                                <li class="breadcrumb-item active">APPOINTMENT</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -253,7 +252,7 @@ if (isset($_POST['set_appointment'])) {
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">LABORATORY REQUEST</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">APPOINTMENT</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
@@ -265,7 +264,7 @@ if (isset($_POST['set_appointment'])) {
                                                 <th>Fullname</th>
                                                 <th>W/ Med-Cert</th>
                                                 <th>Email</th>
-                                                <th>Requested At</th>
+                                                <th>Appointed At</th>
                                                 <th>Status</th>
                                                 <th>
                                                     Actions
@@ -281,10 +280,10 @@ if (isset($_POST['set_appointment'])) {
                                                     <td><?php echo htmlspecialchars($request['with_med_cert']); ?></td>
 
                                                     <td><?php echo htmlspecialchars($request['email']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['requested_at']); ?></td>
+                                                    <td><?php echo htmlspecialchars($request['appointed_at']); ?></td>
                                                     <td><?php echo htmlspecialchars($request['request_status']); ?></td>
                                                     <td>
-                                                        <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#editAppointmentSchedule<?php echo $request['request_id']; ?>">Set an appointment</button>
+                                                        <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#editAppointmentSchedule<?php echo $request['request_id']; ?>">View information</button>
                                                     </td>
 
                                                     <!-- update modal -->
@@ -292,42 +291,49 @@ if (isset($_POST['set_appointment'])) {
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="editModalLabel<?php echo $request['request_id']; ?>">Edit Clinic Appointment</h5>
+                                                                    <h5 class="modal-title" id="editModalLabel<?php echo $request['request_id']; ?>"><?php echo $request['request_number']; ?></h5>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                         <span aria-hidden="true">&times;</span>
                                                                     </button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <form action="" method="POST" enctype="">
+                                                                    <form action="" method="POST" enctype="multipart/form-data">
                                                                         <input type="hidden" id="request_id" name="request_id" value="<?php echo $request['request_id']; ?>">
+                                                                        <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
+                                                                        <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
+                                                                        <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
+                                                                        <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
+                                                                        <strong>Course:</strong> <?php echo $request['course']; ?><br>
+                                                                        <strong>Year:</strong> <?php echo $request['year']; ?><br>
+                                                                        <strong>Email:</strong> <?php echo $request['email']; ?>
 
-                                                                        <div class="form-group">
-                                                                            <label for="request_number">Request Number</label>
-                                                                            <input type="text" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
-                                                                        </div>
+                                                                        <hr>
+
+                                                                        <?php if ($request['with_med_cert'] === 'Yes'): ?>
+                                                                            <div class="form-group">
+                                                                                <label for="med_cert_picture">Upload Medical Certificate</label>
+                                                                                <input type="file" class="form-control" name="med_cert_picture" id="med_cert_picture">
+                                                                            </div>
+                                                                        <?php else: ?>
+                                                                        <?php endif ?>
 
                                                                         <div class="form-group">
                                                                             <label for="laboratory_request">Laboratory Request</label>
                                                                             <select class="form-control" id="laboratory_request" name="laboratory_request" required>
-                                                                                <option value="Proceed to clinic" <?php echo ($request['laboratory_request'] == 'Proceed to clinic') ? 'selected' : ''; ?>>Proceed to Clinic</option>
+                                                                                <option value="Completed" <?php echo ($request['laboratory_request'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
                                                                             </select>
                                                                         </div>
 
                                                                         <div class="form-group">
                                                                             <label for="status">Status</label>
                                                                             <select class="form-control" id="status" name="status" required>
-                                                                                <option value="Accepted" <?php echo ($request['request_status'] == 'Accepted') ? 'selected' : ''; ?>>Accepted</option>
+                                                                                <option value="Completed" <?php echo ($request['request_status'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
+                                                                                <option value="Cancel" <?php echo ($request['request_status'] == 'Cancel') ? 'selected' : ''; ?>>Cancel</option>
                                                                             </select>
                                                                         </div>
 
-                                                                        <div class="form-group">
-                                                                            <label for="appointed_at">Appointed At</label>
-                                                                            <input type="datetime-local" class="form-control" id="appointed_at" name="appointed_at" value="">
-                                                                        </div>
-
                                                                         <div class="d-flex justify-content-end" style="gap: 3px !important;">
-                                                                            <button type="submit" name="set_appointment" class="btn btn-primary">SET APPOINTMENT</button>
-                                                                            <button type="button" class="btn btn-danger" onclick="confirmCancel()">CANCEL APPOINTMENT</button>
+                                                                            <button type="submit" name="update_button" class="btn btn-primary">UPDATE CHANGES</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -406,36 +412,12 @@ if (isset($_POST['set_appointment'])) {
     <script src="dist/js/demo.js"></script>
 
     <script>
-        function confirmCancel() {
-            if (confirm("Are you sure you want to cancel this appointment?")) {
-                var form = document.querySelector("form");
-                var deleteButton = document.querySelector("button[name='delete_appointment']");
-
-                var input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "delete_appointment";
-                input.value = "1";
-                form.appendChild(input);
-
-                form.submit();
-            }
-        }
-    </script>
-
-    <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
                 responsive: true
             });
         });
     </script>
-
-    <script>
-        function setDocumentsId(DocumentId) {
-            document.getElementById('document_id_delete').value = DocumentId;
-        }
-    </script>
-
 
     <!-- success and error message alert -->
     <script>

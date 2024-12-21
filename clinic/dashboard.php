@@ -14,13 +14,13 @@ if ($_SESSION['role'] !== 'clinic') {
     exit();
 }
 
-// GET THE TOTAL OSDS
-$get_total_osds = "SELECT COUNT(*) AS total_osds FROM `tbl_admin` WHERE role = 'osds'";
-$stmt_total_osds = $conn->prepare($get_total_osds);
-$stmt_total_osds->execute();
-$results_total_osds = $stmt_total_osds->fetch(PDO::FETCH_ASSOC);
-$total_osds = $results_total_osds['total_osds'];
-// END GET TOTAL OSDS
+// GET THE TOTAL CLINIC
+$get_total_clinic = "SELECT COUNT(*) AS total_clinic FROM `tbl_admin` WHERE role = 'clinic'";
+$stmt_total_clinic = $conn->prepare($get_total_clinic);
+$stmt_total_clinic->execute();
+$results_total_clinic = $stmt_total_clinic->fetch(PDO::FETCH_ASSOC);
+$total_clinic = $results_total_clinic['total_clinic'];
+// END GET TOTAL CLINIC
 
 
 // GET THE TOTAL POSTED REQUIREMENTS
@@ -103,6 +103,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 </p>
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a href="manage_clinic.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
@@ -116,12 +117,18 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             <a href="manage_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
-                                    Manage Request
+                                    Request
                                 </p>
                             </a>
                         </li>
-
-
+                        <li class="nav-item">
+                            <a href="accepted_request.php" class="nav-link">
+                                <i class="nav-icon fas fa-check"></i>
+                                <p>
+                                    Accepted Appointment
+                                </p>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
@@ -160,14 +167,14 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_osds ?></h3>
+                                    <h3><?php echo $total_clinic ?></h3>
 
-                                    <p>Total Osds</p>
+                                    <p>Total Clinic</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-person-add"></i>
                                 </div>
-                                <a href="manage_osds.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="manage_clinic.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <!-- ./col -->
