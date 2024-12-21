@@ -1,7 +1,6 @@
 <?php
 include '../database/connection.php';
 
-// Session handling
 session_start();
 $user_id = $_SESSION['user_id'] ?? null;
 if (!$user_id) {
@@ -9,18 +8,60 @@ if (!$user_id) {
     exit();
 }
 
-$user_id = intval($user_id);
+$request_number = $_GET['request_number'] ?? null;
+if ($request_number === null) {
+    $_SESSION['error'] = 'Request number is missing.';
+    header('location:my_request_documents.php');
+    exit();
+}
 
-// Query to get document request data based on the logged-in user
-$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
-          FROM tbl_document_request
-          WHERE user_id = :user_id
-          GROUP BY request_number, fullname, status
-          ORDER BY updated_at DESC";
+$query = "
+    SELECT 
+        dr.*, 
+        u.year, 
+        u.course, 
+        u.email 
+    FROM 
+        tbl_document_request dr
+    LEFT JOIN 
+        tbl_users u ON dr.user_id = u.id 
+    WHERE 
+        dr.request_number = :request_number 
+        AND dr.user_id = :user_id
+    LIMIT 1
+";
 
 $stmt = $conn->prepare($query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindParam(':request_number', $request_number);
+$stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
+$request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$request) {
+    $_SESSION['error'] = 'Request not found or you do not have permission to view this request.';
+    header('location:my_request_documents.php');
+    exit();
+}
+
+$query_documents = "
+    SELECT 
+        dr.documents_id, 
+        dr.total_price, 
+        dr.number_of_copies, 
+        d.type_of_documents
+    FROM tbl_document_request dr
+    LEFT JOIN tbl_documents d ON dr.documents_id = d.id
+    WHERE dr.request_number = :request_number";
+
+$stmt_documents = $conn->prepare($query_documents);
+$stmt_documents->bindParam(':request_number', $request_number);
+$stmt_documents->execute();
+$documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
+
+$total_price_sum = 0;
+foreach ($documents as $document) {
+    $total_price_sum += $document['total_price'];
+}
 ?>
 
 
@@ -164,7 +205,8 @@ $stmt->execute();
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">TRACK REQUEST</li>
+                                <li class="breadcrumb-item"><a href="manage_request.php">MANAGE REQUEST</a></li>
+                                <li class="breadcrumb-item active">VIEW REQUEST</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -177,49 +219,114 @@ $stmt->execute();
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
-                                <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">TRACK REQUEST</h3>
+                            <!-- Main content -->
+                            <div class="invoice p-3 mb-3">
+                                <!-- title row -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4>
+                                            <img style="height: 50px;" src="images/gsu-logo.jpg" alt=""> Guimaras State University
+                                            <small class="float-right"><?php echo $request['created_at']; ?></small>
+                                        </h4>
+                                    </div>
+                                    <!-- /.col -->
                                 </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <table id="myTable" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>R.Number</th>
-                                                <th>Status</th>
-                                                <th>Total Price</th>
-                                                <th>Updated</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                            ?>
+                                <!-- info row -->
+                                <div class="row invoice-info">
+                                    <div class="col-sm-4 invoice-col">
+                                        <address>
+                                            <strong></strong><br>
+                                            <?php echo $request['fullname']; ?><br>
+                                            <?php echo $request['student_id']; ?><br>
+                                            <?php echo $request['year']; ?> - <?php echo $request['course']; ?><br>
+                                            <?php echo $request['email']; ?>
+                                        </address>
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-4 invoice-col">
+
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-sm-4 invoice-col">
+                                        <span style="font-weight: 900;"><?php echo $request['request_number']; ?></span><br>
+                                        <span style="text-transform: capitalize; font-weight: 900;"><?php echo $request['status']; ?></span><br>
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+
+                                <!-- Table row -->
+                                <div class="row">
+                                    <div class="col-12 table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
                                                 <tr>
-                                                    <td><?php echo $row['request_number']; ?></td>
-                                                    <td style="text-transform: capitalize;"><?php echo $row['status']; ?></td>
-                                                    <td>₱<?php echo number_format($row['total_price'], 2); ?></td>
-                                                    <td><?php echo $row['updated_at']; ?></td>
-                                                    <td>
-                                                        <a href="view_documents.php?request_number=<?php echo $row['request_number']; ?>" class="btn btn-info">View Information</a>
-                                                    </td>
+                                                    <th>DOCUMENT REQUEST</th>
+                                                    <th>NUMBER OF COPIES</th>
+                                                    <th>PRICE</th>
                                                 </tr>
-                                            <?php
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($documents as $document):
+                                                    $total_price_sum += $document['total_price'];
+                                                ?>
+                                                    <tr>
+                                                        <td><?php echo $document['type_of_documents']; ?></td>
+                                                        <td><?php echo $document['number_of_copies']; ?></td>
+                                                        <td>₱<?php echo number_format($document['total_price'], 2); ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- /.col -->
                                 </div>
-                                <!-- /.card-body -->
+                                <!-- /.row -->
+
+                                <div class="row">
+                                    <!-- accepted payments column -->
+                                    <div class="col-6">
+                                        <p class="lead" style="color: black !important; font-weight: 900">GCASH PAYMENT PROOF:</p>
+                                        <img style="height: 300px; max-width: 300px;" src="../assets/uploads/gcash_proofs/<?php echo $request['payment_proof']; ?>" alt="Visa"><br>
+                                        <a href="../assets/uploads/gcash_proofs/<?php echo $request['payment_proof']; ?>" target="_blank">MY PAYMENT PROOF</a>
+
+                                        <p class="text-muted well well-sm shadow-none" style="margin-top: 10px; color: black !important; font-weight: 900">
+                                            GCASH REFERENCE NUMBER: <?php echo $request['gcash_reference_number']; ?>
+                                        </p>
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-6">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <tr>
+                                                    <th>TOTAL:</th>
+                                                    <td style="color: red; font-weight: 900;">₱<?php echo number_format($total_price_sum, 2); ?></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+
+                                <!-- this row will not appear when printing -->
+                                <div class="row no-print">
+                                    <div class="col-12">
+                                        <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
+                                            <?php if ($request['status'] === 'Pending'): ?>
+                                                <form action="cancel_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                                    <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
+                                                    <button type="submit" class="btn btn-danger" style="margin-right: 10px;">CANCEL REQUEST</button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <!-- /.card -->
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                </div>
-                <!-- /.row -->
+                            <!-- /.invoice -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
             </section>
             <!-- /.content -->
         </div>

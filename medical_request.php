@@ -252,6 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p class="text-muted">
                             <strong style="color: red">Instructions:</strong><br>
                             <strong>Please wait for the appointed date by the clinic nurse</strong><br>
+                            <strong>Check your status here <a href="student_portal/my_request_medical.php">CLICK HERE</a></strong>
+
                         </p>
                     </div>
                 </section>

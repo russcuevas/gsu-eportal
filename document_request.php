@@ -350,6 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <strong>Your request will be submitted for validation.</strong><br>
                             <strong>The cashier will check if you are paid in your request based on your uploaded payment proof</strong><br>
                             <strong>Once your payment proof is approved by the cashier, the system will give you a receipt and you can get your requested document in the registrar by showing the receipt.</strong>
+                            <br><strong>Check your status here <a href="student_portal/my_request_documents.php">CLICK HERE</a></strong>
                         </p>
                     </div>
                 </section>
