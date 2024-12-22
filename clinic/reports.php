@@ -34,7 +34,7 @@ $query = "
         u.status AS user_status
     FROM tbl_clinic_request r
     LEFT JOIN tbl_users u ON r.user_id = u.id
-    WHERE r.status = 'Accepted'
+    WHERE r.status = 'Completed'
     ORDER BY r.requested_at DESC
 ";
 
@@ -43,84 +43,6 @@ $stmt = $conn->prepare($query);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-// edit request
-if (isset($_POST['update_button'])) {
-    $request_id = $_POST['request_id'];
-    $laboratory_request = $_POST['laboratory_request'];
-    $status = $_POST['status'];
-    $med_cert_picture = '';
-
-    if (isset($_FILES['med_cert_picture']) && $_FILES['med_cert_picture']['error'] == 0) {
-        $upload_dir = '../assets/uploads/medical_certificate/';
-        $file_name = $_FILES['med_cert_picture']['name'];
-        $file_tmp = $_FILES['med_cert_picture']['tmp_name'];
-        $file_type = $_FILES['med_cert_picture']['type'];
-
-        $new_file_name = uniqid() . "_" . basename($file_name);
-        $file_path = $upload_dir . $new_file_name;
-
-        $allowed_types = ['image/jpeg', 'image/png', 'application/pdf'];
-        if (!in_array($file_type, $allowed_types)) {
-            $_SESSION['error'] = 'Invalid file type. Only images (JPEG, PNG) and PDFs are allowed.';
-            header("Location: accepted_request.php");
-            exit();
-        }
-
-        if (move_uploaded_file($file_tmp, $file_path)) {
-            $med_cert_picture = $new_file_name;
-        } else {
-            $_SESSION['error'] = 'Failed to upload the medical certificate.';
-            header("Location: accepted_request.php");
-            exit();
-        }
-    }
-
-    if ($status == 'Completed') {
-        $update_query = "
-            UPDATE tbl_clinic_request 
-            SET 
-                laboratory_request = :laboratory_request, 
-                status = :status,
-                med_cert_picture = :med_cert_picture
-            WHERE id = :request_id
-        ";
-
-        $stmt = $conn->prepare($update_query);
-        $stmt->bindParam(':laboratory_request', $laboratory_request);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':med_cert_picture', $med_cert_picture);
-        $stmt->bindParam(':request_id', $request_id);
-
-        //smtp
-
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = 'Appointment completed successfully.';
-        } else {
-            $_SESSION['error'] = 'Failed to update the appointment to Completed.';
-        }
-    } elseif (
-        $status == 'Cancel'
-    ) {
-        $delete_query = "
-            DELETE FROM tbl_clinic_request 
-            WHERE id = :request_id
-        ";
-
-        $stmt = $conn->prepare($delete_query);
-        $stmt->bindParam(':request_id', $request_id);
-
-        if ($stmt->execute()) {
-            $_SESSION['success'] = 'Appointment cancelled successfully.';
-        } else {
-            $_SESSION['error'] = 'Failed to cancel and delete the appointment.';
-        }
-    }
-
-    header("Location: accepted_request.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -230,7 +152,7 @@ if (isset($_POST['update_button'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="accepted_request.php" class="nav-link active">
+                            <a href="accepted_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     Accepted Appointment
@@ -238,7 +160,7 @@ if (isset($_POST['update_button'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
+                            <a href="reports.php" class="nav-link active">
                                 <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     Completed Reports
@@ -272,7 +194,7 @@ if (isset($_POST['update_button'])) {
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">APPOINTMENT</li>
+                                <li class="breadcrumb-item active">COMPLETED REPORTS</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -287,7 +209,7 @@ if (isset($_POST['update_button'])) {
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">APPOINTMENT</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">COMPLETED REPORTS</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
@@ -340,42 +262,32 @@ if (isset($_POST['update_button'])) {
                                                                         <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
                                                                         <strong>Course:</strong> <?php echo $request['course']; ?><br>
                                                                         <strong>Year:</strong> <?php echo $request['year']; ?><br>
-                                                                        <strong>Email:</strong> <?php echo $request['email']; ?>
+                                                                        <strong>Email:</strong> <?php echo $request['email']; ?><br>
 
                                                                         <hr>
 
-                                                                        <strong>Requested Date:</strong>
-                                                                        <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
-                                                                        ?><br>
-                                                                        <strong>Appointed At:</strong>
-                                                                        <input type="datetime-local"
-                                                                            id="appointed_at_<?php echo $request['request_id']; ?>"
-                                                                            value="<?php echo date('Y-m-d\TH:i', strtotime($request['appointed_at'])); ?>"
-                                                                            onchange="updateAppointedAt(<?php echo $request['request_id']; ?>)"> <?php if ($request['with_med_cert'] === 'Yes'): ?><span style="font-size: 11px;">CLICK ICON TO EDIT DATETIME</span><br><br>
-                                                                            <div class="form-group">
-                                                                                <label for="med_cert_picture">Upload Medical Certificate</label>
-                                                                                <input type="file" class="form-control" name="med_cert_picture" id="med_cert_picture">
-                                                                            </div>
+                                                                        <?php if ($request['with_med_cert'] === 'Yes'): ?>
+                                                                            <strong>Requested Date:</strong>
+                                                                            <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
+                                                                            ?><br>
+                                                                            <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
+                                                                            <strong>Status:</strong> <?php echo $request['request_status']; ?><br>
+                                                                            <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?><br>
+                                                                            <strong>MEDICAL CERTIFICATE:</strong><br>
+                                                                            <a class="" href="<?php echo "../assets/uploads/medical_certificate/" . htmlspecialchars($request['med_cert_picture']); ?>" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                                                                View Medical
+                                                                            </a>
                                                                         <?php else: ?>
+                                                                            <strong>Requested Date:</strong>
+                                                                            <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
+                                                                            ?><br>
+                                                                            <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
+                                                                            <strong>Status:</strong> <?php echo $request['request_status']; ?><br>
+                                                                            <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?>
                                                                         <?php endif ?>
 
-                                                                        <div class="form-group">
-                                                                            <label for="laboratory_request">Laboratory Request</label>
-                                                                            <select class="form-control" id="laboratory_request" name="laboratory_request" required>
-                                                                                <option value="Completed" <?php echo ($request['laboratory_request'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
-                                                                            </select>
-                                                                        </div>
-
-                                                                        <div class="form-group">
-                                                                            <label for="status">Status</label>
-                                                                            <select class="form-control" id="status" name="status" required>
-                                                                                <option value="Completed" <?php echo ($request['request_status'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
-                                                                                <option value="Cancel" <?php echo ($request['request_status'] == 'Cancel') ? 'selected' : ''; ?>>Cancel</option>
-                                                                            </select>
-                                                                        </div>
-
                                                                         <div class="d-flex justify-content-end" style="gap: 3px !important;">
-                                                                            <button type="submit" name="update_button" class="btn btn-primary">UPDATE CHANGES</button>
+                                                                            <a href="reports.php" class="btn btn-secondary">CLOSE</a>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -474,39 +386,6 @@ if (isset($_POST['update_button'])) {
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
         });
-    </script>
-
-    <!-- update appointed at -->
-    <script>
-        function updateAppointedAt(requestId) {
-            const appointedAtInput = document.getElementById(`appointed_at_${requestId}`);
-            const newAppointedAt = appointedAtInput.value;
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'update_appointed_at.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            if (response.success) {
-                                alert('Appointment date and time updated successfully.');
-                            } else {
-                                alert('Failed to update the appointment: ' + response.message);
-                            }
-                        } catch (e) {
-                            console.error('Invalid JSON response:', xhr.responseText);
-                            alert('An error occurred. Please try again.');
-                        }
-                    } else {
-                        alert('Request failed with status: ' + xhr.status);
-                    }
-                }
-            };
-
-            xhr.send(`request_id=${requestId}&appointed_at=${newAppointedAt}`);
-        }
     </script>
 
 
