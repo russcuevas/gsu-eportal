@@ -127,32 +127,45 @@ updated_at
 
 
 
-CREDENTIALS
+CREDENTIALS:
 
 DEANS
-russeldeans@gmail.com
+admindeans@gmail.com
 123456789
 
 OSDS
-russelosds@gmail.com
+adminosds@gmail.com
 123456789
 
 CASHIER
-russelcashier@gmail.com
+admincashier@gmail.com
+123456789
+
+REGISTRAR
+adminregistrar@gmail.com
 123456789
 
 CLINIC
-russelclinic@gmail.com
+adminclinic@gmail.com
 123456789
 
-LAST TASK
+
+
+LAST TASK:
 NEED SMTP
 Appointment
 Update Documents
 
-STUDENTS
-GRADUATE -> request documents if graduate remove the CAV-UG
-OLD -> request documents if not graduate remove the CAV-G
+REGISTRAR
+CAN UPDATE IF IT IS CLAIMABLE AND IF IT IS ALREADY CLAIMED
+UPDATE TBL_DOCUMENT_REPORTS -> PAID TO CLAIMED
+
+CASHIER
+TBL_DOCUMENT_REQUEST
+edit_request.php 
+//smtp also
+approve insert into tbl_document_reports for copy
+
 
 
 

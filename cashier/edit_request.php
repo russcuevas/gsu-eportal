@@ -54,6 +54,8 @@ if (isset($_POST['approve'])) {
         WHERE request_number = :request_number
     ";
 
+    //smtp
+
     $stmt_update = $conn->prepare($update_query);
     $stmt_update->bindParam(':request_number', $request_number);
 
@@ -71,6 +73,8 @@ if (isset($_POST['disapprove'])) {
         DELETE FROM tbl_document_request 
         WHERE request_number = :request_number
     ";
+
+    //smtp
 
     $stmt_delete = $conn->prepare($delete_query);
     $stmt_delete->bindParam(':request_number', $request_number);

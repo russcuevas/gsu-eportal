@@ -32,18 +32,15 @@ if (isset($_GET['id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // If form is submitted, update the document data
     $type_of_documents = $_POST['type_of_documents'];
     $price = $_POST['price'];
 
-    // Prepare the update query
     $query = "UPDATE tbl_documents SET type_of_documents = :type_of_documents, price = :price, updated_at = NOW() WHERE id = :id";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':type_of_documents', $type_of_documents);
     $stmt->bindParam(':price', $price);
     $stmt->bindParam(':id', $documents_id, PDO::PARAM_INT);
 
-    // Execute the update query
     $execute_result = $stmt->execute();
 
     if ($execute_result) {

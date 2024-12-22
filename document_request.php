@@ -286,6 +286,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($documents as $document): ?>
+                                        <?php if (
+                                            ($_SESSION['status'] === 'graduate' && $document['type_of_documents'] === 'CAV-UG') ||
+                                            ($_SESSION['status'] === 'old' && $document['type_of_documents'] === 'CAV-G')
+                                        ): ?>
+                                            <?php continue; ?>
+                                        <?php endif; ?>
                                         <tr>
                                             <td>
                                                 <input type="checkbox" name="document_ids[]" value="<?php echo $document['id']; ?>" class="document-selection" />
@@ -298,6 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <td class="document-total">₱0.00</td>
                                         </tr>
                                     <?php endforeach; ?>
+
                                 </tbody>
                             </table>
                         </div>
