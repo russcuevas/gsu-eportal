@@ -87,7 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
   <style>
     .register-box {
-      width: 60% !important;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     .invalid-feedback {
