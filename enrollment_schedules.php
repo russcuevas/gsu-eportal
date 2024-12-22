@@ -170,10 +170,13 @@ $schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </select>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end" style="gap: 5px;">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <a href="enrollment_schedules.php" class="btn btn-secondary">Reset</a>
-                </div>
+                <?php if ($schedules) : ?>
+                    <div class="d-flex justify-content-end" style="gap: 5px;">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="enrollment_schedules.php" class="btn btn-secondary">Reset</a>
+                    </div>
+                <?php else : ?>
+                <?php endif; ?>
             </form>
         </div>
 

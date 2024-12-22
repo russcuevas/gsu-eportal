@@ -307,10 +307,16 @@ $total_pages = ceil($total_schedules / $items_per_page);
                         </select>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end" style="gap: 5px;">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <a href="class_schedules.php" class="btn btn-secondary">Reset</a>
-                </div>
+                <?php if ($schedules) : ?>
+                    <div class="d-flex justify-content-end" style="gap: 5px;">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="class_schedules.php" class="btn btn-secondary">Reset</a>
+                    </div>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="5" class="text-center">No schedules found</td>
+                    </tr>
+                <?php endif; ?>
             </form>
         </div>
 
