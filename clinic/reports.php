@@ -274,9 +274,13 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                             <strong>Status:</strong> <?php echo $request['request_status']; ?><br>
                                                                             <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?><br>
                                                                             <strong>MEDICAL CERTIFICATE:</strong><br>
-                                                                            <a class="" href="<?php echo "../assets/uploads/medical_certificate/" . htmlspecialchars($request['med_cert_picture']); ?>" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                                                                                View Medical
-                                                                            </a>
+                                                                            <?php if (isset($request['med_cert_picture']) && !empty($request['med_cert_picture'])): ?>
+                                                                                <a href="<?php echo "../assets/uploads/medical_certificate/" . htmlspecialchars($request['med_cert_picture']); ?>" target="_blank">
+                                                                                    <i class="fa fa-file-pdf-o" aria-hidden="true"></i> View Medical
+                                                                                </a>
+                                                                            <?php else: ?>
+                                                                                <span>Empty</span>
+                                                                            <?php endif; ?>
                                                                         <?php else: ?>
                                                                             <strong>Requested Date:</strong>
                                                                             <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));

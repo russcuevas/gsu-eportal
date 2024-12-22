@@ -211,34 +211,9 @@ $clinic = $stmt_get_clinic->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo $clinic_account['created_at'] ?></td>
                                                     <td><?php echo $clinic_account['updated_at'] ?></td>
                                                     <td>
-                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteClinicModal" onclick="setClinicId(<?php echo $clinic_account['id']; ?>)">
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_clinic.php?id=<?php echo $clinic_account['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                                             DELETE
                                                         </a>
-
-
-                                                        <!-- DELETE MODAL -->
-                                                        <div class="modal fade" id="deleteClinicModal" tabindex="-1" role="dialog" aria-labelledby="deleteClinicModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="deleteClinicModalLabel">Confirm Deletion</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        Are you sure you want to delete this user?
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <form id="deleteUserForm" method="POST" action="delete_clinic.php">
-                                                                            <input type="hidden" name="id" id="clinic_id_delete">
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach ?>
@@ -315,12 +290,6 @@ $clinic = $stmt_get_clinic->fetchAll(PDO::FETCH_ASSOC);
                 responsive: true
             });
         });
-    </script>
-
-    <script>
-        function setClinicId(ClinicId) {
-            document.getElementById('clinic_id_delete').value = ClinicId;
-        }
     </script>
 
 

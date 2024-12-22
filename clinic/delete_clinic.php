@@ -14,8 +14,8 @@ if ($_SESSION['role'] !== 'clinic') {
     exit();
 }
 
-if (isset($_POST['id'])) {
-    $clinic_id = $_POST['id'];
+if (isset($_GET['id'])) {
+    $clinic_id = $_GET['id'];
 
     if (empty($clinic_id) || !is_numeric($clinic_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';
