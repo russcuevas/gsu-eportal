@@ -9,7 +9,7 @@ if (!$admin_id) {
     exit();
 }
 
-if ($_SESSION['role'] !== 'cashier') {
+if ($_SESSION['role'] !== 'registrar') {
     header('location:../admin_login.php');
     exit();
 }
@@ -17,7 +17,7 @@ if ($_SESSION['role'] !== 'cashier') {
 $request_number = $_GET['request_number'] ?? null;
 if ($request_number === null) {
     $_SESSION['error'] = 'Request number is missing.';
-    header('location:requests.php');
+    header('location:to_claim_request.php');
     exit();
 }
 
@@ -43,14 +43,14 @@ $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$request) {
     $_SESSION['error'] = 'Request not found.';
-    header('location:requests.php');
+    header('location:to_claim_request.php');
     exit();
 }
 
-if (isset($_POST['approve'])) {
+if (isset($_POST['already_claimed'])) {
     $update_query = "
         UPDATE tbl_document_request
-        SET status = 'paid'
+        SET status = 'claimed'
         WHERE request_number = :request_number
     ";
 
@@ -60,35 +60,11 @@ if (isset($_POST['approve'])) {
     $stmt_update->bindParam(':request_number', $request_number);
 
     if ($stmt_update->execute()) {
-        $_SESSION['success'] = 'Request has been approved and marked as paid.';
+        $_SESSION['success'] = 'Request has been claimed.';
     } else {
         $_SESSION['error'] = 'An error occurred while approving the request.';
     }
-    header("Location: manage_request.php");
-    exit();
-}
-
-if (isset($_POST['disapprove'])) {
-    $delete_query = "
-        DELETE FROM tbl_document_request 
-        WHERE request_number = :request_number
-    ";
-
-    //smtp
-
-    $stmt_delete = $conn->prepare($delete_query);
-    $stmt_delete->bindParam(':request_number', $request_number);
-
-    if ($stmt_delete->execute()) {
-        if ($request['payment_proof'] && file_exists('../assets/uploads/gcash_proofs/' . $request['payment_proof'])) {
-            unlink('../assets/uploads/gcash_proofs/' . $request['payment_proof']);
-        }
-
-        $_SESSION['success'] = 'Request has been disapproved and deleted successfully.';
-    } else {
-        $_SESSION['error'] = 'An error occurred while disapproving the request.';
-    }
-    header("Location: manage_request.php");
+    header("Location: to_claim_request.php");
     exit();
 }
 
@@ -203,25 +179,25 @@ $total_price_sum = 0;
                             <a href="manage_cashier.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
-                                    Manage Cashier
+                                    Manage Registrar
                                 </p>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="manage_documents.php" class="nav-link">
-                                <i class="nav-icon fas fa-folder"></i>
-                                <p>
-                                    Manage Documents
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="manage_request.php" class="nav-link active">
+                            <a href="to_prepare_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
-                                    Manage Request
+                                    To Prepare Request
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="to_claim_request.php" class="nav-link active">
+                                <i class="nav-icon fas fa-check"></i>
+                                <p>
+                                    To Claim Request
                                 </p>
                             </a>
                         </li>
@@ -254,7 +230,7 @@ $total_price_sum = 0;
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item"><a href="manage_request.php">MANAGE REQUEST</a></li>
+                                <li class="breadcrumb-item"><a href="manage_request.php">CLAIMABLE REQUEST</a></li>
                                 <li class="breadcrumb-item active">VIEW REQUEST</li>
                             </ol>
                         </div><!-- /.col -->
@@ -363,38 +339,10 @@ $total_price_sum = 0;
                                 <div class="row no-print">
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
-                                            <?php if ($request['status'] === 'pending'): ?>
-                                                <form action="" method="POST">
-                                                    <button type="submit" name="approve" class="btn btn-primary"></i> Approved <i class="fa fa-check" aria-hidden="true"></i></button>
-                                                    <button type="submit" name="disapprove" class="btn btn-danger" style="margin-right: 10px;">Disapproved <i class="fa fa-trash" aria-hidden="true"></i>
-                                                    </button>
-                                                </form>
-                                            <?php else: ?>
-                                                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#receiptModal" data-request-number="<?php echo $request['request_number']; ?>">
-                                                    Print Receipt <i class="fa fa-print" aria-hidden="true"></i>
-                                                </a>
-
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="receiptModalLabel"><?php echo $request['request_number']; ?></h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body" id="receiptContent">
-
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                <button type="button" class="btn btn-primary" id="printButton">Print Receipt</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endif; ?>
+                                            <form action="" method="POST">
+                                                <button type="submit" name="already_claimed" class="btn btn-primary"></i>Already claimed <i class="fa fa-check" aria-hidden="true"></i></button>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -467,12 +415,6 @@ $total_price_sum = 0;
         });
     </script>
 
-    <script>
-        function setDocumentsId(DocumentId) {
-            document.getElementById('document_id_delete').value = DocumentId;
-        }
-    </script>
-
 
     <!-- success and error message alert -->
     <script>
@@ -486,34 +428,6 @@ $total_price_sum = 0;
                 toastr.error('<?php echo $_SESSION['error']; ?>');
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
-        });
-    </script>
-
-    <!-- ajax printing -->
-    <script>
-        $('#receiptModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget);
-            var requestNumber = button.data('request-number');
-            $.ajax({
-                url: 'print_receipt.php',
-                method: 'GET',
-                data: {
-                    request_number: requestNumber
-                },
-                success: function(response) {
-                    $('#receiptContent').html(response);
-                }
-            });
-        });
-
-        $('#printButton').on('click', function() {
-            var printContent = document.getElementById('receiptContent').innerHTML;
-            var newWindow = window.open('', '', 'height=400,width=600');
-            newWindow.document.write('<html><head><title>Print Receipt</title></head><body>');
-            newWindow.document.write(printContent);
-            newWindow.document.write('</body></html>');
-            newWindow.document.close();
-            newWindow.print();
         });
     </script>
 

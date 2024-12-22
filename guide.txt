@@ -160,13 +160,13 @@ Appointment
 Update Documents
 
 REGISTRAR
-CAN UPDATE IF IT IS CLAIMABLE AND IF IT IS ALREADY CLAIMED
-UPDATE TBL_DOCUMENT_REPORTS -> PAID TO CLAIMED
+//smtp also
+reports.php
+UPDATE TBL_DOCUMENT_REPORTS -> CLAIMABLE TO CLAIMED
 
 CASHIER
-TBL_DOCUMENT_REQUEST
-edit_request.php 
 //smtp also
+reports.php
 approve insert into tbl_document_reports for copy
 
 

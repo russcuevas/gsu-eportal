@@ -160,7 +160,7 @@ $total_price_sum = 0;
                         </li>
                         <li class="nav-item">
                             <a href="my_request_documents.php" class="nav-link active">
-                                <i class="nav-icon fas fa-clock"></i>
+                                <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     My Document Request
                                 </p>
@@ -235,7 +235,8 @@ $total_price_sum = 0;
                                             <strong></strong><br>
                                             <?php echo $request['fullname']; ?><br>
                                             <?php echo $request['student_id']; ?><br>
-                                            <?php echo $request['year']; ?> - <?php echo $request['course']; ?><br>
+                                            <span style="text-transform: capitalize;"><?php echo $request['year']; ?><br>
+                                                <?php echo $request['course']; ?></span><br>
                                             <?php echo $request['email']; ?>
                                         </address>
                                     </div>
@@ -247,6 +248,16 @@ $total_price_sum = 0;
                                     <div class="col-sm-4 invoice-col">
                                         <span style="font-weight: 900;"><?php echo $request['request_number']; ?></span><br>
                                         <span style="text-transform: capitalize; font-weight: 900;"><?php echo $request['status']; ?></span><br>
+                                        <?php if ($request['status'] === 'paid'): ?>
+                                            <span style="color: green; font-weight: 900;">Approved by the cashier</span><br>
+                                        <?php elseif ($request['status'] === 'claimable'): ?>
+                                            <span style="color: green; font-weight: 900;">Approved by the cashier</span><br>
+                                            <span style="color: green; font-weight: 900;">Approved by the registrar</span><br>
+                                        <?php elseif ($request['status'] === 'claimed'): ?>
+                                            <span style="color: green; font-weight: 900;">You already claimed thankyou comeback again</span><br>
+                                        <?php else: ?>
+                                            <span style="font-weight: 900;">Wait for the approval</span><br>
+                                        <?php endif; ?>
                                     </div>
                                     <!-- /.col -->
                                 </div>
@@ -317,8 +328,10 @@ $total_price_sum = 0;
                                                 </form>
                                             <?php elseif ($request['status'] === 'paid'): ?>
                                                 <h4>PREPARING YOUR REQUEST DOCUMENTS</h4>
-                                            <?php else: ?>
+                                            <?php elseif ($request['status'] === 'claimable'): ?>
                                                 <h4 style="color: green;">CLAIMABLE SHOW THIS RECEIPT TO REGISTRAR FOR YOUR PROOF</h4>
+                                            <?php elseif ($request['status'] === 'claimed'): ?>
+                                                <h4 style="color: green;">ALREADY CLAIMED</h4>
                                             <?php endif; ?>
                                         </div>
                                     </div>

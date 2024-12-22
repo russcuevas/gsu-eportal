@@ -135,7 +135,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                         </li>
 
                         <li class="nav-item">
-                            <a href="claim_request.php" class="nav-link">
+                            <a href="to_claim_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     To Claim Request

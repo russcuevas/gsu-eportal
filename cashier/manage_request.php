@@ -204,6 +204,11 @@ $result = $conn->query($query);
                                                     $status = $row['status'];
                                                     $total_price = $row['total_price'];
                                                     $updated_at = $row['updated_at'];
+
+                                                    // Skip rows where the status is "claimable"
+                                                    if (strtolower($status) === 'claimable' || strtolower($status) === 'claimed') {
+                                                        continue;
+                                                    }
                                             ?>
                                                     <tr>
                                                         <td><?php echo $request_number; ?></td>
@@ -218,8 +223,10 @@ $result = $conn->query($query);
                                             <?php
                                                 }
                                             } else {
+                                                // Optionally handle the case where no rows are found
                                             }
                                             ?>
+
                                         </tbody>
                                     </table>
                                 </div>
