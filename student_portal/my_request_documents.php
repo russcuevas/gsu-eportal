@@ -122,7 +122,7 @@ $stmt->execute();
                         </li>
                         <li class="nav-item">
                             <a href="my_request_documents.php" class="nav-link active">
-                                <i class="nav-icon fas fa-clock"></i>
+                                <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     My Document Request
                                 </p>
@@ -205,7 +205,7 @@ $stmt->execute();
                                                     <td>₱<?php echo number_format($row['total_price'], 2); ?></td>
                                                     <td><?php echo $row['updated_at']; ?></td>
                                                     <td>
-                                                        <a href="view_documents.php?request_number=<?php echo $row['request_number']; ?>" class="btn btn-info">View Information</a>
+                                                        <a href="view_documents.php?request_number=<?php echo $row['request_number']; ?>" class="btn btn-primary bg-blue">View Information</a>
                                                     </td>
                                                 </tr>
                                             <?php

@@ -111,16 +111,16 @@ $total_requirements = $results_total_requirements['total_requirements'];
                         </li>
                         <li class="nav-item">
                             <a href="my_request_documents.php" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
+                                <i class="nav-icon fas fa-folder"></i>
                                 <p>
-                                    My Documents Request
+                                    My Document Request
                                 </p>
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a href="my_request_medical.php" class="nav-link">
-                                <i class="nav-icon fas fa-folder"></i>
+                                <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     My Medical Request
                                 </p>
@@ -166,12 +166,12 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 <div class="inner">
                                     <h3><?php echo $total_osds ?></h3>
 
-                                    <p>Total Osds</p>
+                                    <p>Document Request</p>
                                 </div>
                                 <div class="icon">
-                                    <i style="color: white !important;" class="ion ion-person-add"></i>
+                                    <i style="color: white !important;" class="ion ion-folder"></i>
                                 </div>
-                                <a href="manage_osds.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="my_request_documents.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <!-- ./col -->
@@ -181,12 +181,12 @@ $total_requirements = $results_total_requirements['total_requirements'];
                                 <div class="inner">
                                     <h3><?php echo $total_requirements ?></h3>
 
-                                    <p>Posted Requirements</p>
+                                    <p>Medical Request</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>
                                 </div>
-                                <a href="posted_requirements.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="my_request_medical.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                     </div>

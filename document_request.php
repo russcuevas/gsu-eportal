@@ -286,11 +286,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($documents as $document): ?>
-                                        <?php if (
-                                            ($_SESSION['status'] === 'graduate' && $document['type_of_documents'] === 'CAV-UG') ||
-                                            ($_SESSION['status'] === 'old' && $document['type_of_documents'] === 'CAV-G')
-                                        ): ?>
-                                            <?php continue; ?>
+                                        <?php if (isset($_SESSION['user_id'])): ?>
+                                            <?php if (
+                                                ($_SESSION['status'] === 'graduate' && $document['type_of_documents'] === 'CAV-UG') ||
+                                                ($_SESSION['status'] === 'old' && $document['type_of_documents'] === 'CAV-G')
+                                            ): ?>
+                                                <?php continue; ?>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         <tr>
                                             <td>

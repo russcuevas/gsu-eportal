@@ -135,7 +135,7 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item">
                             <a href="my_request_documents.php" class="nav-link">
-                                <i class="nav-icon fas fa-clock"></i>
+                                <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     My Document Request
                                 </p>
@@ -197,136 +197,134 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <!-- /.card-header -->
                                 <div class="card-body">
                                     <button onclick="window.location.href='../medical_request.php';" class="btn btn-primary mb-3">+ REQUEST MEDICAL</button>
-                                    <table id="myTable" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Request Number</th>
-                                                <th>For Laboratory</th>
-                                                <th>With Med-Cert</th>
-                                                <th>Status</th>
-                                                <th>Requested At</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($requests as $request): ?>
+                                    <div style="overflow:auto;">
+                                        <table id="myTable" class="table table-bordered table-striped">
+                                            <thead>
                                                 <tr>
-                                                    <td><?php echo $request['request_number']; ?></td>
-                                                    <td>
-                                                        <?php echo ucfirst($request['laboratory_request']); ?>
-                                                    </td>
-                                                    <td><?php echo ucfirst($request['with_med_cert']); ?></td>
-
-                                                    <td><?php echo ucfirst($request['status']); ?></td>
-                                                    <td><?php echo ucfirst($request['requested_at']); ?></td>
-                                                    <td>
-                                                        <?php if ($request['status'] == 'pending'): ?>
-                                                            <form action="cancel_medical_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
-                                                                <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
-                                                                <button type="submit" class="btn btn-danger">Cancel</button>
-                                                            </form>
-                                                        <?php elseif ($request['status'] === 'Accepted'): ?>
-                                                            <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#viewAppointment<?php echo $request['id']; ?>">View appointment</button>
-                                                            <div class="modal fade" id="viewAppointment<?php echo $request['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="viewAppointment<?php echo $request['id']; ?>" aria-hidden="true">
-                                                                <div class="modal-dialog" role="document">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title" id="viewAppointment<?php echo $request['id']; ?>"><?php echo $request['request_number']; ?></h5>
-                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                <span aria-hidden="true">&times;</span>
-                                                                            </button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <form action="">
-                                                                                <input type="hidden" id="id" name="id" value="<?php echo $request['id']; ?>">
-                                                                                <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
-                                                                                <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
-                                                                                <strong>Laboratory:</strong> <?php echo $request['laboratory_request']; ?><br>
-                                                                                <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
-                                                                                <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
-                                                                                <strong>Course:</strong> <?php echo $request['course']; ?><br>
-                                                                                <strong>Year:</strong> <?php echo $request['year']; ?><br>
-                                                                                <strong>Email:</strong> <?php echo $request['email']; ?>
-
-                                                                                <hr>
-
-                                                                                <strong>Requested Date:</strong>
-                                                                                <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
-                                                                                ?><br>
-                                                                                <strong>Appointed At:</strong>
-                                                                                <span style="color: red;"><?php echo date('F d Y / g:ia', strtotime($request['appointed_at']));
-                                                                                                            ?></span><br>
-
-                                                                                <div class="d-flex justify-content-end" style="gap: 3px !important;">
-                                                                                    <a href="my_request_medical.php" class="btn btn-secondary">CLOSE</a>
-                                                                                </div>
-                                                                            </form>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        <?php else: ?>
-                                                            <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#viewMyRequestMedical<?php echo $request['id']; ?>">View information</button>
-                                                            <div class="modal fade" id="viewMyRequestMedical<?php echo $request['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="viewMyMedical<?php echo $request['id']; ?>" aria-hidden="true">
-                                                                <div class="modal-dialog" role="document">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title" id="viewMyMedical<?php echo $request['id']; ?>"><?php echo $request['request_number']; ?></h5>
-                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                <span aria-hidden="true">&times;</span>
-                                                                            </button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <form action="" method="POST" enctype="multipart/form-data">
-                                                                                <input type="hidden" id="id" name="id" value="<?php echo $request['id']; ?>">
-                                                                                <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
-                                                                                <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
-                                                                                <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
-                                                                                <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
-                                                                                <strong>Course:</strong> <?php echo $request['course']; ?><br>
-                                                                                <strong>Year:</strong> <?php echo $request['year']; ?><br>
-                                                                                <strong>Email:</strong> <?php echo $request['email']; ?><br>
-
-                                                                                <hr>
-
-                                                                                <?php if ($request['with_med_cert'] === 'Yes'): ?>
-                                                                                    <strong>Requested Date:</strong>
-                                                                                    <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
-                                                                                    ?><br>
-                                                                                    <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
-                                                                                    <strong>Status:</strong> <?php echo $request['status']; ?><br>
-                                                                                    <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?><br>
-                                                                                    <strong>MEDICAL CERTIFICATE:</strong><br>
-                                                                                    <?php if (isset($request['med_cert_picture']) && !empty($request['med_cert_picture'])): ?>
-                                                                                        <a href="<?php echo "../assets/uploads/medical_certificate/" . htmlspecialchars($request['med_cert_picture']); ?>" target="_blank">
-                                                                                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i> VIEW MY MEDICAL CERTIFICATE
-                                                                                        </a>
-                                                                                    <?php else: ?>
-                                                                                        <span>Empty</span>
-                                                                                    <?php endif; ?>
-                                                                                <?php else: ?>
-                                                                                    <strong>Requested Date:</strong>
-                                                                                    <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
-                                                                                    ?><br>
-                                                                                    <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
-                                                                                    <strong>Status:</strong> <?php echo $request['status']; ?><br>
-                                                                                    <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?>
-                                                                                <?php endif ?>
-
-                                                                                <div class="d-flex justify-content-end" style="gap: 3px !important;">
-                                                                                    <a href="my_request_medical.php" class="btn btn-secondary">CLOSE</a>
-                                                                                </div>
-                                                                            </form>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        <?php endif ?>
-                                                    </td>
+                                                    <th>Request Number</th>
+                                                    <th>For Laboratory</th>
+                                                    <th>With Med-Cert</th>
+                                                    <th>Status</th>
+                                                    <th>Requested At</th>
+                                                    <th>Action</th>
                                                 </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($requests as $request): ?>
+                                                    <tr>
+                                                        <td><?php echo $request['request_number']; ?></td>
+                                                        <td>
+                                                            <?php echo ucfirst($request['laboratory_request']); ?>
+                                                        </td>
+                                                        <td><?php echo ucfirst($request['with_med_cert']); ?></td>
+
+                                                        <td><?php echo ucfirst($request['status']); ?></td>
+                                                        <td><?php echo ucfirst($request['requested_at']); ?></td>
+                                                        <td>
+                                                            <?php if ($request['status'] == 'pending'): ?>
+                                                                <form action="cancel_medical_request.php" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                                                                    <input type="hidden" name="request_number" value="<?php echo $request['request_number']; ?>">
+                                                                    <button type="submit" class="btn btn-danger">Cancel</button>
+                                                                </form>
+                                                            <?php elseif ($request['status'] === 'Accepted'): ?>
+                                                                <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#viewAppointment<?php echo $request['id']; ?>">View appointment</button>
+                                                                <div class="modal fade" id="viewAppointment<?php echo $request['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="viewAppointment<?php echo $request['id']; ?>" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="viewAppointment<?php echo $request['id']; ?>"><?php echo $request['request_number']; ?></h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <form action="">
+                                                                                    <input type="hidden" id="id" name="id" value="<?php echo $request['id']; ?>">
+                                                                                    <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
+                                                                                    <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
+                                                                                    <strong>Laboratory:</strong> <?php echo $request['laboratory_request']; ?><br>
+                                                                                    <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
+                                                                                    <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
+                                                                                    <strong>Course:</strong> <?php echo $request['course']; ?><br>
+                                                                                    <strong>Year:</strong> <?php echo $request['year']; ?><br>
+                                                                                    <strong>Email:</strong> <?php echo $request['email']; ?>
+
+                                                                                    <hr>
+
+                                                                                    <strong>Requested Date:</strong>
+                                                                                    <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
+                                                                                    ?><br>
+                                                                                    <strong>Appointed At:</strong>
+                                                                                    <span style="color: red;"><?php echo date('F d Y / g:ia', strtotime($request['appointed_at']));
+                                                                                                                ?></span><br>
+
+                                                                                    <div class="d-flex justify-content-end" style="gap: 3px !important;">
+                                                                                        <a href="my_request_medical.php" class="btn btn-secondary">CLOSE</a>
+                                                                                    </div>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#viewMyRequestMedical<?php echo $request['id']; ?>">View information</button>
+                                                                <div class="modal fade" id="viewMyRequestMedical<?php echo $request['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="viewMyMedical<?php echo $request['id']; ?>" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="viewMyMedical<?php echo $request['id']; ?>"><?php echo $request['request_number']; ?></h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <form action="" method="POST" enctype="multipart/form-data">
+                                                                                    <input type="hidden" id="id" name="id" value="<?php echo $request['id']; ?>">
+                                                                                    <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
+                                                                                    <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
+                                                                                    <strong>With Medical Certificate:</strong> <?php echo $request['with_med_cert']; ?><br>
+                                                                                    <strong>Student ID:</strong> <?php echo $request['student_id']; ?><br>
+                                                                                    <strong>Course:</strong> <?php echo $request['course']; ?><br>
+                                                                                    <strong>Year:</strong> <?php echo $request['year']; ?><br>
+                                                                                    <strong>Email:</strong> <?php echo $request['email']; ?><br>
+
+                                                                                    <hr>
+
+                                                                                    <?php if ($request['with_med_cert'] === 'Yes'): ?>
+                                                                                        <strong>Requested Date:</strong>
+                                                                                        <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
+                                                                                        ?><br>
+                                                                                        <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
+                                                                                        <strong>Status:</strong> <?php echo $request['status']; ?><br>
+                                                                                        <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?><br>
+                                                                                        <strong>MEDICAL CERTIFICATE:</strong><br>
+                                                                                        <?php if (isset($request['med_cert_picture']) && !empty($request['med_cert_picture'])): ?>
+                                                                                            <a href="<?php echo "../assets/uploads/medical_certificate/" . htmlspecialchars($request['med_cert_picture']); ?>" target="_blank">
+                                                                                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i> VIEW MY MEDICAL CERTIFICATE
+                                                                                            </a>
+                                                                                        <?php else: ?>
+                                                                                            <span>Empty</span>
+                                                                                        <?php endif; ?>
+                                                                                    <?php else: ?>
+                                                                                        <strong>Requested Date:</strong>
+                                                                                        <?php echo date('F d Y / g:ia', strtotime($request['requested_at']));
+                                                                                        ?><br>
+                                                                                        <strong>Appointed At:</strong> <?php echo date('F d Y / g:ia', strtotime($request['appointed_at'])); ?><br>
+                                                                                        <strong>Status:</strong> <?php echo $request['status']; ?><br>
+                                                                                        <strong>Laboratory Test:</strong> <?php echo $request['laboratory_request']; ?>
+                                                                                    <?php endif ?>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endif ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                                 <!-- /.card-body -->
                             </div>
@@ -395,7 +393,7 @@ $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
-                responsive: true
+
             });
         });
     </script>
