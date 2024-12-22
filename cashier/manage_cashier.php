@@ -205,34 +205,9 @@ $cashier = $stmt_get_cashier->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo $cashier_account['created_at'] ?></td>
                                                     <td><?php echo $cashier_account['updated_at'] ?></td>
                                                     <td>
-                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteCashierModal" onclick="setCashierId(<?php echo $cashier_account['id']; ?>)">
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_cashier.php?id=<?php echo $cashier_account['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                                             DELETE
                                                         </a>
-
-
-                                                        <!-- DELETE MODAL -->
-                                                        <div class="modal fade" id="deleteCashierModal" tabindex="-1" role="dialog" aria-labelledby="deleteCashierModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="deleteCashierModalLabel">Confirm Deletion</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        Are you sure you want to delete this user?
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <form id="deleteUserForm" method="POST" action="delete_cashier.php">
-                                                                            <input type="hidden" name="id" id="cashier_id_delete">
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach ?>
@@ -310,13 +285,6 @@ $cashier = $stmt_get_cashier->fetchAll(PDO::FETCH_ASSOC);
             });
         });
     </script>
-
-    <script>
-        function setCashierId(CashierId) {
-            document.getElementById('cashier_id_delete').value = CashierId;
-        }
-    </script>
-
 
     <!-- success and error message alert -->
     <script>

@@ -313,9 +313,6 @@ $total_pages = ceil($total_schedules / $items_per_page);
                         <a href="class_schedules.php" class="btn btn-secondary">Reset</a>
                     </div>
                 <?php else : ?>
-                    <tr>
-                        <td colspan="5" class="text-center">No schedules found</td>
-                    </tr>
                 <?php endif; ?>
             </form>
         </div>

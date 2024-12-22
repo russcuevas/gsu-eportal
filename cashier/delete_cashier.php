@@ -14,8 +14,8 @@ if ($_SESSION['role'] !== 'cashier') {
     exit();
 }
 
-if (isset($_POST['id'])) {
-    $cashier_id = $_POST['id'];
+if (isset($_GET['id'])) {
+    $cashier_id = $_GET['id'];
 
     if (empty($cashier_id) || !is_numeric($cashier_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';

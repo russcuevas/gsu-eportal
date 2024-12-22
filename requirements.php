@@ -210,43 +210,47 @@ $requirements = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div id="accordion">
-                <?php foreach ($requirements as $index => $requirement): ?>
-                    <div class="card mb-3 shadow-sm border-0">
-                        <div class="card-header" style="background-color: white;" id="heading<?php echo $index; ?>">
-                            <h5 class="mb-0 accordion-h5">
-                                <button class="btn btn-link font-weight-bold" type="button" data-toggle="collapse" data-target="#collapse<?php echo $index; ?>" aria-expanded="true" aria-controls="collapse<?php echo $index; ?>" style="text-decoration: none; font-size: 1.1rem; color: #001968; text-transform: uppercase;">
-                                    <i class="fas fa-caret-right mr-2 toggle-caret"></i><?php echo htmlspecialchars($requirement['requirements_description']); ?>
-                                </button>
-                            </h5>
-                        </div>
+                <?php if (!empty($requirements)): ?>
+                    <?php foreach ($requirements as $index => $requirement): ?>
+                        <div class="card mb-3 shadow-sm border-0">
+                            <div class="card-header" style="background-color: white;" id="heading<?php echo $index; ?>">
+                                <h5 class="mb-0 accordion-h5">
+                                    <button class="btn btn-link font-weight-bold" type="button" data-toggle="collapse" data-target="#collapse<?php echo $index; ?>" aria-expanded="true" aria-controls="collapse<?php echo $index; ?>" style="text-decoration: none; font-size: 1.1rem; color: #001968; text-transform: uppercase;">
+                                        <i class="fas fa-caret-right mr-2 toggle-caret"></i><?php echo htmlspecialchars($requirement['requirements_description']); ?>
+                                    </button>
+                                </h5>
+                            </div>
 
-                        <div id="collapse<?php echo $index; ?>" class="collapse" aria-labelledby="heading<?php echo $index; ?>" data-parent="#accordion">
-                            <div class="card-body bg-light">
-                                <div class="mb-3">
-                                    <p><strong>UPLOADED FILE:</strong>
-                                        <?php if ($requirement['requirements_upload']): ?>
-                                            <a href="assets/uploads/posted_requirements/<?php echo htmlspecialchars($requirement['requirements_upload']); ?>" target="_blank" class="btn btn-primary bg-blue"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                                                VIEW PDF</a>
-                                        <?php else: ?>
-                                            <span class="text-muted">No file uploaded.</span>
-                                        <?php endif; ?>
-                                    </p>
-                                </div>
+                            <div id="collapse<?php echo $index; ?>" class="collapse" aria-labelledby="heading<?php echo $index; ?>" data-parent="#accordion">
+                                <div class="card-body bg-light">
+                                    <div class="mb-3">
+                                        <p><strong>UPLOADED FILE:</strong>
+                                            <?php if ($requirement['requirements_upload']): ?>
+                                                <a href="assets/uploads/posted_requirements/<?php echo htmlspecialchars($requirement['requirements_upload']); ?>" target="_blank" class="btn btn-primary bg-blue"><i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                                    VIEW PDF</a>
+                                            <?php else: ?>
+                                                <span class="text-muted">No file uploaded.</span>
+                                            <?php endif; ?>
+                                        </p>
+                                    </div>
 
-                                <div>
-                                    <p><strong>UPLOADED AT:</strong>
-                                        <?php
-                                        $createdAt = new DateTime($requirement['created_at']);
-                                        echo $createdAt->format('F j, Y, g:i a');
-                                        ?>
-                                    </p>
+                                    <div>
+                                        <p><strong>UPLOADED AT:</strong>
+                                            <?php
+                                            $createdAt = new DateTime($requirement['created_at']);
+                                            echo $createdAt->format('F j, Y, g:i a');
+                                            ?>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div style="background-color: whitesmoke; color:#001968; padding: 50px;">
+                        <h4 style="text-align: center;">No requirements found</h4>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

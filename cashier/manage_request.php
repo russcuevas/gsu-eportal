@@ -218,7 +218,6 @@ $result = $conn->query($query);
                                             <?php
                                                 }
                                             } else {
-                                                echo "<tr><td colspan='6' class='text-center'>No requests found.</td></tr>";
                                             }
                                             ?>
                                         </tbody>

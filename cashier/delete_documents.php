@@ -13,8 +13,8 @@ if ($_SESSION['role'] !== 'cashier') {
     exit();
 }
 
-if (isset($_POST['id']) && $_POST['id'] !== "") {
-    $id = $_POST['id'];
+if (isset($_GET['id']) && $_GET['id'] !== "") {
+    $id = $_GET['id'];
 
     $query = "DELETE FROM tbl_documents WHERE id = :id";
     $stmt = $conn->prepare($query);

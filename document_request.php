@@ -269,94 +269,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php else: ?>
                 <?php endif; ?>
 
+                <?php if (!empty($documents)): ?>
 
-                <section>
-                    <h5>AVAILABLE DOCUMENT:</h5>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Select</th>
-                                    <th>Document Type</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($documents as $document): ?>
+                    <section>
+                        <h5>AVAILABLE DOCUMENT:</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <input type="checkbox" name="document_ids[]" value="<?php echo $document['id']; ?>" class="document-selection" />
-                                        </td>
-                                        <td><?php echo $document['type_of_documents']; ?></td>
-                                        <td>₱<?php echo $document['price']; ?></td>
-                                        <td>
-                                            <input type="number" disabled name="number_of_copies[<?php echo $document['id']; ?>]" value="1" class="form-control quantity-input" data-price="<?php echo $document['price']; ?>" min="1" />
-                                        </td>
-                                        <td class="document-total">₱0.00</td>
+                                        <th>Select</th>
+                                        <th>Document Type</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($documents as $document): ?>
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="document_ids[]" value="<?php echo $document['id']; ?>" class="document-selection" />
+                                            </td>
+                                            <td><?php echo $document['type_of_documents']; ?></td>
+                                            <td>₱<?php echo $document['price']; ?></td>
+                                            <td>
+                                                <input type="number" disabled name="number_of_copies[<?php echo $document['id']; ?>]" value="1" class="form-control quantity-input" data-price="<?php echo $document['price']; ?>" min="1" />
+                                            </td>
+                                            <td class="document-total">₱0.00</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
 
-                    <div class="text-end float-right">
-                        <strong>Prepare a Total Amount of:</strong>
-                        <span id="totalAmount" style="color: red; font-weight: 900;">₱0.00</span>
-                        <?php if (isset($_SESSION['user_id'])): ?>
-                            <div class="form-group mt-3">
-                                <label for="payment_proof">GCash Payment Proof (Image)</label>
-                                <input type="file" name="payment_proof" class="form-control" accept="image/*" id="payment_proof" required />
-                            </div>
+                        <div class="text-end float-right">
+                            <strong>Prepare a Total Amount of:</strong>
+                            <span id="totalAmount" style="color: red; font-weight: 900;">₱0.00</span>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <div class="form-group mt-3">
+                                    <label for="payment_proof">GCash Payment Proof (Image)</label>
+                                    <input type="file" name="payment_proof" class="form-control" accept="image/*" id="payment_proof" required />
+                                </div>
 
-                            <div id="imagePreviewContainer" class="mt-3" style="display: none;">
-                                <h6>Selected Image Preview:</h6>
-                                <a href="#" id="imagePreviewLink" target="_blank">
-                                    <img id="imagePreview" src="" alt="Payment Proof Preview" class="img-fluid" style="max-width: 300px; height: 300px; cursor: pointer;" />
-                                </a>
-                            </div>
+                                <div id="imagePreviewContainer" class="mt-3" style="display: none;">
+                                    <h6>Selected Image Preview:</h6>
+                                    <a href="#" id="imagePreviewLink" target="_blank">
+                                        <img id="imagePreview" src="" alt="Payment Proof Preview" class="img-fluid" style="max-width: 300px; height: 300px; cursor: pointer;" />
+                                    </a>
+                                </div>
 
-                            <div id="imageModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="imageModalLabel">Payment Proof</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body d-flex justify-content-center align-items-center">
-                                            <img id="modalImage" src="" alt="Full-size Payment Proof" class="img-fluid" style="max-height: 500px; max-width: 100%;" />
+                                <div id="imageModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="imageModalLabel">Payment Proof</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body d-flex justify-content-center align-items-center">
+                                                <img id="modalImage" src="" alt="Full-size Payment Proof" class="img-fluid" style="max-height: 500px; max-width: 100%;" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group mt-3">
-                                <label for="gcash_reference_number">GCash Reference Number</label>
-                                <input type="text" name="gcash_reference_number" class="form-control" id="gcash_reference_number" required />
-                            </div>
+                                <div class="form-group mt-3">
+                                    <label for="gcash_reference_number">GCash Reference Number</label>
+                                    <input type="text" name="gcash_reference_number" class="form-control" id="gcash_reference_number" required />
+                                </div>
 
-                            <button type="submit" class="btn btn-primary bg-blue mt-3">
-                                <i class="fas fa-paper-plane"></i> SUBMIT
-                            </button>
-                        <?php else: ?>
-                            <br>
-                            <a href="login.php" class="btn btn-danger">LOGIN FIRST TO REQUEST</a>
-                        <?php endif; ?>
+                                <button type="submit" class="btn btn-primary bg-blue mt-3">
+                                    <i class="fas fa-paper-plane"></i> SUBMIT
+                                </button>
+                            <?php else: ?>
+                                <br>
+                                <a href="login.php" class="btn btn-danger">LOGIN FIRST TO REQUEST</a>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mt-5">
+                            <p class="text-muted">
+                                <strong style="color: red">Instructions:</strong><br>
+                                <strong>Your request will be submitted for validation.</strong><br>
+                                <strong>The cashier will check if you are paid in your request based on your uploaded payment proof</strong><br>
+                                <strong>Once your payment proof is approved by the cashier, the system will give you a receipt and you can get your requested document in the registrar by showing the receipt.</strong>
+                                <br><strong>Check your status here <a href="student_portal/my_request_documents.php">CLICK HERE</a></strong>
+                            </p>
+                        </div>
+                    </section>
+                <?php else: ?>
+                    <div style="background-color: #001968; color:whitesmoke; padding: 50px;">
+                        <h4 style="text-align: center;">No available documents at the moment.</h4>
                     </div>
-
-                    <div class="mt-5">
-                        <p class="text-muted">
-                            <strong style="color: red">Instructions:</strong><br>
-                            <strong>Your request will be submitted for validation.</strong><br>
-                            <strong>The cashier will check if you are paid in your request based on your uploaded payment proof</strong><br>
-                            <strong>Once your payment proof is approved by the cashier, the system will give you a receipt and you can get your requested document in the registrar by showing the receipt.</strong>
-                            <br><strong>Check your status here <a href="student_portal/my_request_documents.php">CLICK HERE</a></strong>
-                        </p>
-                    </div>
-                </section>
+                <?php endif; ?>
 
             </form>
         </div>
