@@ -295,12 +295,6 @@ $result = $conn->query($query);
         });
     </script>
 
-    <script>
-        function setDocumentsId(DocumentId) {
-            document.getElementById('document_id_delete').value = DocumentId;
-        }
-    </script>
-
 
     <!-- success and error message alert -->
     <script>

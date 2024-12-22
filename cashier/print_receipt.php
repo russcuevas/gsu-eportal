@@ -6,7 +6,6 @@ if (!$request_number) {
     die('Request number is missing');
 }
 
-// Fetch the request data, including payment proof, from the correct table
 $query = "
     SELECT 
         dr.*, 
