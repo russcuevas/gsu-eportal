@@ -208,9 +208,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                                                         <a style="font-size: 13px;" class="btn btn-danger" href="delete_documents.php?id=<?php echo $documents['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                                             DELETE
                                                         </a>
-
                                                     </td>
-
                                                 </tr>
                                             <?php endforeach ?>
                                         </tbody>

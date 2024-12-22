@@ -14,8 +14,8 @@ if ($_SESSION['role'] !== 'osds') {
     exit();
 }
 
-if (isset($_POST['id'])) {
-    $osds_id = $_POST['id'];
+if (isset($_GET['id'])) {
+    $osds_id = $_GET['id'];
 
     if (empty($osds_id) || !is_numeric($osds_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';

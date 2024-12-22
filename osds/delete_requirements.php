@@ -14,8 +14,8 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'osds') {
     exit();
 }
 
-if (isset($_POST['id'])) {
-    $requirements_id = $_POST['id'];
+if (isset($_GET['id'])) {
+    $requirements_id = $_GET['id'];
 
     if (empty($requirements_id) || !is_numeric($requirements_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';

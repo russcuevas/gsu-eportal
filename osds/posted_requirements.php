@@ -206,33 +206,9 @@ $posted_requirement = $stmt_get_posted_requirements->fetchAll(PDO::FETCH_ASSOC);
 
                                                     <td>
                                                         <a href="edit_requirements.php?id=<?php echo $posted_requirements['id'] ?>" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
-                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteRequirementsModal" onclick="setRequirementsId(<?php echo $posted_requirements['id']; ?>)">
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_requirements.php?id=<?php echo $posted_requirements['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                                             DELETE
                                                         </a>
-
-                                                        <!-- DELETE MODAL -->
-                                                        <div class="modal fade" id="deleteRequirementsModal" tabindex="-1" role="dialog" aria-labelledby="deleteRequirementsModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="deleteRequirementsModalLabel">Confirm Deletion</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        Are you sure you want to delete this requirements?
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <form id="deleteClassForm" method="POST" action="delete_requirements.php">
-                                                                            <input type="hidden" name="id" id="requirements_id">
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach ?>
@@ -322,12 +298,6 @@ $posted_requirement = $stmt_get_posted_requirements->fetchAll(PDO::FETCH_ASSOC);
                 responsive: true
             });
         });
-    </script>
-
-    <script>
-        function setRequirementsId(RequirementsId) {
-            document.getElementById('requirements_id').value = RequirementsId;
-        }
     </script>
 
 </body>
