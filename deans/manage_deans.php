@@ -202,34 +202,12 @@ $dean = $stmt_get_deans->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo $deans['created_at'] ?></td>
                                                     <td><?php echo $deans['updated_at'] ?></td>
                                                     <td>
-                                                        <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteDeansModal" onclick="setDeansId(<?php echo $deans['id']; ?>)">
+
+
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_deans.php?id=<?php echo $deans['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                                             DELETE
                                                         </a>
 
-
-                                                        <!-- DELETE MODAL -->
-                                                        <div class="modal fade" id="deleteDeansModal" tabindex="-1" role="dialog" aria-labelledby="deleteDeansModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="deleteDeansModalLabel">Confirm Deletion</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        Are you sure you want to delete this user?
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <form id="deleteUserForm" method="POST" action="delete_deans.php">
-                                                                            <input type="hidden" name="id" id="deans_id_delete">
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                            <button type="submit" class="btn btn-danger">Delete</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach ?>
@@ -306,12 +284,6 @@ $dean = $stmt_get_deans->fetchAll(PDO::FETCH_ASSOC);
                 responsive: true
             });
         });
-    </script>
-
-    <script>
-        function setDeansId(DeansId) {
-            document.getElementById('deans_id_delete').value = DeansId;
-        }
     </script>
 
 

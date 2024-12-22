@@ -14,8 +14,8 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'deans') {
     exit();
 }
 
-if (isset($_POST['id'])) {
-    $class_sched_id = $_POST['id'];
+if (isset($_GET['id'])) {
+    $class_sched_id = $_GET['id'];
 
     if (empty($class_sched_id) || !is_numeric($class_sched_id)) {
         $_SESSION['error'] = 'There was an error during deletion!';

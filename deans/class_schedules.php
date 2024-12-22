@@ -224,34 +224,12 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
                           <td>
                             <div style="display: flex; justify-content: center; gap: 5px;">
                               <a href="edit_class_schedules.php?id=<?php echo $class_schedules['id'] ?>" class="btn btn-warning text-white" style="font-size: 13px; background-color: #001968; border: none;">UPDATE</a>
-                              <a style="font-size: 13px;" class="btn btn-danger" href="javascript:void(0);" data-toggle="modal" data-target="#deleteClassScheduleModal" onclick="setClassSchedId(<?php echo $class_schedules['id']; ?>)">
+                              <a style="font-size: 13px;" class="btn btn-danger" href="delete_class_schedule.php?id=<?php echo $class_schedules['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
                                 DELETE
                               </a>
                             </div>
 
-                            <!-- DELETE MODAL -->
-                            <div class="modal fade" id="deleteClassScheduleModal" tabindex="-1" role="dialog" aria-labelledby="deleteClassScheduleModalLabel" aria-hidden="true">
-                              <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                  <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteClassScheduleModalLabel">Confirm Deletion</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                    </button>
-                                  </div>
-                                  <div class="modal-body">
-                                    Are you sure you want to delete this class schedule?
-                                  </div>
-                                  <div class="modal-footer">
-                                    <form id="deleteClassForm" method="POST" action="delete_class_schedule.php">
-                                      <input type="hidden" name="id" id="class_sched_id_delete">
-                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                      <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+
 
                           </td>
                         </tr>
@@ -342,12 +320,6 @@ $class_schedule = $stmt_get_class_schedules->fetchAll(PDO::FETCH_ASSOC);
         responsive: true
       });
     });
-  </script>
-
-  <script>
-    function setClassSchedId(ClassId) {
-      document.getElementById('class_sched_id_delete').value = ClassId;
-    }
   </script>
 
 </body>
