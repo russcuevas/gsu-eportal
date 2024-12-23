@@ -1,5 +1,9 @@
 <?php
 include '../database/connection.php';
+require '../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // session
 session_start();
@@ -58,8 +62,6 @@ if (isset($_POST['set_appointment'])) {
         WHERE id = :request_id
     ";
 
-    //smtp
-
     $stmt = $conn->prepare($update_query);
     $stmt->bindParam(':laboratory_request', $laboratory_request);
     $stmt->bindParam(':status', $status);
@@ -68,6 +70,42 @@ if (isset($_POST['set_appointment'])) {
 
     if ($stmt->execute()) {
         $_SESSION['success'] = 'Appointment set successfully.';
+
+        $user_query = "SELECT email, fullname FROM tbl_users WHERE id = (SELECT user_id FROM tbl_clinic_request WHERE id = :request_id)";
+        $user_stmt = $conn->prepare($user_query);
+        $user_stmt->bindParam(':request_id', $request_id);
+        $user_stmt->execute();
+        $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+        $user_email = $user['email'];
+        $user_fullname = $user['fullname'];
+
+        $mail = new PHPMailer(true);
+
+        try {
+            // smtp 
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'guimarasrequestingsystem@gmail.com';
+            $mail->Password = 'idyztzjuzwcrupwp';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Clinic');
+            $mail->addAddress($user_email, $user_fullname);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Your Clinic Appointment Has Been Set';
+            $mail->Body    = "<p>Dear $user_fullname,</p>
+                              <p>Your clinic appointment has been successfully set for <strong>$appointed_at</strong>.</p>
+                              <p>If you have any questions, please feel free to contact us.</p>
+                              <p>Best regards,<br>Clinic Staff</p>";
+
+            $mail->send();
+        } catch (Exception $e) {
+            echo "Mailer Error: " . $mail->ErrorInfo;
+        }
+
     } else {
         $_SESSION['error'] = 'Failed to set the appointment.';
     }
@@ -76,18 +114,52 @@ if (isset($_POST['set_appointment'])) {
     exit();
 } elseif (isset($_POST['delete_appointment'])) {
     $request_id = $_POST['request_id'];
+    
+    $user_query = "SELECT email, fullname FROM tbl_users WHERE id = (SELECT user_id FROM tbl_clinic_request WHERE id = :request_id)";
+    $user_stmt = $conn->prepare($user_query);
+    $user_stmt->bindParam(':request_id', $request_id);
+    $user_stmt->execute();
+    $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+    $user_email = $user['email'];
+    $user_fullname = $user['fullname'];
+
     $delete_query = "
         DELETE FROM tbl_clinic_request 
         WHERE id = :request_id
     ";
-
-    //smtp
 
     $stmt = $conn->prepare($delete_query);
     $stmt->bindParam(':request_id', $request_id);
 
     if ($stmt->execute()) {
         $_SESSION['success'] = 'Appointment cancelled successfully.';
+
+        $mail = new PHPMailer(true);
+
+        try {
+            // smtp 
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'guimarasrequestingsystem@gmail.com';
+            $mail->Password = 'idyztzjuzwcrupwp';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Clinic');
+            $mail->addAddress($user_email, $user_fullname);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Your Clinic Appointment Has Been Cancelled';
+            $mail->Body    = "<p>Dear $user_fullname,</p>
+                              <p>We regret to inform you that your clinic appointment has been cancelled.</p>
+                              <p>Best regards,<br>Clinic Staff</p>";
+
+            $mail->send();
+        } catch (Exception $e) {
+            echo "Mailer Error: " . $mail->ErrorInfo;
+        }
+
     } else {
         $_SESSION['error'] = 'Failed to delete the appointment.';
     }
@@ -284,13 +356,13 @@ if (isset($_POST['set_appointment'])) {
                                             <?php foreach ($requests as $request): ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($request['request_number']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['laboratory_request']); ?></td>
+                                                    <td style="text-transform: capitalize;"><?php echo htmlspecialchars($request['laboratory_request']); ?></td>
                                                     <td><?php echo htmlspecialchars($request['fullname']); ?></td>
                                                     <td><?php echo htmlspecialchars($request['with_med_cert']); ?></td>
 
                                                     <td><?php echo htmlspecialchars($request['email']); ?></td>
                                                     <td><?php echo htmlspecialchars($request['requested_at']); ?></td>
-                                                    <td><?php echo htmlspecialchars($request['request_status']); ?></td>
+                                                    <td style="text-transform: capitalize;"><?php echo htmlspecialchars($request['request_status']); ?></td>
                                                     <td>
                                                         <button class="btn btn-primary bg-blue" data-toggle="modal" data-target="#editAppointmentSchedule<?php echo $request['request_id']; ?>">Set an appointment</button>
                                                     </td>
@@ -311,7 +383,7 @@ if (isset($_POST['set_appointment'])) {
 
                                                                         <div class="form-group">
                                                                             <label for="request_number">Request Number</label>
-                                                                            <input type="text" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
+                                                                            <input style="background-color: grey; color: white;" type="text" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
                                                                         </div>
 
                                                                         <div class="form-group">
@@ -330,7 +402,7 @@ if (isset($_POST['set_appointment'])) {
 
                                                                         <div class="form-group">
                                                                             <label for="appointed_at">Appointed At</label>
-                                                                            <input type="datetime-local" class="form-control" id="appointed_at" name="appointed_at" value="">
+                                                                            <input type="datetime-local" class="form-control" id="appointed_at" name="appointed_at" value="" required>
                                                                         </div>
 
                                                                         <div class="d-flex justify-content-end" style="gap: 3px !important;">

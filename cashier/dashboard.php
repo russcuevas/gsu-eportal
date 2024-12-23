@@ -52,7 +52,7 @@ $total_paid_request = $results_total_paid_request['total_paid_request'];
 // END GET TOTAL PAID REQUEST
 
 // GET TOTAL PAID
-$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_reports` WHERE status = 'paid'";
+$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_reports` WHERE status = 'paid' OR 'claimable' OR 'claimed'";
 $stmt_total_paid = $conn->prepare($get_total_paid);
 $stmt_total_paid->execute();
 $results_total_paid = $stmt_total_paid->fetch(PDO::FETCH_ASSOC);

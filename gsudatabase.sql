@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 22, 2024 at 05:31 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.2.0
+-- Generation Time: Dec 23, 2024 at 12:48 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -66,6 +66,13 @@ CREATE TABLE `tbl_clinic_request` (
   `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `appointed_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_clinic_request`
+--
+
+INSERT INTO `tbl_clinic_request` (`id`, `user_id`, `request_number`, `laboratory_request`, `with_med_cert`, `med_cert_picture`, `status`, `requested_at`, `appointed_at`) VALUES
+(21, 2, '257808', 'Proceed to clinic', 'Yes', NULL, 'Accepted', '2024-12-23 11:47:05', '2024-12-23 19:47:00');
 
 -- --------------------------------------------------------
 
@@ -159,12 +166,47 @@ CREATE TABLE `tbl_documents` (
 --
 
 INSERT INTO `tbl_documents` (`id`, `type_of_documents`, `price`, `created_at`, `updated_at`) VALUES
-(7, 'RF', '25.00', '2024-12-18 17:49:56', '2024-12-18 17:50:17'),
-(9, 'GRADES', '25.00', '2024-12-18 17:52:45', '2024-12-18 17:52:45'),
-(11, 'CAV-G', '250.00', '2024-12-18 17:52:56', '2024-12-20 05:12:02'),
-(12, 'CAV-UG', '100.00', '2024-12-18 17:53:02', '2024-12-18 17:53:02'),
-(13, 'Permit to cross enroll', '150.00', '2024-12-18 17:53:10', '2024-12-18 17:53:10'),
-(14, 'TOR', '100.00', '2024-12-20 05:12:13', '2024-12-20 05:12:13');
+(7, 'RF', 25.00, '2024-12-18 17:49:56', '2024-12-18 17:50:17'),
+(9, 'GRADES', 25.00, '2024-12-18 17:52:45', '2024-12-18 17:52:45'),
+(11, 'CAV-G', 250.00, '2024-12-18 17:52:56', '2024-12-20 05:12:02'),
+(12, 'CAV-UG', 100.00, '2024-12-18 17:53:02', '2024-12-18 17:53:02'),
+(13, 'Permit to cross enroll', 150.00, '2024-12-18 17:53:10', '2024-12-18 17:53:10'),
+(14, 'TOR', 100.00, '2024-12-20 05:12:13', '2024-12-20 05:12:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_document_reports`
+--
+
+CREATE TABLE `tbl_document_reports` (
+  `id` int(11) NOT NULL,
+  `student_id` varchar(100) DEFAULT NULL,
+  `fullname` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `year` varchar(100) DEFAULT NULL,
+  `course` varchar(100) DEFAULT NULL,
+  `gender` varchar(100) DEFAULT NULL,
+  `request_number` varchar(100) DEFAULT NULL,
+  `type_of_documents` varchar(255) DEFAULT NULL,
+  `price` decimal(10,2) DEFAULT NULL,
+  `number_of_copies` int(11) DEFAULT NULL,
+  `total_price` decimal(10,2) DEFAULT NULL,
+  `payment_method` varchar(100) DEFAULT NULL,
+  `payment_proof` varchar(255) DEFAULT NULL,
+  `gcash_reference_number` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_document_reports`
+--
+
+INSERT INTO `tbl_document_reports` (`id`, `student_id`, `fullname`, `email`, `year`, `course`, `gender`, `request_number`, `type_of_documents`, `price`, `number_of_copies`, `total_price`, `payment_method`, `payment_proof`, `gcash_reference_number`, `status`, `created_at`, `updated_at`) VALUES
+(6, '2420580', 'Russel Vincent C. Cuevas', 'russelcuevas0@gmail.com', '1', 'BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY', 'male', 'REQ1734938672', 'RF', 25.00, 2, 50.00, 'GCash', 'analytics.jpeg', '123456789', 'paid', '2024-12-23 07:24:32', '2024-12-23 07:33:47'),
+(7, '2420580', 'Russel Vincent C. Cuevas', 'russelcuevas0@gmail.com', '1', 'BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY', 'male', 'REQ1734938672', 'CAV-G', 250.00, 1, 250.00, 'GCash', 'analytics.jpeg', '123456789', 'paid', '2024-12-23 07:24:32', '2024-12-23 07:33:47');
 
 -- --------------------------------------------------------
 
@@ -188,6 +230,14 @@ CREATE TABLE `tbl_document_request` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_document_request`
+--
+
+INSERT INTO `tbl_document_request` (`id`, `user_id`, `documents_id`, `request_number`, `status`, `fullname`, `student_id`, `number_of_copies`, `total_price`, `payment_method`, `payment_proof`, `gcash_reference_number`, `created_at`, `updated_at`) VALUES
+(33, 2, 7, 'REQ1734938672', 'paid', 'Russel Vincent C. Cuevas', '2420580', 2, 50.00, 'GCash', 'analytics.jpeg', '123456789', '2024-12-23 07:24:32', '2024-12-23 07:33:47'),
+(34, 2, 11, 'REQ1734938672', 'paid', 'Russel Vincent C. Cuevas', '2420580', 1, 250.00, 'GCash', 'analytics.jpeg', '123456789', '2024-12-23 07:24:32', '2024-12-23 07:33:47');
 
 -- --------------------------------------------------------
 
@@ -284,6 +334,12 @@ ALTER TABLE `tbl_documents`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `tbl_document_reports`
+--
+ALTER TABLE `tbl_document_reports`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `tbl_document_request`
 --
 ALTER TABLE `tbl_document_request`
@@ -319,7 +375,7 @@ ALTER TABLE `tbl_admin`
 -- AUTO_INCREMENT for table `tbl_clinic_request`
 --
 ALTER TABLE `tbl_clinic_request`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `tbl_deans_post_class_schedules`
@@ -340,10 +396,16 @@ ALTER TABLE `tbl_documents`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
+-- AUTO_INCREMENT for table `tbl_document_reports`
+--
+ALTER TABLE `tbl_document_reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `tbl_document_request`
 --
 ALTER TABLE `tbl_document_request`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `tbl_osds_post_requirements`

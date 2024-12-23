@@ -177,21 +177,9 @@ approve insert into tbl_document_reports for copy
 
 
 
-CREATE TABLE tbl_document_reports (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    student_id VARCHAR(100),
-    fullname VARCHAR(255),
-    email VARCHAR(255),
-    year VARCHAR(100),
-    course VARCHAR(100),
-    gender VARCHAR(100),
-    type_of_documents VARCHAR(255),
-    price DECIMAL(10, 2),
-    number_of_copies INT(11),
-    total_price DECIMAL(10, 2),
-    payment_method VARCHAR(100),
-    payment_proof VARCHAR(255),
-    gcash_reference_number VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+gmail
+guimarasrequestingsystem@gmail.com
+GuimarasRequesting123!
+
+smtp pass
+idyztzjuzwcrupwp
