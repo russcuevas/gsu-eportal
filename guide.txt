@@ -4,6 +4,8 @@ database - gsudatabase
 
 tbl_admin
 id -> primary
+profile_image
+fullname
 email
 password
 role -> registrar, osds, deans, clinic,
@@ -18,13 +20,13 @@ email
 password
 year -> nullable
 course -> nullable
-gender -> male , female
-status -> graduate, old
+gender -> 
+status -> 
 created_at
 updated_at
 
 
-// REGISTRAR
+// CASHIER
 tbl_documents
 id -> primary
 type_of_documents -> TOR, RF, GRADES, DISMISSAL, CAV, CERTIFICATIONS, CROSS ENROLL PERMIT,
@@ -32,17 +34,19 @@ price
 created_at
 updated_at
 
+
+// STUDENT REQUEST // VIEW BY CASHIER -> UPDATE TO PAID OR NOT PAID IF PAID IT WILL DISPLAY TO REGISTRAR SIDE
 tbl_document_request
 id -> primary
 user_id -> foreign to tbl_users -> id
 documents_id -> foreign to tbl_documents -> id
-request_number -> papakita sa registrar office pag icaclaim na
-status -> For approval, Confirm, Paid, Claimable
+request_number ->
+status -> 
 fullname
-student_id -> fillable
+student_id ->
 number_of_copies
 total_price
-payment_method -> GCASH
+payment_method ->
 payment_proof
 gcash_reference_number
 created_at
@@ -70,48 +74,101 @@ tbl_clinic_request
 id -> primary
 user_id -> foreign to tbl_users
 laboratory_request
+with_med_cert -> Yes or No
 status -> For approval,
-created_at
-updated_at
+requested_at -> NOW()
+appointed_at -> set schedule
 
 // CAN VIEW ALSO BY CASHIER
 tbl_clinic_report
 id -> primary
 user_id -> foreign to tbl_users
 laboratory_request
+with_med_cert -> 1 or 2
 status -> Completed
-created_at
-updated_at
+requested_at -> date of being request
+appointed_at -> date of being appointed
+
+
+
+////////////////// TASK OKAY ///////////////////////
 
 tbl_osds_post_requirements
 id -> primary
 osds_id -> foreign to tbl_admin -> role osds
-post_requirements
+requirements_description
+requirements_upload
 created_at
 updated_at
 
-tbl_osds_reports
-created_at
-updated_at
 
+// DEANS FUNCTION
 tbl_deans_post_class_schedules
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
-school_year -> 2024-2025, 2025-2026, 2027-2028,
+school_year ->
+department
 year
 course
-subject
-time
-teacher
+schedule_upload
 created_at
 updated_at
 
 tbl_deans_users_issuance
 id -> primary
 deans_id-> foreign to tbl_admin -> role deans
-user_id -> foreign to tbl_admin -> role deans
-clearance
-enrollment
+school_year ->
+semester
+schedule_upload
 created_at
 updated_at
+
+
+
+
+
+CREDENTIALS:
+
+DEANS
+admindeans@gmail.com
+123456789
+
+OSDS
+adminosds@gmail.com
+123456789
+
+CASHIER
+admincashier@gmail.com
+123456789
+
+REGISTRAR
+adminregistrar@gmail.com
+123456789
+
+CLINIC
+adminclinic@gmail.com
+123456789
+
+
+
+
+
+
+LAST TASK:
+NEED SMTP
+Appointment
+Update Documents
+
+REGISTRAR
+//smtp also
+reports.php
+UPDATE TBL_DOCUMENT_REPORTS -> CLAIMABLE TO CLAIMED
+
+CASHIER
+//smtp also
+reports.php
+approve insert into tbl_document_reports for copy
+
+
+
 
