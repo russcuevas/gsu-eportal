@@ -100,6 +100,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .is-invalid {
       border-color: red;
     }
+
+    .card-primary.card-outline {
+      border-top: 3px solid #004080 !important;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background-color: #004080 !important;
+      border-color: #004080 !important;
+      box-shadow: none;
+    }
   </style>
 </head>
 

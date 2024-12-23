@@ -52,6 +52,18 @@ if (isset($_POST['login'])) {
   <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
   <!-- SweetAlert CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.1/dist/sweetalert2.min.css">
+  <style>
+    .card-primary.card-outline {
+      border-top: 3px solid #004080 !important;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background-color: #004080 !important;
+      border-color: #004080 !important;
+      box-shadow: none;
+    }
+  </style>
 
 <body class="hold-transition login-page">
   <div class="login-box">

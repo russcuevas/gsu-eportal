@@ -91,7 +91,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="assets/dist/css/adminlte.min.css">
+    <style>
+        .card-primary.card-outline {
+            border-top: 3px solid #004080 !important;
+        }
 
+        .btn-primary {
+            color: #fff;
+            background-color: #004080 !important;
+            border-color: #004080 !important;
+            box-shadow: none;
+        }
+    </style>
 </head>
 
 <body class="hold-transition login-page">
