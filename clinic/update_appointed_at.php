@@ -2,7 +2,6 @@
 session_start();
 include '../database/connection.php';
 
-// Ensure the user is authenticated and authorized
 $admin_id = $_SESSION['admin_id'] ?? null;
 if (!$admin_id || $_SESSION['role'] !== 'clinic') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access.']);

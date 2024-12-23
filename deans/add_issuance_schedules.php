@@ -68,13 +68,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../public/plugins/fontawesome-free/css/all.min.css">
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <link rel="stylesheet" href="../public/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
     <!-- Toastr -->
-    <link rel="stylesheet" href="plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="../public/plugins/toastr/toastr.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
+    <link rel="stylesheet" href="../public/dist/css/adminlte.min.css?v=3.2.0">
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
@@ -270,13 +270,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- ./wrapper -->
 
     <!-- jQuery -->
-    <script src="plugins/jquery/jquery.min.js"></script>
+    <script src="../public/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
-    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../public/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Toastr -->
-    <script src="plugins/toastr/toastr.min.js"></script>
+    <script src="../public/plugins/toastr/toastr.min.js"></script>
     <!-- SweetAlert2 -->
-    <script src="plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="../public/plugins/sweetalert2/sweetalert2.min.js"></script>
     <script>
         $(document).ready(function() {
             <?php if (isset($_SESSION['success'])): ?>
@@ -291,12 +291,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     </script>
     <!-- jquery-validation -->
-    <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
-    <script src="plugins/jquery-validation/additional-methods.min.js"></script>
+    <script src="../public/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="../public/plugins/jquery-validation/additional-methods.min.js"></script>
     <!-- AdminLTE App -->
-    <script src="dist/js/adminlte.min.js?v=3.2.0"></script>
+    <script src="../public/dist/js/adminlte.min.js?v=3.2.0"></script>
     <!-- AdminLTE for demo purposes -->
-    <script src="dist/js/demo.js"></script>
+    <script src="../public/dist/js/demo.js"></script>
     <!-- Page specific script -->
 
     <script>
