@@ -161,7 +161,7 @@ adminclinic@gmail.com
 
 LAST TASK:
 NEED SMTP
-Appointment
+Appointment - OKAY
 Update Documents
 
 REGISTRAR

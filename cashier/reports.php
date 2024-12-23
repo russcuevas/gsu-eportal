@@ -226,7 +226,7 @@ $result = $conn->query($query);
                                                         <td>₱<?php echo number_format($total_price, 2); ?></td>
                                                         <td><?php echo $updated_at; ?></td>
                                                         <td>
-                                                            <a href="edit_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
+                                                            <a href="paid_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
                                                         </td>
                                                     </tr>
                                             <?php

@@ -16,8 +16,10 @@ if ($_SESSION['role'] !== 'cashier') {
 
 $query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
           FROM tbl_document_request
+          WHERE status = 'pending'
           GROUP BY request_number, fullname, status
           ORDER BY updated_at DESC";
+
 
 $result = $conn->query($query);
 ?>

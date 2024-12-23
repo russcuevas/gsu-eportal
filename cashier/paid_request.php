@@ -1,10 +1,5 @@
 <?php
 include '../database/connection.php';
-require '../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 session_start();
 
 // Check if the admin is logged in
@@ -53,7 +48,7 @@ if (!$request) {
 }
 
 if (isset($_POST['approve'])) {
-    // SMTP for update only
+    //smtp for update only
     $update_query = "
         UPDATE tbl_document_request
         SET status = 'paid'
@@ -64,15 +59,14 @@ if (isset($_POST['approve'])) {
     $stmt_update->bindParam(':request_number', $request_number);
 
     if ($stmt_update->execute()) {
-        // Fetch request details
         $query = "
             SELECT 
                 dr.*, 
                 u.year, 
                 u.course, 
                 u.email,
-                u.gender,
-                dr.status
+                u.gender,  -- Fetch gender from tbl_users
+                dr.status  -- Fetch status from tbl_document_request
             FROM 
                 tbl_document_request dr
             LEFT JOIN 
@@ -86,14 +80,13 @@ if (isset($_POST['approve'])) {
         $stmt->execute();
         $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Fetch documents
         $query_documents = "
             SELECT 
                 dr.documents_id, 
                 dr.number_of_copies, 
                 dr.total_price, 
                 d.type_of_documents, 
-                d.price
+                d.price  -- Fetch price from tbl_documents
             FROM tbl_document_request dr
             LEFT JOIN tbl_documents d ON dr.documents_id = d.id
             WHERE dr.request_number = :request_number
@@ -104,7 +97,6 @@ if (isset($_POST['approve'])) {
         $stmt_documents->execute();
         $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
-        // Insert into document reports
         foreach ($documents as $document) {
             $insert_query = "
                 INSERT INTO tbl_document_reports (
@@ -145,64 +137,7 @@ if (isset($_POST['approve'])) {
             }
         }
 
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'guimarasrequestingsystem@gmail.com';
-            $mail->Password = 'idyztzjuzwcrupwp';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Cashier');
-            $mail->addAddress($request['email'], $request['fullname']);
-
-            $mail->isHTML(true);
-            $mail->Subject = 'Your Document Request has been Approved';
-            // mailer body
-            $mail_body = "<p>Dear {$request['fullname']},</p>
-              <p>Your document request has been successfully approved and marked as paid.</p>
-              <p>Here is a summary of the documents requested:</p>
-              <table border='1' cellpadding='10' cellspacing='0'>
-                  <tr>
-                      <th>Document Type</th>
-                      <th>Price</th>
-                      <th>Number of Copies</th>
-                      <th>Total Price</th>
-                  </tr>";
-
-            $total_price = 0;
-
-            foreach ($documents as $document) {
-                $document_type = $document['type_of_documents'];
-                $price = $document['price'];
-                $number_of_copies = $document['number_of_copies'];
-                $document_total_price = $document['total_price'];
-                $mail_body .= "<tr>
-                      <td>{$document_type}</td>
-                      <td>{$price}</td>
-                      <td>{$number_of_copies}</td>
-                      <td>{$document_total_price}</td>
-                   </tr>";
-
-                $total_price += $document_total_price;
-            }
-
-            $mail_body .= "</table>
-               <p><strong>Total Price: {$total_price}</strong></p>
-               <p>If you have any further questions, feel free to contact us.</p>
-               <p>Best regards,<br>Cashier Staff</p>";
-
-            $mail->Body = $mail_body;
-
-
-            $mail->send();
-
-            $_SESSION['success'] = 'Request has been approved, marked as paid.';
-        } catch (Exception $e) {
-            $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
-        }
+        $_SESSION['success'] = 'Request has been approved and marked as paid.';
     } else {
         $_SESSION['error'] = 'An error occurred while approving the request.';
     }
@@ -212,134 +147,29 @@ if (isset($_POST['approve'])) {
 }
 
 
-
 if (isset($_POST['disapprove'])) {
-    $query = "
-        SELECT 
-            dr.*, 
-            u.year, 
-            u.course, 
-            u.email,
-            u.gender,
-            dr.status,
-            dr.payment_proof,
-            dr.gcash_reference_number
-        FROM 
-            tbl_document_request dr
-        LEFT JOIN 
-            tbl_users u ON dr.user_id = u.id 
-        WHERE 
-            dr.request_number = :request_number
+    $delete_query = "
+        DELETE FROM tbl_document_request 
+        WHERE request_number = :request_number
     ";
 
-    $stmt = $conn->prepare($query);
-    $stmt->bindParam(':request_number', $request_number);
-    $stmt->execute();
-    $request = $stmt->fetch(PDO::FETCH_ASSOC);
+    //smtp
 
-    $query_documents = "
-        SELECT 
-            d.type_of_documents, 
-            d.price, 
-            dr.number_of_copies, 
-            dr.total_price
-        FROM 
-            tbl_document_request dr
-        LEFT JOIN 
-            tbl_documents d ON dr.documents_id = d.id
-        WHERE 
-            dr.request_number = :request_number
-    ";
+    $stmt_delete = $conn->prepare($delete_query);
+    $stmt_delete->bindParam(':request_number', $request_number);
 
-    $stmt_documents = $conn->prepare($query_documents);
-    $stmt_documents->bindParam(':request_number', $request_number);
-    $stmt_documents->execute();
-    $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
-
-    if (empty($documents)) {
-        $_SESSION['error'] = 'No documents found for this request.';
-        header("Location: manage_request.php");
-        exit();
-    }
-
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'guimarasrequestingsystem@gmail.com';
-        $mail->Password = 'idyztzjuzwcrupwp';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Cashier');
-        $mail->addAddress($request['email'], $request['fullname']);
-
-        $mail->isHTML(true);
-        $mail->Subject = 'Your Document Request Has Been Disapproved';
-
-        $mail_body = "<p>Dear {$request['fullname']},</p>
-                      <p>We regret to inform you that your document request has been disapproved due to an issue with your submitted proof.</p>
-                      <p>Here is a summary of your request:</p>
-                      <table border='1' cellpadding='10' cellspacing='0'>
-                          <tr>
-                              <th>Document Type</th>
-                              <th>Price</th>
-                              <th>Number of Copies</th>
-                              <th>Total Price</th>
-                          </tr>";
-
-        $total_price = 0;
-
-        foreach ($documents as $document) {
-            $document_type = $document['type_of_documents'];
-            $price = $document['price'];
-            $number_of_copies = $document['number_of_copies'];
-            $document_total_price = $document['total_price'];
-            $mail_body .= "<tr>
-                              <td>{$document_type}</td>
-                              <td>{$price}</td>
-                              <td>{$number_of_copies}</td>
-                              <td>{$document_total_price}</td>
-                           </tr>";
-
-            $total_price += $document_total_price;
+    if ($stmt_delete->execute()) {
+        if ($request['payment_proof'] && file_exists('../assets/uploads/gcash_proofs/' . $request['payment_proof'])) {
+            unlink('../assets/uploads/gcash_proofs/' . $request['payment_proof']);
         }
 
-        $mail_body .= "</table>
-                       <p><strong>Total Price: {$total_price}</strong></p>
-                       <p>We also noticed that your GCash reference number <strong>{$request['gcash_reference_number']}</strong> was not valid or did not match the transaction. Please double-check the details and ensure the payment proof is correct.</p>
-                       <p>If you believe this is an error, or if you have any questions, feel free to contact the cashier staff for further clarification.</p>
-                       <p>Thank you for your understanding.<br>Best regards,<br>Cashier Staff</p>";
-
-        $mail->Body = $mail_body;
-        $mail->send();
-
-        $delete_query = "
-            DELETE FROM tbl_document_request 
-            WHERE request_number = :request_number
-        ";
-
-        $stmt_delete = $conn->prepare($delete_query);
-        $stmt_delete->bindParam(':request_number', $request_number);
-
-        if ($stmt_delete->execute()) {
-            if ($request['payment_proof'] && file_exists('../assets/uploads/gcash_proofs/' . $request['payment_proof'])) {
-                unlink('../assets/uploads/gcash_proofs/' . $request['payment_proof']);
-            }
-
-            $_SESSION['success'] = 'Request has been disapproved, email sent, and record deleted successfully.';
-        } else {
-            $_SESSION['error'] = 'An error occurred while deleting the request.';
-        }
-    } catch (Exception $e) {
-        $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
+        $_SESSION['success'] = 'Request has been disapproved and deleted successfully.';
+    } else {
+        $_SESSION['error'] = 'An error occurred while disapproving the request.';
     }
-
     header("Location: manage_request.php");
     exit();
 }
-
 
 $query_documents = "
     SELECT 
@@ -397,9 +227,6 @@ $total_price_sum = 0;
     <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <!-- hold -->
-    <link rel="stylesheet" href="dist/css/hold.css">
-
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
@@ -470,7 +297,7 @@ $total_price_sum = 0;
                         </li>
 
                         <li class="nav-item">
-                            <a href="manage_request.php" class="nav-link active">
+                            <a href="manage_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     Manage Request
@@ -479,7 +306,7 @@ $total_price_sum = 0;
                         </li>
 
                         <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
+                            <a href="reports.php" class="nav-link active">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     Reports
@@ -720,8 +547,6 @@ $total_price_sum = 0;
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
-    <!-- hold -->
-    <script src="dist/js/hold.js"></script>
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
@@ -735,40 +560,6 @@ $total_price_sum = 0;
             document.getElementById('document_id_delete').value = DocumentId;
         }
     </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const approveForm = document.querySelector('form'); // Assuming there's only one form
-            approveForm.addEventListener('submit', function(event) {
-                // Add any additional validation here if needed (e.g., for required fields)
-                const requiredFields = document.querySelectorAll('[required]');
-                let formValid = true;
-
-                requiredFields.forEach(function(field) {
-                    if (field.value.trim() === '') {
-                        formValid = false;
-                        field.style.borderColor = 'red';
-                    } else {
-                        field.style.borderColor = '';
-                    }
-                });
-
-                // If form is valid, show the loading spinner
-                if (formValid) {
-                    HoldOn.open({
-                        theme: "sk-bounce",
-                        message: "Processing your request...",
-                        backgroundColor: "rgba(0, 0, 0, 0.7)",
-                        textColor: "white",
-                        spinnerColor: "#fff"
-                    });
-                } else {
-                    event.preventDefault(); // Prevent form submission if not valid
-                }
-            });
-        });
-    </script>
-
 
 
     <!-- success and error message alert -->
