@@ -48,25 +48,104 @@ if (!$request) {
 }
 
 if (isset($_POST['approve'])) {
+    //smtp for update only
     $update_query = "
         UPDATE tbl_document_request
         SET status = 'paid'
         WHERE request_number = :request_number
     ";
 
-    //smtp
-
     $stmt_update = $conn->prepare($update_query);
     $stmt_update->bindParam(':request_number', $request_number);
 
     if ($stmt_update->execute()) {
+        $query = "
+            SELECT 
+                dr.*, 
+                u.year, 
+                u.course, 
+                u.email,
+                u.gender,  -- Fetch gender from tbl_users
+                dr.status  -- Fetch status from tbl_document_request
+            FROM 
+                tbl_document_request dr
+            LEFT JOIN 
+                tbl_users u ON dr.user_id = u.id 
+            WHERE 
+                dr.request_number = :request_number
+        ";
+
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':request_number', $request_number);
+        $stmt->execute();
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $query_documents = "
+            SELECT 
+                dr.documents_id, 
+                dr.number_of_copies, 
+                dr.total_price, 
+                d.type_of_documents, 
+                d.price  -- Fetch price from tbl_documents
+            FROM tbl_document_request dr
+            LEFT JOIN tbl_documents d ON dr.documents_id = d.id
+            WHERE dr.request_number = :request_number
+        ";
+
+        $stmt_documents = $conn->prepare($query_documents);
+        $stmt_documents->bindParam(':request_number', $request_number);
+        $stmt_documents->execute();
+        $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($documents as $document) {
+            $insert_query = "
+                INSERT INTO tbl_document_reports (
+                    student_id, fullname, email, year, course, gender, 
+                    request_number, type_of_documents, price, 
+                    number_of_copies, total_price, payment_method, 
+                    payment_proof, gcash_reference_number, status, created_at
+                ) 
+                VALUES (
+                    :student_id, :fullname, :email, :year, :course, :gender, 
+                    :request_number, :type_of_documents, :price, 
+                    :number_of_copies, :total_price, :payment_method, 
+                    :payment_proof, :gcash_reference_number, :status, :created_at
+                )
+            ";
+
+            $stmt_insert = $conn->prepare($insert_query);
+            $stmt_insert->bindParam(':student_id', $request['student_id']);
+            $stmt_insert->bindParam(':fullname', $request['fullname']);
+            $stmt_insert->bindParam(':email', $request['email']);
+            $stmt_insert->bindParam(':year', $request['year']);
+            $stmt_insert->bindParam(':course', $request['course']);
+            $stmt_insert->bindParam(':gender', $request['gender']);
+            $stmt_insert->bindParam(':request_number', $request['request_number']);
+            $stmt_insert->bindParam(':type_of_documents', $document['type_of_documents']);
+            $stmt_insert->bindParam(':price', $document['price']);
+            $stmt_insert->bindParam(':number_of_copies', $document['number_of_copies']);
+            $stmt_insert->bindParam(':total_price', $document['total_price']);
+            $stmt_insert->bindParam(':payment_method', $request['payment_method']);
+            $stmt_insert->bindParam(':payment_proof', $request['payment_proof']);
+            $stmt_insert->bindParam(':gcash_reference_number', $request['gcash_reference_number']);
+            $stmt_insert->bindParam(':status', $request['status']);
+            $stmt_insert->bindParam(':created_at', $request['created_at']);
+
+            if (!$stmt_insert->execute()) {
+                $_SESSION['error'] = 'An error occurred while inserting document into the report.';
+                break;
+            }
+        }
+
         $_SESSION['success'] = 'Request has been approved and marked as paid.';
     } else {
         $_SESSION['error'] = 'An error occurred while approving the request.';
     }
+
     header("Location: manage_request.php");
     exit();
 }
+
 
 if (isset($_POST['disapprove'])) {
     $delete_query = "
@@ -222,6 +301,15 @@ $total_price_sum = 0;
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     Manage Request
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-check"></i>
+                                <p>
+                                    Reports
                                 </p>
                             </a>
                         </li>

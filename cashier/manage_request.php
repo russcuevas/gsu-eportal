@@ -137,6 +137,15 @@ $result = $conn->query($query);
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-check"></i>
+                                <p>
+                                    Reports
+                                </p>
+                            </a>
+                        </li>
+
 
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">

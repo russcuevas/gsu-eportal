@@ -276,6 +276,11 @@ $total_price_sum = 0;
                                     <div class="col-sm-4 invoice-col">
                                         <span style="font-weight: 900;"><?php echo $request['request_number']; ?></span><br>
                                         <span style="text-transform: capitalize; font-weight: 900;"><?php echo $request['status']; ?></span><br>
+                                        <?php if ($request['status'] === 'paid'): ?>
+                                            <span style="color: green; font-weight: 900;">Approved by the cashier</span><br>
+                                        <?php else: ?>
+                                            <span style="color: green; font-weight: 900;">Already claimed</span><br>
+                                        <?php endif; ?>
                                     </div>
                                     <!-- /.col -->
                                 </div>

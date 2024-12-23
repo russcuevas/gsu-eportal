@@ -52,7 +52,7 @@ $total_paid_request = $results_total_paid_request['total_paid_request'];
 // END GET TOTAL PAID REQUEST
 
 // GET TOTAL PAID
-$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_request` WHERE status = 'paid'";
+$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_reports` WHERE status = 'paid'";
 $stmt_total_paid = $conn->prepare($get_total_paid);
 $stmt_total_paid->execute();
 $results_total_paid = $stmt_total_paid->fetch(PDO::FETCH_ASSOC);
@@ -154,6 +154,15 @@ $total_paid = $results_total_paid['total_paid'];
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     Manage Request
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-check"></i>
+                                <p>
+                                    Reports
                                 </p>
                             </a>
                         </li>
@@ -266,7 +275,7 @@ $total_paid = $results_total_paid['total_paid'];
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-cash"></i>
                                 </div>
-                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="reports.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                     </div>

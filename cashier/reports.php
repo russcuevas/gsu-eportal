@@ -14,13 +14,12 @@ if ($_SESSION['role'] !== 'cashier') {
     exit();
 }
 
-// READ DOCUMENTS
-$get_documents = "SELECT * FROM `tbl_documents`";
-$stmt_get_documents = $conn->query($get_documents);
-$document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
-// END READ DOCUMENTS
+$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
+          FROM tbl_document_reports
+          GROUP BY request_number, fullname, status
+          ORDER BY updated_at DESC";
 
-
+$result = $conn->query($query);
 ?>
 
 <!DOCTYPE html>
@@ -121,7 +120,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                         </li>
 
                         <li class="nav-item">
-                            <a href="manage_documents.php" class="nav-link active">
+                            <a href="manage_documents.php" class="nav-link">
                                 <i class="nav-icon fas fa-folder"></i>
                                 <p>
                                     Manage Documents
@@ -139,7 +138,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                         </li>
 
                         <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
+                            <a href="reports.php" class="nav-link active">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     Reports
@@ -175,7 +174,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">MANAGE DOCUMENTS</li>
+                                <li class="breadcrumb-item active">REPORTS</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -190,36 +189,53 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">MANAGE DOCUMENTS</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">REPORTS</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <button onclick="window.location.href='add_documents.php';" class="btn btn-primary mb-3">+ ADD DOCUMENTS</button>
                                     <table id="myTable" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>Type of Documents</th>
-                                                <th>Price</th>
-                                                <th>Created</th>
+                                                <th>R.Number</th>
+                                                <th>Requestor Name</th>
+                                                <th>Status</th>
+                                                <th>Total Price</th>
                                                 <th>Updated</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($document as $documents): ?>
-                                                <tr>
-                                                    <td><?php echo $documents['type_of_documents'] ?></td>
-                                                    <td>₱<?php echo $documents['price'] ?></td>
-                                                    <td><?php echo $documents['created_at'] ?></td>
-                                                    <td><?php echo $documents['updated_at'] ?></td>
-                                                    <td>
-                                                        <a class="btn btn-warning text-white" style="font-size: 13px;" href="edit_documents.php?id=<?php echo $documents['id'] ?>">UPDATE</a>
-                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_documents.php?id=<?php echo $documents['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
-                                                            DELETE
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach ?>
+                                            <?php
+                                            if ($result->rowCount() > 0) {
+                                                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                                                    $request_number = $row['request_number'];
+                                                    $fullname = $row['fullname'];
+                                                    $status = $row['status'];
+                                                    $total_price = $row['total_price'];
+                                                    $updated_at = $row['updated_at'];
+
+                                                    // Skip rows where the status is "claimable"
+                                                    if (strtolower($status) === 'claimable' || strtolower($status) === 'claimed') {
+                                                        continue;
+                                                    }
+                                            ?>
+                                                    <tr>
+                                                        <td><?php echo $request_number; ?></td>
+                                                        <td><?php echo $fullname; ?></td>
+                                                        <td style="text-transform: capitalize;"><?php echo $status; ?></td>
+                                                        <td>₱<?php echo number_format($total_price, 2); ?></td>
+                                                        <td><?php echo $updated_at; ?></td>
+                                                        <td>
+                                                            <a href="edit_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
+                                                        </td>
+                                                    </tr>
+                                            <?php
+                                                }
+                                            } else {
+                                                // Optionally handle the case where no rows are found
+                                            }
+                                            ?>
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -294,6 +310,7 @@ $document = $stmt_get_documents->fetchAll(PDO::FETCH_ASSOC);
             });
         });
     </script>
+
 
     <!-- success and error message alert -->
     <script>
