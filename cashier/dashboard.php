@@ -52,7 +52,7 @@ $total_paid_request = $results_total_paid_request['total_paid_request'];
 // END GET TOTAL PAID REQUEST
 
 // GET TOTAL PAID
-$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_reports` WHERE status = 'paid' OR 'claimable' OR 'claimed'";
+$get_total_paid = "SELECT SUM(total_price) AS total_paid FROM `tbl_document_reports` WHERE status IN ('paid', 'claimable', 'claimed')";
 $stmt_total_paid = $conn->prepare($get_total_paid);
 $stmt_total_paid->execute();
 $results_total_paid = $stmt_total_paid->fetch(PDO::FETCH_ASSOC);
@@ -113,7 +113,7 @@ $total_paid = $results_total_paid['total_paid'];
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="index3.html" class="brand-link">
+            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="dashboard.php" class="brand-link">
                 <img src="images/gsu-logo.jpg" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light" style="color: whitesmoke !important;">GSU | e-Request</span>

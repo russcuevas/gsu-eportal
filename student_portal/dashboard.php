@@ -12,22 +12,64 @@ $is_logged_in = isset($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'] ?? null;
 
 
-// GET THE TOTAL OSDS
-$get_total_osds = "SELECT COUNT(*) AS total_osds FROM `tbl_admin` WHERE role = 'osds'";
-$stmt_total_osds = $conn->prepare($get_total_osds);
-$stmt_total_osds->execute();
-$results_total_osds = $stmt_total_osds->fetch(PDO::FETCH_ASSOC);
-$total_osds = $results_total_osds['total_osds'];
-// END GET TOTAL OSDS
+$get_total_doc_request = "
+    SELECT COUNT(DISTINCT request_number) AS total_doc_request 
+    FROM `tbl_document_request` 
+    WHERE user_id = :user_id AND status = 'pending'";
+$stmt_total_doc_request = $conn->prepare($get_total_doc_request);
+$stmt_total_doc_request->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_total_doc_request->execute();
+$results_total_doc_request = $stmt_total_doc_request->fetch(PDO::FETCH_ASSOC);
+$total_doc_request = $results_total_doc_request['total_doc_request'];
 
 
-// GET THE TOTAL POSTED REQUIREMENTS
-$get_total_requirements = "SELECT COUNT(*) AS total_requirements FROM `tbl_osds_post_requirements`";
-$stmt_total_requirements = $conn->prepare($get_total_requirements);
-$stmt_total_requirements->execute();
-$results_total_requirements = $stmt_total_requirements->fetch(PDO::FETCH_ASSOC);
-$total_requirements = $results_total_requirements['total_requirements'];
-// END GET TOTAL POSTED REQUIREMENTS
+$get_my_paid_document = "
+    SELECT COUNT(DISTINCT request_number) AS my_paid_document 
+    FROM `tbl_document_request` 
+    WHERE user_id = :user_id AND status = 'paid'";
+$stmt_my_paid_document = $conn->prepare($get_my_paid_document);
+$stmt_my_paid_document->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_my_paid_document->execute();
+$results_my_paid_document = $stmt_my_paid_document->fetch(PDO::FETCH_ASSOC);
+$my_paid_document = $results_my_paid_document['my_paid_document'];
+
+
+$get_claimable_document = "
+    SELECT COUNT(DISTINCT request_number) AS claimable_document 
+    FROM `tbl_document_request` 
+    WHERE user_id = :user_id AND status = 'claimable'";
+$stmt_claimable_document = $conn->prepare($get_claimable_document);
+$stmt_claimable_document->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_claimable_document->execute();
+$results_claimable_document = $stmt_claimable_document->fetch(PDO::FETCH_ASSOC);
+$claimable_document = $results_claimable_document['claimable_document'];
+
+
+
+
+
+$get_total_med_request = "SELECT COUNT(*) AS total_med_request FROM `tbl_clinic_request` WHERE user_id = :user_id AND status = 'pending'";
+$stmt_total_med_request = $conn->prepare($get_total_med_request);
+$stmt_total_med_request->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_total_med_request->execute();
+$results_total_med_request = $stmt_total_med_request->fetch(PDO::FETCH_ASSOC);
+$total_med_request = $results_total_med_request['total_med_request'];
+
+
+$get_total_med_accept = "SELECT COUNT(*) AS total_med_accept FROM `tbl_clinic_request` WHERE user_id = :user_id AND status = 'accepted'";
+$stmt_total_med_accept = $conn->prepare($get_total_med_accept);
+$stmt_total_med_accept->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_total_med_accept->execute();
+$results_total_med_accept = $stmt_total_med_accept->fetch(PDO::FETCH_ASSOC);
+$total_med_accept = $results_total_med_accept['total_med_accept'];
+
+
+$get_total_med_completed = "SELECT COUNT(*) AS total_med_completed FROM `tbl_clinic_request` WHERE user_id = :user_id AND status = 'completed'";
+$stmt_total_med_completed = $conn->prepare($get_total_med_completed);
+$stmt_total_med_completed->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt_total_med_completed->execute();
+$results_total_med_completed = $stmt_total_med_completed->fetch(PDO::FETCH_ASSOC);
+$total_med_completed = $results_total_med_completed['total_med_completed'];
 ?>
 <!DOCTYPE html>
 
@@ -83,7 +125,7 @@ $total_requirements = $results_total_requirements['total_requirements'];
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="index3.html" class="brand-link">
+            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="dashboard.php" class="brand-link">
                 <img src="images/gsu-logo.jpg" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light" style="color: whitesmoke !important;">GSU | e-Request</span>
@@ -164,9 +206,39 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_osds ?></h3>
+                                    <h3><?php echo $total_doc_request ?></h3>
 
                                     <p>Document Request</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-folder"></i>
+                                </div>
+                                <a href="my_request_documents.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $my_paid_document ?></h3>
+
+                                    <p>Paid Documents</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-folder"></i>
+                                </div>
+                                <a href="my_request_documents.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $claimable_document ?></h3>
+
+                                    <p>Claimable Documents</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>
@@ -179,9 +251,39 @@ $total_requirements = $results_total_requirements['total_requirements'];
                             <!-- small box -->
                             <div style="background-color: #001968 !important;" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $total_requirements ?></h3>
+                                    <h3><?php echo $total_med_request ?></h3>
 
                                     <p>Medical Request</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-folder"></i>
+                                </div>
+                                <a href="my_request_medical.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $total_med_accept ?></h3>
+
+                                    <p>My Appointment</p>
+                                </div>
+                                <div class="icon">
+                                    <i style="color: white !important;" class="ion ion-folder"></i>
+                                </div>
+                                <a href="my_request_medical.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-12">
+                            <!-- small box -->
+                            <div style="background-color: #001968 !important;" class="small-box bg-info">
+                                <div class="inner">
+                                    <h3><?php echo $total_med_completed ?></h3>
+
+                                    <p>Completed Medical</p>
                                 </div>
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-folder"></i>

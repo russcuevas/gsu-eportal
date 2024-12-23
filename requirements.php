@@ -146,7 +146,7 @@ $requirements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div id="myTopnav">
         <div class="logo">
-            <a id="home" href="" class="logo-link"><img src="assets/images/gsu-logo.jpg" alt="Logo" style="width:50px; border-radius: 50px;"> &nbsp; <span style="color: white; font-weight: 900;">GSU | e-Request</span></a>
+            <a id="home" href="index.php" class="logo-link"><img src="assets/images/gsu-logo.jpg" alt="Logo" style="width:50px; border-radius: 50px;"> &nbsp; <span style="color: white; font-weight: 900;">GSU | e-Request</span></a>
         </div>
         <a href="javascript:void(0);" class="show-nav" onclick="sideNav()"><i class="fa fa-bars"></i></a>
         <ul id="navbar" class="navbar-menu">

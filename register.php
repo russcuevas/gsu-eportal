@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <div class="register-box">
     <div class="card card-outline card-primary">
       <div class="card-header text-center">
-        <a href=""><img style="width: 80px; height: 80px;" src="assets/images/gsu-logo.jpg" alt=""></a><br>
+        <a href="index.php"><img style="width: 80px; height: 80px;" src="assets/images/gsu-logo.jpg" alt=""></a><br>
         <a class="h1"><b>GSU</b>| e-Request</a>
       </div>
       <div class="card-body">
@@ -143,6 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <option value="IV">IV - College</option>
                 </select>
               </div>
+            </div>
+            <div class="col-md-12">
               <label for="">Course</label>
               <div class="input-group mb-3">
                 <select class="form-control" name="course" id="course">
@@ -175,10 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <option value="BACHELOR OF SCIENCE IN ELECTRICAL ENGINEERING">BACHELOR OF SCIENCE IN ELECTRICAL ENGINEERING</option>
                   <option value="BACHELOR OF SCIENCE IN MECHANICAL ENGINEERING">BACHELOR OF SCIENCE IN MECHANICAL ENGINEERING</option>
                 </select>
-
               </div>
             </div>
           </div>
+
 
           <div class="row">
             <div class="col-md-6">

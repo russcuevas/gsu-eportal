@@ -23,7 +23,7 @@ $total_registrar = $results_total_registrar['total_registrar'];
 // END GET TOTAL CASHIER
 
 // GET THE TOTAL UNIQUE TOTAL PAID
-$get_total_paid_request = "SELECT COUNT(../public/DISTINCT request_number) AS total_paid_request 
+$get_total_paid_request = "SELECT COUNT(DISTINCT request_number) AS total_paid_request 
                                FROM `tbl_document_request` 
                                WHERE status = 'paid'";
 $stmt_total_paid_request = $conn->prepare($get_total_paid_request);
@@ -34,7 +34,7 @@ $total_paid_request = $results_total_paid_request['total_paid_request'];
 
 
 // GET THE TOTAL UNIQUE CLAIMABLE
-$get_total_claimable_request = "SELECT COUNT(../public/DISTINCT request_number) AS total_claimable_request 
+$get_total_claimable_request = "SELECT COUNT(DISTINCT request_number) AS total_claimable_request 
                            FROM `tbl_document_request` 
                            WHERE status = 'claimable'";
 $stmt_total_claimable_request = $conn->prepare($get_total_claimable_request);
@@ -98,7 +98,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="index3.html" class="brand-link">
+            <a style="background-color: #001968 !important; border-right: 1px solid #FCC737; border-bottom: 1px solid #FCC737;" href="dashboard.php" class="brand-link">
                 <img src="images/gsu-logo.jpg" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light" style="color: whitesmoke !important;">GSU | e-Request</span>
@@ -199,7 +199,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-person-add"></i>
                                 </div>
-                                <a href="manage_cashier.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="manage_registrar.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
 
@@ -215,7 +215,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-clock"></i>
                                 </div>
-                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="to_prepare_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
 
@@ -231,7 +231,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                                 <div class="icon">
                                     <i style="color: white !important;" class="ion ion-checkmark"></i>
                                 </div>
-                                <a href="manage_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="to_claim_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
 

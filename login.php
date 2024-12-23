@@ -58,7 +58,7 @@ if (isset($_POST['login'])) {
     <!-- /.login-logo -->
     <div class="card card-outline card-primary">
       <div class="card-header text-center">
-        <a href=""><img style="width: 80px; height: 80px;" src="assets/images/gsu-logo.jpg" alt=""></a><br>
+        <a href="index.php"><img style="width: 80px; height: 80px;" src="assets/images/gsu-logo.jpg" alt=""></a><br>
         <a class="h1"><b>GSU</b>| e-Request</a>
       </div>
       <div class="card-body">
