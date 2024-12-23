@@ -117,7 +117,7 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="manage_cashier.php" class="nav-link">
+                            <a href="manage_registrar.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Manage Registrar
@@ -139,6 +139,16 @@ $total_claimable_request = $results_total_claimable_request['total_claimable_req
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     To Claim Request
+                                </p>
+                            </a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-flag"></i>
+                                <p>
+                                    Reports
                                 </p>
                             </a>
                         </li>

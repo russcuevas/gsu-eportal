@@ -1,10 +1,5 @@
 <?php
 include '../database/connection.php';
-require '../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 session_start();
 
 // Check if the admin is logged in
@@ -22,7 +17,7 @@ if ($_SESSION['role'] !== 'registrar') {
 $request_number = $_GET['request_number'] ?? null;
 if ($request_number === null) {
     $_SESSION['error'] = 'Request number is missing.';
-    header('location:to_prepare_request.php');
+    header('location:requests.php');
     exit();
 }
 
@@ -48,14 +43,15 @@ $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$request) {
     $_SESSION['error'] = 'Request not found.';
-    header('location:to_prepare_request.php');
+    header('location:requests.php');
     exit();
 }
 
-if (isset($_POST['claimable'])) {
+if (isset($_POST['approve'])) {
+    //smtp for update only
     $update_query = "
         UPDATE tbl_document_request
-        SET status = 'claimable'
+        SET status = 'paid'
         WHERE request_number = :request_number
     ";
 
@@ -63,29 +59,14 @@ if (isset($_POST['claimable'])) {
     $stmt_update->bindParam(':request_number', $request_number);
 
     if ($stmt_update->execute()) {
-        $update_reports_query = "
-            UPDATE tbl_document_reports
-            SET status = 'claimable'
-            WHERE request_number = :request_number
-        ";
-
-        $stmt_reports_update = $conn->prepare($update_reports_query);
-        $stmt_reports_update->bindParam(':request_number', $request_number);
-
-        if (!$stmt_reports_update->execute()) {
-            $_SESSION['error'] = 'Failed to update tbl_document_reports status.';
-            header('Location: to_prepare_request.php');
-            exit();
-        }
-
         $query = "
             SELECT 
                 dr.*, 
                 u.year, 
                 u.course, 
                 u.email,
-                u.gender,
-                dr.status
+                u.gender,  -- Fetch gender from tbl_users
+                dr.status  -- Fetch status from tbl_document_request
             FROM 
                 tbl_document_request dr
             LEFT JOIN 
@@ -105,7 +86,7 @@ if (isset($_POST['claimable'])) {
                 dr.number_of_copies, 
                 dr.total_price, 
                 d.type_of_documents, 
-                d.price
+                d.price  -- Fetch price from tbl_documents
             FROM tbl_document_request dr
             LEFT JOIN tbl_documents d ON dr.documents_id = d.id
             WHERE dr.request_number = :request_number
@@ -116,70 +97,77 @@ if (isset($_POST['claimable'])) {
         $stmt_documents->execute();
         $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'guimarasrequestingsystem@gmail.com';
-            $mail->Password = 'idyztzjuzwcrupwp';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+        foreach ($documents as $document) {
+            $insert_query = "
+                INSERT INTO tbl_document_reports (
+                    student_id, fullname, email, year, course, gender, 
+                    request_number, type_of_documents, price, 
+                    number_of_copies, total_price, payment_method, 
+                    payment_proof, gcash_reference_number, status, created_at
+                ) 
+                VALUES (
+                    :student_id, :fullname, :email, :year, :course, :gender, 
+                    :request_number, :type_of_documents, :price, 
+                    :number_of_copies, :total_price, :payment_method, 
+                    :payment_proof, :gcash_reference_number, :status, :created_at
+                )
+            ";
 
-            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Registrar');
-            $mail->addAddress($request['email'], $request['fullname']);
+            $stmt_insert = $conn->prepare($insert_query);
+            $stmt_insert->bindParam(':student_id', $request['student_id']);
+            $stmt_insert->bindParam(':fullname', $request['fullname']);
+            $stmt_insert->bindParam(':email', $request['email']);
+            $stmt_insert->bindParam(':year', $request['year']);
+            $stmt_insert->bindParam(':course', $request['course']);
+            $stmt_insert->bindParam(':gender', $request['gender']);
+            $stmt_insert->bindParam(':request_number', $request['request_number']);
+            $stmt_insert->bindParam(':type_of_documents', $document['type_of_documents']);
+            $stmt_insert->bindParam(':price', $document['price']);
+            $stmt_insert->bindParam(':number_of_copies', $document['number_of_copies']);
+            $stmt_insert->bindParam(':total_price', $document['total_price']);
+            $stmt_insert->bindParam(':payment_method', $request['payment_method']);
+            $stmt_insert->bindParam(':payment_proof', $request['payment_proof']);
+            $stmt_insert->bindParam(':gcash_reference_number', $request['gcash_reference_number']);
+            $stmt_insert->bindParam(':status', $request['status']);
+            $stmt_insert->bindParam(':created_at', $request['created_at']);
 
-            $mail->isHTML(true);
-            $mail->Subject = 'Your Document Request is Now Claimable';
-
-            $mail_body = "<p>Dear {$request['fullname']},</p>
-                          <p>We are pleased to inform you that your document request has been marked as claimable.</p>
-                          <p>Office hours 8:00am - 5:00pm</p>
-                          <p>Here is a summary of your requested documents:</p>
-                          <table border='1' cellpadding='10' cellspacing='0'>
-                              <tr>
-                                  <th>Document Type</th>
-                                  <th>Price</th>
-                                  <th>Number of Copies</th>
-                                  <th>Total Price</th>
-                              </tr>";
-
-            $total_price = 0;
-
-            foreach ($documents as $document) {
-                $document_type = $document['type_of_documents'];
-                $price = $document['price'];
-                $number_of_copies = $document['number_of_copies'];
-                $document_total_price = $document['total_price'];
-
-                $mail_body .= "<tr>
-                                  <td>{$document_type}</td>
-                                  <td>{$price}</td>
-                                  <td>{$number_of_copies}</td>
-                                  <td>{$document_total_price}</td>
-                               </tr>";
-
-                $total_price += $document_total_price;
+            if (!$stmt_insert->execute()) {
+                $_SESSION['error'] = 'An error occurred while inserting document into the report.';
+                break;
             }
-
-            $mail_body .= "</table>
-                           <p><strong>Total Price: {$total_price}</strong></p>
-                           <p>You may now proceed to claim your requested document.</p>
-                           <p>If you have any questions, feel free to contact us.</p>
-                           <p>Best regards,<br>Registrar Staff</p>";
-
-            $mail->Body = $mail_body;
-            $mail->send();
-
-            $_SESSION['success'] = 'Request has been marked as claimable and email has been sent.';
-        } catch (Exception $e) {
-            $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
         }
+
+        $_SESSION['success'] = 'Request has been approved and marked as paid.';
     } else {
-        $_SESSION['error'] = 'An error occurred while updating the request status.';
+        $_SESSION['error'] = 'An error occurred while approving the request.';
     }
 
-    header("Location: to_prepare_request.php");
+    header("Location: manage_request.php");
+    exit();
+}
+
+
+if (isset($_POST['disapprove'])) {
+    $delete_query = "
+        DELETE FROM tbl_document_request 
+        WHERE request_number = :request_number
+    ";
+
+    //smtp
+
+    $stmt_delete = $conn->prepare($delete_query);
+    $stmt_delete->bindParam(':request_number', $request_number);
+
+    if ($stmt_delete->execute()) {
+        if ($request['payment_proof'] && file_exists('../assets/uploads/gcash_proofs/' . $request['payment_proof'])) {
+            unlink('../assets/uploads/gcash_proofs/' . $request['payment_proof']);
+        }
+
+        $_SESSION['success'] = 'Request has been disapproved and deleted successfully.';
+    } else {
+        $_SESSION['error'] = 'An error occurred while disapproving the request.';
+    }
+    header("Location: manage_request.php");
     exit();
 }
 
@@ -201,7 +189,6 @@ $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
 $total_price_sum = 0;
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -240,8 +227,6 @@ $total_price_sum = 0;
     <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <!-- hold -->
-    <link rel="stylesheet" href="dist/css/hold.css">
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
@@ -303,7 +288,7 @@ $total_price_sum = 0;
                         </li>
 
                         <li class="nav-item">
-                            <a href="to_prepare_request.php" class="nav-link active">
+                            <a href="to_prepare_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-clock"></i>
                                 <p>
                                     To Prepare Request
@@ -320,8 +305,9 @@ $total_price_sum = 0;
                             </a>
                         </li>
 
+
                         <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
+                            <a href="reports.php" class="nav-link active">
                                 <i class="nav-icon fas fa-flag"></i>
                                 <p>
                                     Reports
@@ -357,8 +343,8 @@ $total_price_sum = 0;
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item"><a href="manage_request.php">PREPARE REQUEST</a></li>
-                                <li class="breadcrumb-item active">VIEW REQUEST</li>
+                                <li class="breadcrumb-item"><a href="reports.php">REPORTS</a></li>
+                                <li class="breadcrumb-item active">VIEW DOCUMENTS</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -403,11 +389,6 @@ $total_price_sum = 0;
                                     <div class="col-sm-4 invoice-col">
                                         <span style="font-weight: 900;"><?php echo $request['request_number']; ?></span><br>
                                         <span style="text-transform: capitalize; font-weight: 900;"><?php echo $request['status']; ?></span><br>
-                                        <?php if ($request['status'] === 'paid'): ?>
-                                            <span style="color: green; font-weight: 900;">Approved by the cashier</span><br>
-                                        <?php else: ?>
-                                            <span style="color: green; font-weight: 900;">Already claimed</span><br>
-                                        <?php endif; ?>
                                     </div>
                                     <!-- /.col -->
                                 </div>
@@ -471,11 +452,38 @@ $total_price_sum = 0;
                                 <div class="row no-print">
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
-                                            <form action="" method="POST" id="claimable_form">
-                                                <button type="submit" name="claimable" class="btn btn-primary">
-                                                    Claimable <i class="fa fa-check" aria-hidden="true"></i>
-                                                </button>
-                                            </form>
+                                            <?php if ($request['status'] === 'pending'): ?>
+                                                <form action="" method="POST">
+                                                    <button type="submit" name="approve" class="btn btn-primary"></i> Approved <i class="fa fa-check" aria-hidden="true"></i></button>
+                                                    <button type="submit" name="disapprove" class="btn btn-danger" style="margin-right: 10px;">Disapproved <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <!-- <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#receiptModal" data-request-number="<?php echo $request['request_number']; ?>">
+                                                    Print Receipt <i class="fa fa-print" aria-hidden="true"></i>
+                                                </a> -->
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="receiptModalLabel"><?php echo $request['request_number']; ?></h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body" id="receiptContent">
+
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary" id="printButton">Print Receipt</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -540,14 +548,18 @@ $total_price_sum = 0;
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
-    <!-- hold -->
-    <script src="dist/js/hold.js"></script>
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
                 responsive: true
             });
         });
+    </script>
+
+    <script>
+        function setDocumentsId(DocumentId) {
+            document.getElementById('document_id_delete').value = DocumentId;
+        }
     </script>
 
 
@@ -566,20 +578,31 @@ $total_price_sum = 0;
         });
     </script>
 
+    <!-- ajax printing -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const claimableForm = document.getElementById('claimable_form');
-            claimableForm.addEventListener('submit', function(event) {
-
-                HoldOn.open({
-                    theme: "sk-bounce",
-                    message: "Processing your claimable request...",
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                    textColor: "white",
-                    spinnerColor: "#fff"
-                });
-
+        $('#receiptModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var requestNumber = button.data('request-number');
+            $.ajax({
+                url: 'print_receipt.php',
+                method: 'GET',
+                data: {
+                    request_number: requestNumber
+                },
+                success: function(response) {
+                    $('#receiptContent').html(response);
+                }
             });
+        });
+
+        $('#printButton').on('click', function() {
+            var printContent = document.getElementById('receiptContent').innerHTML;
+            var newWindow = window.open('', '', 'height=400,width=600');
+            newWindow.document.write('<html><head><title>Print Receipt</title></head><body>');
+            newWindow.document.write(printContent);
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+            newWindow.print();
         });
     </script>
 

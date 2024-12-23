@@ -14,12 +14,11 @@ if ($_SESSION['role'] !== 'registrar') {
     exit();
 }
 
-$query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
-          FROM tbl_document_request
-          WHERE status = 'claimable'
-          GROUP BY request_number, fullname, status
-          ORDER BY updated_at DESC";
-$result = $conn->query($query);
+// READ REGISTRAR
+$get_registrar = "SELECT * FROM `tbl_admin` WHERE role = 'registrar'";
+$stmt_get_registrar = $conn->query($get_registrar);
+$registrar = $stmt_get_registrar->fetchAll(PDO::FETCH_ASSOC);
+// END READ REGISTRAR
 
 ?>
 
@@ -112,7 +111,7 @@ $result = $conn->query($query);
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="manage_registrar.php" class="nav-link">
+                            <a href="manage_registrar.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Manage Registrar
@@ -130,13 +129,14 @@ $result = $conn->query($query);
                         </li>
 
                         <li class="nav-item">
-                            <a href="to_claim_request.php" class="nav-link active">
+                            <a href="to_claim_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     To Claim Request
                                 </p>
                             </a>
                         </li>
+
 
                         <li class="nav-item">
                             <a href="reports.php" class="nav-link">
@@ -175,7 +175,7 @@ $result = $conn->query($query);
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">CLAIMABLE REQUEST</li>
+                                <li class="breadcrumb-item active">MANAGE REGISTRAR</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -190,46 +190,37 @@ $result = $conn->query($query);
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">CLAIMABLE REQUEST</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">MANAGE REGISTRAR</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
+                                    <button onclick="window.location.href='add_registrar.php';" class="btn btn-primary mb-3">+ ADD REGISTRAR</button>
                                     <table id="myTable" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>R.Number</th>
-                                                <th>Requestor Name</th>
-                                                <th>Status</th>
-                                                <th>Total Price</th>
+                                                <th>Image</th>
+                                                <th>Fullname</th>
+                                                <th>Email</th>
+                                                <th>Created</th>
                                                 <th>Updated</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            if ($result->rowCount() > 0) {
-                                                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                                                    $request_number = $row['request_number'];
-                                                    $fullname = $row['fullname'];
-                                                    $status = $row['status'];
-                                                    $total_price = $row['total_price'];
-                                                    $updated_at = $row['updated_at'];
-                                            ?>
-                                                    <tr>
-                                                        <td><?php echo $request_number; ?></td>
-                                                        <td><?php echo $fullname; ?></td>
-                                                        <td style="text-transform: capitalize;"><?php echo $status; ?></td>
-                                                        <td>₱<?php echo number_format($total_price, 2); ?></td>
-                                                        <td><?php echo $updated_at; ?></td>
-                                                        <td>
-                                                            <a href="view_claimable_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
-                                                        </td>
-                                                    </tr>
-                                            <?php
-                                                }
-                                            } else {
-                                            }
-                                            ?>
+                                            <?php foreach ($registrar as $registrar_account): ?>
+                                                <tr>
+                                                    <td><img style="height: 70px; width: 70px; border-radius: 50px;" src="images/profile/<?php echo $registrar_account['profile_image']; ?>" alt="Profile Picture" /></td>
+                                                    <td><?php echo $registrar_account['fullname'] ?></td>
+                                                    <td><?php echo $registrar_account['email'] ?></td>
+                                                    <td><?php echo $registrar_account['created_at'] ?></td>
+                                                    <td><?php echo $registrar_account['updated_at'] ?></td>
+                                                    <td>
+                                                        <a style="font-size: 13px;" class="btn btn-danger" href="delete_registrar.php?id=<?php echo $registrar_account['id']; ?>" onclick="return confirm('Are you sure you want to delete this?');">
+                                                            DELETE
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -304,7 +295,6 @@ $result = $conn->query($query);
             });
         });
     </script>
-
 
     <!-- success and error message alert -->
     <script>

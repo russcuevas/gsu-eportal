@@ -162,12 +162,12 @@ adminclinic@gmail.com
 LAST TASK:
 NEED SMTP
 Appointment - OKAY
-Update Documents
+Update Documents - OKAY
 
 REGISTRAR
 //smtp also
 reports.php
-UPDATE TBL_DOCUMENT_REPORTS -> CLAIMABLE TO CLAIMED
+UPDATE TBL_DOCUMENT_REPORTS -> CLAIMABLE TO CLAIMED - OKAY
 
 CASHIER
 //smtp also

@@ -1,5 +1,10 @@
 <?php
 include '../database/connection.php';
+require '../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 session_start();
 
 // Check if the admin is logged in
@@ -54,16 +59,77 @@ if (isset($_POST['already_claimed'])) {
         WHERE request_number = :request_number
     ";
 
-    //smtp
-
     $stmt_update = $conn->prepare($update_query);
     $stmt_update->bindParam(':request_number', $request_number);
 
     if ($stmt_update->execute()) {
-        $_SESSION['success'] = 'Request has been claimed.';
+        // Update status in tbl_document_reports where request_number matches
+        $update_reports_query = "
+            UPDATE tbl_document_reports
+            SET status = 'claimed'
+            WHERE request_number = :request_number
+        ";
+
+        $stmt_reports_update = $conn->prepare($update_reports_query);
+        $stmt_reports_update->bindParam(':request_number', $request_number);
+
+        if (!$stmt_reports_update->execute()) {
+            $_SESSION['error'] = 'Failed to update tbl_document_reports status.';
+            header('Location: to_claim_request.php');
+            exit();
+        }
+
+        // Fetch the request details again after the update
+        $query = "
+            SELECT 
+                dr.*, 
+                u.email,
+                u.fullname
+            FROM 
+                tbl_document_request dr
+            LEFT JOIN 
+                tbl_users u ON dr.user_id = u.id 
+            WHERE 
+                dr.request_number = :request_number
+        ";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':request_number', $request_number);
+        $stmt->execute();
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'guimarasrequestingsystem@gmail.com';
+            $mail->Password = 'idyztzjuzwcrupwp';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Registrar');
+            $mail->addAddress($request['email'], $request['fullname']);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Your Document Request Has Been Claimed';
+
+            $mail_body = "<p>Dear {$request['fullname']},</p>
+                          <p>Your document request has been successfully claimed.</p>
+                          <p>If you have any further questions, feel free to contact us.</p>
+                          <p>Best regards,<br>Registrar Staff</p>";
+
+            $mail->Body = $mail_body;
+
+            $mail->send();
+
+            $_SESSION['success'] = 'Request has been claimed.';
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
+        }
     } else {
-        $_SESSION['error'] = 'An error occurred while approving the request.';
+        $_SESSION['error'] = 'An error occurred while claiming the request.';
     }
+
     header("Location: to_claim_request.php");
     exit();
 }
@@ -86,6 +152,7 @@ $documents = $stmt_documents->fetchAll(PDO::FETCH_ASSOC);
 
 $total_price_sum = 0;
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -124,6 +191,8 @@ $total_price_sum = 0;
     <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- hold -->
+    <link rel="stylesheet" href="dist/css/hold.css">
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
@@ -176,7 +245,7 @@ $total_price_sum = 0;
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="manage_cashier.php" class="nav-link">
+                            <a href="manage_registrar.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Manage Registrar
@@ -198,6 +267,15 @@ $total_price_sum = 0;
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     To Claim Request
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="reports.php" class="nav-link">
+                                <i class="nav-icon fas fa-flag"></i>
+                                <p>
+                                    Reports
                                 </p>
                             </a>
                         </li>
@@ -339,8 +417,9 @@ $total_price_sum = 0;
                                 <div class="row no-print">
                                     <div class="col-12">
                                         <div style="gap: 3px !important; display: flex; justify-content: flex-end;">
-                                            <form action="" method="POST">
-                                                <button type="submit" name="already_claimed" class="btn btn-primary"></i>Already claimed <i class="fa fa-check" aria-hidden="true"></i></button>
+                                            <form action="" method="POST" id="already_claimed_form">
+                                                <button type="submit" name="already_claimed" class="btn btn-primary">
+                                                    Already claimed <i class="fa fa-check" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -407,6 +486,8 @@ $total_price_sum = 0;
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
+    <!-- hold -->
+    <script src="dist/js/hold.js"></script>
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
@@ -428,6 +509,23 @@ $total_price_sum = 0;
                 toastr.error('<?php echo $_SESSION['error']; ?>');
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const claimableForm = document.getElementById('already_claimed_form');
+            claimableForm.addEventListener('submit', function(event) {
+
+                HoldOn.open({
+                    theme: "sk-bounce",
+                    message: "Updating to claimed request",
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                    textColor: "white",
+                    spinnerColor: "#fff"
+                });
+
+            });
         });
     </script>
 

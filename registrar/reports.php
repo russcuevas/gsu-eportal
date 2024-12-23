@@ -15,12 +15,11 @@ if ($_SESSION['role'] !== 'registrar') {
 }
 
 $query = "SELECT request_number, fullname, status, SUM(total_price) AS total_price, MAX(updated_at) AS updated_at
-          FROM tbl_document_request
-          WHERE status = 'claimable'
+          FROM tbl_document_reports
           GROUP BY request_number, fullname, status
           ORDER BY updated_at DESC";
-$result = $conn->query($query);
 
+$result = $conn->query($query);
 ?>
 
 <!DOCTYPE html>
@@ -130,7 +129,7 @@ $result = $conn->query($query);
                         </li>
 
                         <li class="nav-item">
-                            <a href="to_claim_request.php" class="nav-link active">
+                            <a href="to_claim_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-check"></i>
                                 <p>
                                     To Claim Request
@@ -138,8 +137,9 @@ $result = $conn->query($query);
                             </a>
                         </li>
 
+
                         <li class="nav-item">
-                            <a href="reports.php" class="nav-link">
+                            <a href="reports.php" class="nav-link active">
                                 <i class="nav-icon fas fa-flag"></i>
                                 <p>
                                     Reports
@@ -175,7 +175,7 @@ $result = $conn->query($query);
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="dashboard.php">DASHBOARD</a></li>
-                                <li class="breadcrumb-item active">CLAIMABLE REQUEST</li>
+                                <li class="breadcrumb-item active">REPORTS</li>
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->
@@ -190,7 +190,7 @@ $result = $conn->query($query);
                         <div class="col-12">
                             <div class="card">
                                 <div style="background-color: #001968 !important; color: whitesmoke !important" class="card-header">
-                                    <h3 class="card-title" style="font-size: 25px;">CLAIMABLE REQUEST</h3>
+                                    <h3 class="card-title" style="font-size: 25px;">REPORTS</h3>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
@@ -214,6 +214,10 @@ $result = $conn->query($query);
                                                     $status = $row['status'];
                                                     $total_price = $row['total_price'];
                                                     $updated_at = $row['updated_at'];
+
+                                                    if (strtolower($status) === 'claimable' || strtolower($status) === 'paid') {
+                                                        continue;
+                                                    }
                                             ?>
                                                     <tr>
                                                         <td><?php echo $request_number; ?></td>
@@ -222,14 +226,16 @@ $result = $conn->query($query);
                                                         <td>₱<?php echo number_format($total_price, 2); ?></td>
                                                         <td><?php echo $updated_at; ?></td>
                                                         <td>
-                                                            <a href="view_claimable_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
+                                                            <a href="claimed_request.php?request_number=<?php echo $request_number; ?>" class="btn btn-info">View Information</a>
                                                         </td>
                                                     </tr>
                                             <?php
                                                 }
                                             } else {
+                                                // Optionally handle the case where no rows are found
                                             }
                                             ?>
+
                                         </tbody>
                                     </table>
                                 </div>
