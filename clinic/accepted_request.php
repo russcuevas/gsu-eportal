@@ -1,6 +1,9 @@
 <?php
 include '../database/connection.php';
+require '../vendor/autoload.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 // session
 session_start();
 $admin_id = $_SESSION['admin_id'];
@@ -38,19 +41,18 @@ $query = "
     ORDER BY r.requested_at DESC
 ";
 
-
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-// edit request
+// Edit request
 if (isset($_POST['update_button'])) {
     $request_id = $_POST['request_id'];
     $laboratory_request = $_POST['laboratory_request'];
     $status = $_POST['status'];
     $med_cert_picture = '';
 
+    // Handle file upload for medical certificate
     if (isset($_FILES['med_cert_picture']) && $_FILES['med_cert_picture']['error'] == 0) {
         $upload_dir = '../assets/uploads/medical_certificate/';
         $file_name = $_FILES['med_cert_picture']['name'];
@@ -76,15 +78,16 @@ if (isset($_POST['update_button'])) {
         }
     }
 
+    // Update status to "Completed"
     if ($status == 'Completed') {
         $update_query = "
-            UPDATE tbl_clinic_request 
-            SET 
-                laboratory_request = :laboratory_request, 
-                status = :status,
-                med_cert_picture = :med_cert_picture
-            WHERE id = :request_id
-        ";
+        UPDATE tbl_clinic_request 
+        SET 
+            laboratory_request = :laboratory_request, 
+            status = :status,
+            med_cert_picture = :med_cert_picture
+        WHERE id = :request_id
+    ";
 
         $stmt = $conn->prepare($update_query);
         $stmt->bindParam(':laboratory_request', $laboratory_request);
@@ -92,17 +95,91 @@ if (isset($_POST['update_button'])) {
         $stmt->bindParam(':med_cert_picture', $med_cert_picture);
         $stmt->bindParam(':request_id', $request_id);
 
-        //smtp
-
-
         if ($stmt->execute()) {
             $_SESSION['success'] = 'Appointment completed successfully.';
+
+            // Fetch user email and fullname
+            $user_query = "SELECT email, fullname FROM tbl_users WHERE id = (SELECT user_id FROM tbl_clinic_request WHERE id = :request_id)";
+            $user_stmt = $conn->prepare($user_query);
+            $user_stmt->bindParam(':request_id', $request_id);
+            $user_stmt->execute();
+            $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+            $user_email = $user['email'];
+            $user_fullname = $user['fullname'];
+
+            // Send confirmation email
+            $mail = new PHPMailer(true);
+
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'guimarasrequestingsystem@gmail.com';
+                $mail->Password = 'idyztzjuzwcrupwp';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+                $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Clinic');
+                $mail->addAddress($user_email, $user_fullname);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Your Clinic Appointment Has Been Completed';
+                $mail->Body    = "<p>Dear $user_fullname,</p>
+                              <p>Your clinic appointment has been successfully completed.</p>
+                              <p>If you have any questions, feel free to contact us.</p>
+                              <p>Best regards,<br>Clinic Staff</p>";
+
+                $mail->send();
+            } catch (Exception $e) {
+                $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
+                header("Location: accepted_request.php");
+                exit();
+            }
+
+            header("Location: accepted_request.php");
+            exit();
         } else {
             $_SESSION['error'] = 'Failed to update the appointment to Completed.';
         }
-    } elseif (
-        $status == 'Cancel'
-    ) {
+    } elseif ($status == 'Cancel') {
+        $user_query = "SELECT email, fullname FROM tbl_users WHERE id = (SELECT user_id FROM tbl_clinic_request WHERE id = :request_id)";
+        $user_stmt = $conn->prepare($user_query);
+        $user_stmt->bindParam(
+            ':request_id',
+            $request_id
+        );
+        $user_stmt->execute();
+        $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+        $user_email = $user['email'];
+        $user_fullname = $user['fullname'];
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'guimarasrequestingsystem@gmail.com';
+            $mail->Password = 'idyztzjuzwcrupwp';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->setFrom('gsu-erequest@gmail.com', 'Guimaras State University Clinic');
+            $mail->addAddress($user_email, $user_fullname);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Your Clinic Appointment Has Been Cancelled';
+            $mail->Body    = "<p>Dear $user_fullname,</p>
+                          <p>Your clinic appointment has been cancelled as requested.</p>
+                          <p>If you have any further questions, feel free to contact us.</p>
+                          <p>Best regards,<br>Clinic Staff</p>";
+
+            $mail->send();
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo;
+            header("Location: accepted_request.php");
+            exit();
+        }
+
         $delete_query = "
             DELETE FROM tbl_clinic_request 
             WHERE id = :request_id
@@ -116,12 +193,13 @@ if (isset($_POST['update_button'])) {
         } else {
             $_SESSION['error'] = 'Failed to cancel and delete the appointment.';
         }
-    }
 
-    header("Location: accepted_request.php");
-    exit();
+        header("Location: accepted_request.php");
+        exit();
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -160,6 +238,8 @@ if (isset($_POST['update_button'])) {
     <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- hold -->
+    <link rel="stylesheet" href="dist/css/hold.css">
     <style>
         .nav-link.active {
             background-color: #FCC737 !important;
@@ -332,7 +412,7 @@ if (isset($_POST['update_button'])) {
                                                                     </button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <form action="" method="POST" enctype="multipart/form-data">
+                                                                    <form id="clinic-request-form" action="" method="POST" enctype="multipart/form-data">
                                                                         <input type="hidden" id="request_id" name="request_id" value="<?php echo $request['request_id']; ?>">
                                                                         <input type="hidden" class="form-control" id="request_number" name="request_number" value="<?php echo $request['request_number']; ?>" readonly>
                                                                         <strong>Fullname:</strong> <?php echo $request['fullname']; ?><br>
@@ -452,7 +532,8 @@ if (isset($_POST['update_button'])) {
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
-
+    <!-- hold -->
+    <script src="dist/js/hold.js"></script>
     <script>
         $(document).ready(function() {
             $('#myTable').DataTable({
@@ -473,6 +554,39 @@ if (isset($_POST['update_button'])) {
                 toastr.error('<?php echo $_SESSION['error']; ?>');
                 <?php unset($_SESSION['error']); ?>
             <?php endif; ?>
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const appointmentForm = document.getElementById('clinic-request-form');
+            appointmentForm.addEventListener('submit', function(event) {
+                const requiredFields = document.querySelectorAll('[required]');
+                let formValid = true;
+
+                requiredFields.forEach(function(field) {
+                    if (field.value.trim() === '') {
+                        formValid = false;
+                        field.style.borderColor = 'red';
+                    } else {
+                        field.style.borderColor = '';
+                    }
+                });
+
+                if (formValid) {
+                    // Open HoldOn spinner before submitting the form
+                    HoldOn.open({
+                        theme: "sk-bounce",
+                        message: "Submitting your appointment...",
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                        textColor: "white",
+                        spinnerColor: "#fff"
+                    });
+                } else {
+                    // Prevent form submission if validation fails
+                    event.preventDefault();
+                }
+            });
         });
     </script>
 

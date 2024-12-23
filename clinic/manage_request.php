@@ -105,7 +105,6 @@ if (isset($_POST['set_appointment'])) {
         } catch (Exception $e) {
             echo "Mailer Error: " . $mail->ErrorInfo;
         }
-
     } else {
         $_SESSION['error'] = 'Failed to set the appointment.';
     }
@@ -114,7 +113,7 @@ if (isset($_POST['set_appointment'])) {
     exit();
 } elseif (isset($_POST['delete_appointment'])) {
     $request_id = $_POST['request_id'];
-    
+
     $user_query = "SELECT email, fullname FROM tbl_users WHERE id = (SELECT user_id FROM tbl_clinic_request WHERE id = :request_id)";
     $user_stmt = $conn->prepare($user_query);
     $user_stmt->bindParam(':request_id', $request_id);
@@ -159,7 +158,6 @@ if (isset($_POST['set_appointment'])) {
         } catch (Exception $e) {
             echo "Mailer Error: " . $mail->ErrorInfo;
         }
-
     } else {
         $_SESSION['error'] = 'Failed to delete the appointment.';
     }
@@ -204,6 +202,8 @@ if (isset($_POST['set_appointment'])) {
     <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
     <!-- summernote -->
     <link rel="stylesheet" href="plugins/summernote/summernote-bs4.css">
+    <!-- hold -->
+    <link rel="stylesheet" href="dist/css/hold.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
@@ -378,7 +378,7 @@ if (isset($_POST['set_appointment'])) {
                                                                     </button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <form action="" method="POST" enctype="">
+                                                                    <form id="appointment_form" action="" method="POST">
                                                                         <input type="hidden" id="request_id" name="request_id" value="<?php echo $request['request_id']; ?>">
 
                                                                         <div class="form-group">
@@ -484,23 +484,82 @@ if (isset($_POST['set_appointment'])) {
     <script src="dist/js/pages/dashboard.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
+    <!-- hold -->
+    <script src="dist/js/hold.js"></script>
 
+    <!-- set appointment -->
     <script>
-        function confirmCancel() {
-            if (confirm("Are you sure you want to cancel this appointment?")) {
-                var form = document.querySelector("form");
-                var deleteButton = document.querySelector("button[name='delete_appointment']");
+        document.addEventListener('DOMContentLoaded', function() {
+            const appointmentForm = document.getElementById('appointment_form');
+            appointmentForm.addEventListener('submit', function(event) {
+                const requiredFields = document.querySelectorAll('[required]');
+                let formValid = true;
 
-                var input = document.createElement("input");
-                input.type = "hidden";
-                input.name = "delete_appointment";
-                input.value = "1";
-                form.appendChild(input);
+                requiredFields.forEach(function(field) {
+                    if (field.value.trim() === '') {
+                        formValid = false;
+                        field.style.borderColor = 'red';
+                    } else {
+                        field.style.borderColor = '';
+                    }
+                });
 
-                form.submit();
-            }
-        }
+                if (formValid) {
+                    HoldOn.open({
+                        theme: "sk-bounce",
+                        message: "Submitting your appointment...",
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                        textColor: "white",
+                        spinnerColor: "#fff"
+                    });
+                } else {
+                    event.preventDefault();
+                }
+            });
+        });
     </script>
+
+    <!-- cancellation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.confirmCancel = function() {
+                if (confirm('Are you sure you want to cancel this appointment?')) {
+                    HoldOn.open({
+                        theme: "sk-bounce",
+                        message: "Processing your cancellation...",
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                        textColor: "white",
+                        spinnerColor: "#fff"
+                    });
+
+                    const form = document.getElementById('appointment_form');
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'delete_appointment';
+                    input.value = '1';
+                    form.appendChild(input);
+
+                    form.submit();
+                }
+            };
+
+            if (<?php echo isset($_SESSION['success']) || isset($_SESSION['error']) ? 'true' : 'false'; ?>) {
+                HoldOn.close();
+
+                <?php if (isset($_SESSION['success'])): ?>
+                    toastr.success("<?php echo $_SESSION['success']; ?>");
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    toastr.error("<?php echo $_SESSION['error']; ?>");
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+            }
+        });
+    </script>
+
+
 
     <script>
         $(document).ready(function() {
@@ -531,7 +590,6 @@ if (isset($_POST['set_appointment'])) {
             <?php endif; ?>
         });
     </script>
-
 
 
 </body>
